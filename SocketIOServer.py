@@ -15,7 +15,8 @@ def connect(sid, environ):
 @sio.event
 def disconnect(sid):
     print('disconnect', sid)
-    sio.emit('user_disconnect', (str(sid) + " has left!"))
+    playerLeft = next((player for player in playerList if player.client_number == sid), None)
+    sio.emit('user_disconnect', (str(playerLeft.name) + " has left!"))
 
 @sio.on('my_name')
 def on_message(sid, name):

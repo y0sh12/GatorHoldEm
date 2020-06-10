@@ -19,6 +19,10 @@ def disconnect():
 def on_message(data):
     print(data)
 
+@sio.on('user_disconnect')
+def on_message(data):
+    print(data)
+
 def main():
     name = input("What is your name?")
     sio.connect('http://localhost:5000')
