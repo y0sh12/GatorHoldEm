@@ -2,6 +2,11 @@ import socketio
 import eventlet
 from player import Player
 
+# installing the libraries above
+# pip install "python-socketio[client]"
+# pip install python-socketio
+# pip install eventlet
+
 playerList = []
 # create a Socket.IO server
 sio = socketio.Server()
