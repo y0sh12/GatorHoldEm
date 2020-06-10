@@ -2,6 +2,7 @@ import socketio
 
 # standard Python
 sio = socketio.Client()
+# Test comment by Azhar
 
 @sio.event
 def connect():
