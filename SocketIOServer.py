@@ -7,6 +7,11 @@ from player import Player
 # pip install python-socketio
 # pip install eventlet
 
+# ssh root@172.105.150.126
+# Qwerty123
+# project in root/GatorHoldEm
+# Git initialized so pull when changes occur
+
 playerList = []
 # create a Socket.IO server
 sio = socketio.Server()
