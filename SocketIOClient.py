@@ -9,7 +9,7 @@ def connect():
     print("I'm connected!")
 
 @sio.event
-def connect_error():
+def connect_error(data):
     print("The connection failed!")
 
 @sio.event
@@ -26,7 +26,7 @@ def on_message(data):
 
 def main():
     name = input("What is your name?")
-    sio.connect('http://localhost:5000')
+    sio.connect('http://172.105.150.126:5000')
     print('my sid is', sio.sid)
     sio.emit('my_name', name)
 
