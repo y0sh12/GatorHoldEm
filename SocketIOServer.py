@@ -32,4 +32,4 @@ if __name__ == '__main__':
     eventlet.wsgi.server(eventlet.listen(('', 5000)), app)
 
 
-# sio.emit('my event', {'data': 'foobar'}, room=user_sid)
+# sio.emit('my event', {'data': 'foobar'}, room=sid)
