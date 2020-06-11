@@ -9,7 +9,9 @@ name = ""
 
 @sio.event
 def connect():
-    print("I'm connected!")
+    print("Welcome", name + "!")
+    print("You have successfully connected to the Gator Hold \'em server!")
+    print("Good Luck!")
     sio.emit('my_name', name)
 
 
@@ -23,7 +25,7 @@ def connect_error(data):
 
 @sio.event
 def disconnect():
-    print("I'm disconnected!")
+    print("You have left the game. Come back soon!")
 
 
 @sio.on('user_connection')
@@ -38,10 +40,13 @@ def on_message(data):
 
 def main():
     global name
-    name = input("What is your name?")
-    # sio.connect('http://localhost:5000')
-    sio.connect('http://172.105.150.126:5000')
-    print('my sid is', sio.sid)
+    name = input("What is your name?\n")
+    sio.connect('http://localhost:5000')
+    # sio.connect('http://172.105.150.126:5000')
+    print('Your sid is', sio.sid)
+    print("You are now in the lobby")
+    room = input("What room would you like to join?\n")
+    sio.emit('goto_room', room)
 
 
 if __name__ == '__main__':
