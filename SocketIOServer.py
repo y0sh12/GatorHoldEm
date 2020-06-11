@@ -13,19 +13,25 @@ from player import Player
 # Git initialized so pull when changes occur
 
 playerList = []
-# create a Socket.IO server
 sio = socketio.Server()
 app = socketio.WSGIApp(sio)
 
+allowConnections = True
+
 @sio.event
 def connect(sid, environ):
-    print('connect ', sid)
-
+    if len(playerList) >= 8:
+        return False
+    elif allowConnections:
+        print('connect ', sid)
+    else:
+        return False
 
 @sio.event
 def disconnect(sid):
     print('disconnect', sid)
     playerLeft = next((player for player in playerList if player.client_number == sid), None)
+    playerList.remove(playerLeft)
     sio.emit('user_disconnect', (str(playerLeft.name) + " has left!"))
 
 @sio.on('my_name')
