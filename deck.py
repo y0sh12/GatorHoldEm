@@ -7,12 +7,12 @@ class Deck:
     def __init__(self, decks=1):
         self._decks = decks
         self._cards = []
-        for d in range(decks):
-            for r in range(1, 14):
-                for s in ("Heart", "Diamond", "Club", "Spade"):
-                    self._cards.append(Card(s, r))
-        self.shuffle()
+        for r in range(2, 15):
+            for s in ("Heart", "Diamond", "Club", "Spade"):
+                self._cards.append(Card(s, r))
+        self.shuffle(self._cards)
 
+    # prints all the cards currently in the deck.
     def __str__(self):
         cds = ""
         for a in self._cards:

@@ -12,6 +12,10 @@ class Player:
     @property
     def balance(self):
         return self._balance
+    
+    @property
+    def hand(self):
+        return self._hand
 
     def increase_balance(self, gains):
         self._balance = self._balance + int(gains)
