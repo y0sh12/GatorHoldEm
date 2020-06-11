@@ -4,17 +4,19 @@ from player import Player
 # who will initialize minimum bet? and starting amount?
 # changing minimum bet?
 
+
 class Table:
 
     def __init__(self):
-        self._players = []
         self._deck = Deck()
         self._visible_cards = []
         self._minimumBet = 50
         self._pot = 0
 
-    def add_player(self, player):
-        self._players.append(player)
+    def new_round(self):
+        self._deck.reset()
+        self._pot = 0
+        self._minimumBet = 50
 
     # cards on the table 
     @property
@@ -29,9 +31,390 @@ class Table:
     def pot(self):
         return self._pot
 
-
+    def add_to_pot(self, amount):
+        self._pot += amount
 
     # TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
+    # Deals 2 cards to each player's hand
+# TODO Test Card distribution
     # Deals 2 cards to each player's hand
     def distribute_cards(self):
         for _ in range(2):

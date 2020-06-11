@@ -20,7 +20,7 @@ class Player:
     def increase_balance(self, gains):
         self._balance = self._balance + int(gains)
 
-    # Recieves a single card that gets added to hand
+    # Receives a single card that gets added to hand
     def deal(self, card):
         self._hand.append(card)
 
