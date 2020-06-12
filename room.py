@@ -4,6 +4,7 @@ from player import Player
 
 class Room:
     def __init__(self, room_id):
+        self.allow_connect = True
         self.room_id = room_id
         self._players = []
         self._table = Table()

@@ -1,23 +1,13 @@
+import sys
 import socketio
 import eventlet
 from room import Room
 from player import Player
 
-# installing the libraries above
-# pip install "python-socketio[client]"
-# pip install python-socketio
-# pip install eventlet
-
-# ssh root@172.105.150.126
-# Qwerty123
-# project in root/GatorHoldEm
-# Git initialized so pull when changes occur
-
 roomList = []
 sio = socketio.Server()
 app = socketio.WSGIApp(sio)
 
-allowConnections = True
 
 @sio.event
 def connect(sid, environ):
@@ -71,8 +61,9 @@ def find_room(sid):
             return room
     return None
 
+
 if __name__ == '__main__':
-    eventlet.wsgi.server(eventlet.listen(('', 5000)), app)
-
-
-# sio.emit('my event', {'data': 'foobar'}, room=sid)
+    try:
+        eventlet.wsgi.server(eventlet.listen(('', 5000)), app)
+    except KeyboardInterrupt as e:
+        sys.exit(0)

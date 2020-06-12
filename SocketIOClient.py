@@ -1,11 +1,8 @@
+import sys
 import socketio
 
-# standard Python
 sio = socketio.Client()
-# Test comment by Azhar
-
 name = ""
-
 
 @sio.event
 def connect():
@@ -55,4 +52,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt as e:
+        sys.exit(0)
