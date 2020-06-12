@@ -12,7 +12,6 @@ def connect():
     print("Welcome", name + "!")
     print("You have successfully connected to the Gator Hold \'em server!")
     print("Good Luck!")
-    sio.emit('my_name', name)
 
 
 @sio.event
@@ -29,13 +28,19 @@ def disconnect():
 
 
 @sio.on('user_connection')
-def on_message(data):
-    print(data)
+def on_event(message):
+    print(message)
 
 
 @sio.on('user_disconnect')
-def on_message(data):
-    print(data)
+def on_event(message):
+    print(message)
+
+
+@sio.on('joined_room')
+def on_event(message, room):
+    sio.emit('my_name', (name, room))
+    print(message)
 
 
 def main():
