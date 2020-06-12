@@ -30,5 +30,13 @@ class Player:
     def deal(self, card):
         self._hand.append(card)
 
+    def get_client_number(self):
+        return self._client_number
+
+
+    def get_name(self):
+        return self._name
+
+
     def __str__(self):
         return json.dumps(self.__dict__)
