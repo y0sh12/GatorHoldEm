@@ -13,12 +13,18 @@ class Player:
     def balance(self):
         return self._balance
     
+    @property 
+    def name(self):
+        return self._name
+    
     @property
     def hand(self):
         return self._hand
 
-    def increase_balance(self, gains):
+    def change_balance(self, gains):
         self._balance = self._balance + int(gains)
+
+
 
     # Receives a single card that gets added to hand
     def deal(self, card):
