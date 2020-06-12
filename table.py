@@ -7,29 +7,28 @@ from player import Player
 
 class Table:
 
-    def __init__(self, numOfPlayers):
+    def __init__(self, player_list):
+        self._players = player_list
         self._deck = Deck()
         self._visible_cards = []
         self._minimumBet = 50
         self._pot = 0
-        self._small_blind = 1 
+        self._small_blind_gen_obj = self._small_blind_gen()
+        self._small_blind = None # next(self._small_blind_gen_obj)
         self._big_blind = 0
-        self._numPlayers = numOfPlayers
 
     def new_round(self):
         self._deck.reset()
         self._pot = 0
         self._minimumBet = 50
-        if (self._big_blind + 1) > (self._numPlayers - 1):
-            self._big_blind = 0
-        else:
-            self._big_blind += 1
+        self._dealer = next(self._small_blind_gen_obj)
+        self._small_blind = next(self._small_blind_gen_obj)
+        self._big_blind = next(self._small_blind_gen_obj)
         
-        if (self._small_blind + 1) > (self._numPlayers - 1):
-            self._small_blind = 0
-        else:
-            self._small_blind += 1
+        while True:
+            _ = next(self._small_blind_gen_obj)
     
+
     # cards on the table 
     @property
     def visible_cards(self):
@@ -54,10 +53,17 @@ class Table:
     def big_blind(self):
         return self._big_blind
 
-    # TODO Test Card distribution
     # Deals 2 cards to each player's hand
 
-    def distribute_cards(self, players):
+    def distribute_cards(self):
         for _ in range(2):
-            for p in players:
+            for p in self._players:
                 p.deal(self._deck.pick_card())
+    
+    def _small_blind_gen(self):
+        while True:
+            for p in self._players:
+                yield p
+
+# Old big blind will become small blind, i.e., game goes clockwise
+# 
