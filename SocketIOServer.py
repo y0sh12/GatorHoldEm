@@ -33,7 +33,7 @@ def disconnect(sid):
         room.remove_player(player)
         sio.emit('user_disconnect', (player.get_name() + " has left the room!"), room=room.room_id, skip_sid=sid)
     player_list = room.get_player_list()
-    if len(player_list == 0):
+    if len(player_list) == 0:
         roomList.remove(room)
     print('disconnect', sid)
 
