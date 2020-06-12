@@ -3,7 +3,7 @@ from player import Player
 
 
 class Room:
-    def __innit__(self):
+    def __init__(self):
         self._players = []
         self._table = Table()
     
