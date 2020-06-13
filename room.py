@@ -7,7 +7,7 @@ class Room:
         self.allow_connect = True
         self.room_id = room_id
         self._players = []
-        self._table = Table()
+        self._table = Table(self._players)
     
     def add_player(self, player):
         self._players.append(player)
@@ -24,5 +24,5 @@ class Room:
             if player.get_client_number() == sid:
                 return True
         return False
-#This import the table.py and should have the list of players
+# This import the table.py and should have the list of players
 # Adding of player should be implemented here, initialize Player()
