@@ -18,7 +18,6 @@ class Room:
     def get_player_list(self):
         return self._players
 
-
     def player_present_sid(self, sid):
         for player in self._players:
             if player.get_client_number() == sid:
