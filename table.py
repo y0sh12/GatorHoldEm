@@ -20,11 +20,19 @@ class Table:
         self._big_blind = None
 
     def new_round(self):
+
+        # Resetting phase
+        for player in self._players:
+            player.reset_investment()
+            player.reset_fold()
         self._deck.reset()
+        self._visible_cards.clear()
         self._pot = 0
         self._minimumBet = 50 + 25 * Table.theRound
         Table.theRound += 1
 
+
+        #New round initialization phase    
         # Dealer and blinds pointers that change only at the end of the round
         self._dealer = next(self._small_blind_gen_obj)
         self._small_blind = next(self._small_blind_gen_obj)
@@ -51,8 +59,7 @@ class Table:
                 break
         self._current_player = next(self._current_player_gen_obj)
 
-        for player in self._players:
-            player.reset_investment()
+
     
     @property
     def current_player(self):
@@ -62,6 +69,9 @@ class Table:
     @property
     def visible_cards(self):
         return self._visible_cards
+
+    def add_to_visible_cards(self, _card):
+        self._visible_cards.append(_card)
 
     @property
     def minimum_bet(self):
@@ -109,7 +119,8 @@ class Table:
                     yield p
     
     def next_player(self):
-        self._current_player = next(self._current_player_gen_obj)   
+        self._current_player = next(self._current_player_gen_obj)
+   
 
 # Old big blind will become small blind, i.e., game goes clockwise
 # 

@@ -20,7 +20,7 @@ class Player:
         self._investment = 0
     
     def add_investment(self, amnt):
-        self._investment += amnt
+        self._investment = self._investment + amnt
 
     @property
     def balance(self):
@@ -39,6 +39,9 @@ class Player:
 
     def fold(self):
         self._isFolded = True
+
+    def reset_fold(self):
+        self._isFolded = False
 
     @property
     def isFolded(self):
