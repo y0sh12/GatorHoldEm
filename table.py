@@ -65,5 +65,6 @@ class Table:
             for p in self._players:
                 yield p
 
+
 # Old big blind will become small blind, i.e., game goes clockwise
 # 
