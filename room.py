@@ -4,6 +4,7 @@ from player import Player
 
 class Room:
     def __init__(self, room_id):
+        self.allow_connect = True
         self.room_id = room_id
         self._players = []
         self._table = Table(self._players)
@@ -16,7 +17,6 @@ class Room:
 
     def get_player_list(self):
         return self._players
-
 
     def player_present_sid(self, sid):
         for player in self._players:

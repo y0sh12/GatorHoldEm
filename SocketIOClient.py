@@ -1,11 +1,8 @@
+import sys
 import socketio
 
-# standard Python
 sio = socketio.Client()
-# Test comment by Azhar
-
 name = ""
-
 
 @sio.event
 def connect():
@@ -46,8 +43,8 @@ def on_event(message, room):
 def main():
     global name
     name = input("What is your name?\n")
-    sio.connect('http://localhost:5000')
-    # sio.connect('http://172.105.150.126:5000')
+    # sio.connect('http://localhost:5000')
+    sio.connect('http://172.105.150.126:5000')
     print('Your sid is', sio.sid)
     print("You are now in the lobby")
     room = input("What room would you like to join?\n")
@@ -55,4 +52,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt as e:
+        sys.exit(0)
