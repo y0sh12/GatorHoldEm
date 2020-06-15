@@ -120,6 +120,10 @@ class Table:
     
     def next_player(self):
         self._current_player = next(self._current_player_gen_obj)
+
+
+    # def __dict__():
+
    
 
 
