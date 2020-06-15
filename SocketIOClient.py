@@ -40,6 +40,12 @@ def on_event(message, room):
     print(message)
 
 
+@sio.on('your_turn')
+def on_event(message, room):
+    sio.emit('my_name', (name, room))
+    print(message)
+
+
 def main():
     global name
     name = input("What is your name?\n")

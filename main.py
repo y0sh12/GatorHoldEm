@@ -13,25 +13,6 @@ def print_balance(room1):
         
 
 def main():
-    # room = Room()
-    # test = Table(len(playerList))
-    
-    # playerList = []
-    # playerList.append(Player(12, "Adriel"))
-    # playerList.append(Player(13, "Bharat"))
-    # playerList.append(Player(14, "Yosh"))
-    # playerList.append(Player(15, "Azhar"))
-    # test = Table(playerList)
-    # test.distribute_cards(playerList)
-    # for player in playerList:
-    #     print("Name: ", player.name, " ")
-    #     print("Hand: ", end="")
-    #     for h in player.hand:
-    #         print(h, end=" ")
-    #     print("Balance: ", player.balance)
-
-    # print(test._deck.num_cards)
-
     room1 = Room(123)
     room1.add_player(Player(12, "Adriel"))
     room1.add_player(Player(13, "Bharat"))

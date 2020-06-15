@@ -3,6 +3,7 @@ import socketio
 import eventlet
 from room import Room
 from player import Player
+from table import Table
 
 roomList = []
 sio = socketio.Server()
@@ -40,9 +41,17 @@ def goto_room(sid, room_id):
     find_room = next((room for room in roomList if room.room_id == room), None)
     if find_room is None:
         roomList.append(Room(room_id))
-    sio.enter_room(sid, room_id)
-    print(sid, "joined room", room_id)
-    sio.emit('joined_room', ("You have successfully joined the room " + room_id, room_id), room=sid)
+    # temporary code to only have a max of 3 ppl per room
+    if len(find_room.get_player_list()) < 3:
+        sio.enter_room(sid, room_id)
+        print(sid, "joined room", room_id)
+        sio.emit('joined_room', ("You have successfully joined the room " + room_id, room_id), room=sid)
+    else:
+        sio.emit('connect_error', "Unauthorized", room=sid)
+        if find_room.game_in_progress:
+            pass
+        else:
+            start_game(find_room)
 
 
 @sio.event
@@ -60,6 +69,15 @@ def find_room(sid):
         if room.player_present_sid(sid):
             return room
     return None
+
+
+def start_game(room):
+    room.game_in_progress = True
+    active_players = []
+    while True:
+        # initalization of active player list
+        table = room.get_Table()
+
 
 
 if __name__ == '__main__':
