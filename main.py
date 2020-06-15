@@ -103,6 +103,18 @@ def main():
 
 
 
+    # room1._players[1].change_balance(-500)
+    # Round 2
+    # room1._table.new_round()
+    # print("Current Dealer: ", room1._table._dealer)
+    # print("Current sb", room1._table._small_blind)
+    # print("Current big Blind", room1._table._big_blind)
+
+    # Round 3
+    # room1._table.new_round()
+    # print("Current Dealer: ", room1._table._dealer)
+    # print("Current sb", room1._table._small_blind)
+    # print("Current big Blind", room1._table._big_blind)
 # """            
 
 
