@@ -122,5 +122,6 @@ class Table:
         self._current_player = next(self._current_player_gen_obj)
    
 
+
 # Old big blind will become small blind, i.e., game goes clockwise
 # 
