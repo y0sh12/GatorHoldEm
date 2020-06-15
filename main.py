@@ -10,56 +10,18 @@ def print_balance(room1):
         for h in player.hand:
             print(h, end=" ")
             print("Balance: ", player.balance)
-        
 
-def main():
-    room1 = Room(123)
-    room1.add_player(Player(12, "Adriel"))
-    room1.add_player(Player(13, "Bharat"))
-    room1.add_player(Player(14, "Yosh"))
-    room1.add_player(Player(15, "Azhar"))
-    room1._table.distribute_cards()
-
-
-    print(room1._table._deck.num_cards)
-    print(room1._table._players)
-
-    # Round 1
-    room1._table.new_round()
-    print("Current Dealer: ", room1._table._dealer)
-    print("Current sb", room1._table._small_blind)
-    print("Current big Blind", room1._table._big_blind)
-
-    # room1._players[1].change_balance(-500)
-    # Round 2
-    # room1._table.new_round()
-    # print("Current Dealer: ", room1._table._dealer)
-    # print("Current sb", room1._table._small_blind)
-    # print("Current big Blind", room1._table._big_blind)
-
-    # Round 3
-    # room1._table.new_round()
-    # print("Current Dealer: ", room1._table._dealer)
-    # print("Current sb", room1._table._small_blind)
-    # print("Current big Blind", room1._table._big_blind)
-
-
-    # while check > 0
-    # folds = 0
-    # if folded, fold += 1
-    # check = len(players)
-    # if raise, check = len(players) - folds
-    # if check, check -= 1
-
+def game_loop(room1):
     check = len(room1._players)
     fold = 0
     while check > 0:
         player = room1._table.current_player
         print("Current player is: ", player)
         print(player, "Current Balance: ", player.balance, " Current Investment: ", player.investment)
-        if player.isFolded:
-            print("_____________________________________________________________________")
-            continue   
+        for card in player.hand:
+            print(card, end = " ")
+            print() 
+
         print(player.name)
         print("Minimum Bet to Play:", room1._table.minimum_bet)
         is_check = True if player.investment == room1._table.minimum_bet else False
@@ -72,9 +34,7 @@ def main():
             player.add_investment(room1._table.minimum_bet - player.investment)
             if is_check:
                 check -=1
-            # print("Your Balance: ", player.balance)
         if(option == 2):
-            # print("Your Balance: ", player.balance)
             player.fold()
             fold += 1
             check -= 1
@@ -89,16 +49,84 @@ def main():
 
         print(player, " after Balance: ", player.balance, " After Investment: ", player.investment, "\n")
         room1._table.next_player() # ++player
+        
+
+def main():
+    # room = Room()
+    # test = Table(len(playerList))
+    
+    # playerList = []
+    # playerList.append(Player(12, "Adriel"))
+    # playerList.append(Player(13, "Bharat"))
+    # playerList.append(Player(14, "Yosh"))
+    # playerList.append(Player(15, "Azhar"))
+    # test = Table(playerList)
+    # test.distribute_cards(playerList)
+    # for player in playerList:
+    #     print("Name: ", player.name, " ")
+    #     print("Hand: ", end="")
+    #     for h in player.hand:
+    #         print(h, end=" ")
+    #     print("Balance: ", player.balance)
+
+    # print(test._deck.num_cards)
+
+    room1 = Room(123)
+    room1.add_player(Player(12, "Adriel"))
+    room1.add_player(Player(13, "Bharat"))
+    room1.add_player(Player(14, "Yosh"))
+    room1.add_player(Player(15, "Azhar"))
+
+
+
+    print(room1._table._deck.num_cards)
+    print(room1._table._players)
+
+    # Round 1
+    room1._table.new_round()
+    room1._table.distribute_cards()
+    print("Current Dealer: ", room1._table._dealer)
+    print("Current sb", room1._table._small_blind)
+    print("Current big Blind", room1._table._big_blind)
+
+    game_loop(room1) #pre-flop
+
+
+
 
     
-    
+    print("Number of cards before flopping is ", room1._table._deck.num_cards)
     room1._table._deck.pick_card() #the burn card
     room1._table.add_to_visible_cards(room1._table._deck.pick_card()) 
     room1._table.add_to_visible_cards(room1._table._deck.pick_card())   #The FLOP - three cards
-    room1._table.add_to_visible_cards(room1._table._deck.pick_card()) 
-    print(room1._table._visible_cards)
+    room1._table.add_to_visible_cards(room1._table._deck.pick_card())
     
+    print("Cards on the table: ", end=" ")
+    for a in room1._table._visible_cards:
+        print(a, end=" ")
+    print() 
+    
+    # print(room1._table._deck.num_cards)
+    game_loop(room1) #pre-turn
+    
+    print("************************THE TURN*********************")
+    room1._table._deck.pick_card() #the burn card
+    room1._table.add_to_visible_cards(room1._table._deck.pick_card()) # The Turn - one card
+    print("Cards on the table: ", end=" ")
+    for a in room1._table._visible_cards:
+        print(a, end=" ")
+    print() 
 
+    game_loop(room1) #pre-river
+
+    room1._table._deck.pick_card() #the burn card
+    room1._table.add_to_visible_cards(room1._table._deck.pick_card()) # The River - one card
+    print("Cards on the table: ", end=" ")
+    for a in room1._table._visible_cards:
+        print(a, end=" ")
+    print() 
+    
+    game_loop(room1) #after River
 
 
 
