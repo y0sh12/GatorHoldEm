@@ -28,8 +28,7 @@ class Table:
 
         # Resetting phase
         for player in self._players:
-            player.reset_investment()
-            player.reset_fold()
+            player.reset_all()
         self._deck.reset()
         self._visible_cards.clear()
         self._pot = 0
@@ -239,25 +238,39 @@ class Table:
             return False
 
     def play(self, cards):
-        # hand = cards[:5]
-        # rest = cards[5:]
-        # best_hand = 0
-        # for i in range(3):
-        #     possible_combos = combinations(hand, 2 - i)
-        #     for c in possible_combos:
-        #         current_hand = list(c) + rest[:i]
-        #         hand_value = self.check_hand(current_hand)
-        #         if hand_value > best_hand:
-        #             best_hand = hand_value
-        # return Table.hand_dict[best_hand]
         best_hand = 0
         combination = combinations(cards, 5)
         for i in combination:
             hand_value = self.check_hand(list(i))
             if hand_value > best_hand:
                 best_hand = hand_value
-        return Table.hand_dict[best_hand]
+    
+        return best_hand
 
-        
+    def show(self):
+        for player in self._players:
+            if player.isFolded:
+                continue
+            else:
+                print(player.name, "'s cards: ",end = "")
+                for card in player.hand:
+                    print(card, end = ",")
+                print()
+                player.set_best_hand(self.play(player.hand + self._visible_cards))
+                print("Best hand:", player.best_hand)
+        max_combination = max([player.best_hand for p in self._players])
+
+        ties_with_max = [p for p in self._players if p.best_hand == max_combination]
+
+        if len(ties_with_max) == 1: # if one player wins whole pot, no ties
+            player.change_balance(self.pot)
+            print(player.name, "has won the pot:", self.pot)
+        else:
+            # TODO BE MODIFIED TO CHECK FOR TIE BREAKERS
+            split = self.pot / len(ties_with_max)
+            for p in ties_with_max:
+                p.change_balance(split)
+                print(p, "has won a split of the pot:", split)
+
 # Old big blind will become small blind, i.e., game goes clockwise
 # 

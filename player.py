@@ -10,6 +10,7 @@ class Player:
         self._hand = []
         self._isFolded = False
         self._investment = 0
+        self._best_hand = 0
 
     # investment is amount currently in pot
     @property
@@ -26,6 +27,11 @@ class Player:
     def balance(self):
         return self._balance
     
+    @property
+    def best_hand(self):
+        return self._best_hand
+    
+    
     @property 
     def name(self):
         return self._name
@@ -33,7 +39,10 @@ class Player:
     @property
     def hand(self):
         return self._hand
-
+    
+    def set_best_hand(self, value):
+        self._best_hand = value
+    
     def change_balance(self, gains):
         self._balance = self._balance + int(gains)
 
@@ -42,6 +51,11 @@ class Player:
 
     def reset_fold(self):
         self._isFolded = False
+    
+    def reset_all(self):
+        self.reset_investment()
+        self.reset_fold()
+        self.set_best_hand(0)
 
     @property
     def isFolded(self):
