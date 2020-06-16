@@ -1,5 +1,7 @@
 from deck import Deck
 from player import Player
+from collections import defaultdict
+from itertools import combinations
 
 # who will initialize minimum bet? and starting amount?
 # changing minimum bet?
@@ -8,6 +10,9 @@ from player import Player
 class Table:
 
     theRound = 0
+    card_order_dict = {2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9, 10:10,11:11, 12:12, 13:13, 14:14}
+    hand_dict = {10: "royal-flush", 9:"straight-flush", 8:"four-of-a-kind", 7:"full-house", 6:"flush", 5:"straight", 4:"three-of-a-kind", 3:"two-pairs", 2:"one-pair", 1:"highest-card"}
+
 
     def __init__(self, player_list):
         self._players = player_list
@@ -122,10 +127,137 @@ class Table:
         self._current_player = next(self._current_player_gen_obj)
 
 
-    # def __dict__():
+    def check_hand(self, hand):
+        if self.check_royal_flush(hand):
+            return 10
+        elif self.check_straight_flush(hand):
+            return 9
+        elif self.check_four_of_a_kind(hand):
+            return 8
+        elif self.check_full_house(hand):
+            return 7
+        elif self.check_flush(hand):
+            return 6
+        elif self.check_straight(hand):
+            return 5
+        elif self.check_three_of_a_kind(hand):
+            return 4
+        elif self.check_two_pair(hand):
+            return 3
+        elif self.check_one_pair(hand):
+            return 2
+        else:
+            return 1
+
+    def check_royal_flush(self, hand):
+        if self.check_straight_flush(hand):
+            values = [card.rank for card in hand]
+            if set(values) == set([10, 11, 12, 13, 14]):
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    def check_straight_flush(self, hand):
+        if self.check_flush(hand) and self.check_straight(hand):
+            return True
+        else:
+            return False
+
+    def check_four_of_a_kind(self, hand):
+        values = [card.rank for card in hand]
+        value_counts = defaultdict(lambda:0)
+        for v in values:
+            value_counts[v] += 1
+        if sorted(value_counts.values()) == [1, 4]:
+            return True
+        return False
+
+    def check_full_house(self, hand):
+        values = [card.rank for card in hand]
+        value_counts = defaultdict(lambda:0)
+        for v in values:
+            value_counts[v] += 1
+        if sorted(value_counts.values()) == [2, 3]:
+            return True
+        return False
+    
+    def check_flush(self, hand):
+        suits = [card.suit for card in hand]
+        if len(set(suits)) == 1:
+            return True
+        else:
+            return False
+    
+    def check_straight(self, hand):
+        values = [card.rank for card in hand]
+        value_counts = defaultdict(lambda:0)
+        for v in values:
+            value_counts[v] += 1
+        # rank_values = [Table.card_order_dict[i] for i in values]
+        rank_values = [i for i in values]
+        value_range = max(rank_values) - min(rank_values)
+        if len(set(value_counts.values())) == 1 and (value_range == 4):
+            return True
+        else:
+            if(set(values)) == set([14, 2, 3, 4, 5]):
+                return True
+        if(set(values)) == set([11, 12, 13, 14, 2]):
+            return False
+        return False
+
+    def check_three_of_a_kind(self, hand):
+        values = [card.rank for card in hand]
+        value_counts = defaultdict(lambda:0)
+        for v in values:
+            value_counts[v] += 1
+        if set(value_counts.values()) == set([3, 1]):
+            return True
+        else:
+            return False
 
    
+    def check_two_pair(self, hand):
+        values = [card.rank for card in hand]
+        value_counts = defaultdict(lambda:0)
+        for v in values:
+            value_counts[v] += 1
+        if sorted(value_counts.values()) == [1, 2, 2]:
+            return True
+        else:
+            False
+    
+    def check_one_pair(self, hand):
+        values = [card.rank for card in hand]
+        value_counts = defaultdict(lambda:0)
+        for v in values:
+            value_counts[v] += 1
+        if 2 in value_counts.values():
+            return True
+        else:
+            return False
 
+    def play(self, cards):
+        # hand = cards[:5]
+        # rest = cards[5:]
+        # best_hand = 0
+        # for i in range(3):
+        #     possible_combos = combinations(hand, 2 - i)
+        #     for c in possible_combos:
+        #         current_hand = list(c) + rest[:i]
+        #         hand_value = self.check_hand(current_hand)
+        #         if hand_value > best_hand:
+        #             best_hand = hand_value
+        # return Table.hand_dict[best_hand]
+        best_hand = 0
+        combination = combinations(cards, 5)
+        for i in combination:
+            hand_value = self.check_hand(list(i))
+            if hand_value > best_hand:
+                best_hand = hand_value
+        return Table.hand_dict[best_hand]
 
+        
 # Old big blind will become small blind, i.e., game goes clockwise
 # 

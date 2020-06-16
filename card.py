@@ -10,5 +10,13 @@ class Card:
         if rank in self._ranks:
             self._rank = rank
 
+    @property
+    def suit(self):
+        return self._suit
+    
+    @property
+    def rank(self):
+        return self._rank
+   
     def __str__(self):
         return "Suit: " + str(self._suit) + " Rank: " + str(self._rank)

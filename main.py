@@ -2,6 +2,7 @@ from room import Room
 from table import Table
 from deck import Deck
 from player import Player
+from card import Card
 
 def print_balance(room1):
     for player in room1.get_player_list():
@@ -89,6 +90,14 @@ def main():
     print("Current sb", room1._table._small_blind)
     print("Current big Blind", room1._table._big_blind)
 
+    print(room1._table.play([
+    Card("Diamond", 11), 
+    Card("Heart", 9), 
+    Card("Heart", 7),
+    Card("Spade", 11), 
+    Card("Heart", 11),
+    Card("Spade", 12),
+    Card("Club", 6)]))
     game_loop(room1) #pre-flop
 
 
@@ -129,7 +138,18 @@ def main():
     print() 
     
     game_loop(room1) #after River
-
+    for a in room1._table._visible_cards:
+                print(a, end=" ")
+                print() 
+    for player in room1._players:
+        if player.isFolded:
+            continue
+        else:
+            print(player.name, "'s cards: ",end = "")
+            for card in player.hand:
+                print(card, end = ",")
+            print()
+            print("Best hand:", room1._table.play(player.hand + room1._table._visible_cards))
 
 
 
