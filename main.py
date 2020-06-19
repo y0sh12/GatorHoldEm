@@ -84,19 +84,12 @@ def main():
     # Round 1
     while(True):
         room1._table.new_round()  # New Round Starts
+        print("Round:", Table.theRound)
         room1._table.distribute_cards()
         print("Current Dealer: ", room1._table._dealer)
         print("Current sb", room1._table._small_blind)
         print("Current big Blind", room1._table._big_blind)
 
-        print(room1._table.play([
-        Card("Diamond", 11), 
-        Card("Heart", 9), 
-        Card("Heart", 7),
-        Card("Spade", 11), 
-        Card("Heart", 11),
-        Card("Spade", 12),
-        Card("Club", 6)]))
         game_loop(room1) #pre-flop
 
 
@@ -117,7 +110,7 @@ def main():
         
         print("************************THE TURN*********************")
         room1._table._deck.pick_card() #the burn card
-        room1._table.add_to_visible_cards(room1._table._deck.pick_card()) # The Turn - one card
+        room1._table.add_to_visible_cards(room1._table._deck.pick_card()) # The Turn - one card   
         print("Cards on the table: ", end=" ")
         for a in room1._table._visible_cards:
             print(a, end=" ")
