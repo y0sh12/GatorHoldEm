@@ -1,5 +1,7 @@
 from deck import Deck
 from player import Player
+from collections import defaultdict
+from itertools import combinations
 
 # who will initialize minimum bet? and starting amount?
 # changing minimum bet?
@@ -8,6 +10,8 @@ from player import Player
 class Table:
 
     theRound = 0
+    hand_dict = {10: "royal-flush", 9:"straight-flush", 8:"four-of-a-kind", 7:"full-house", 6:"flush", 5:"straight", 4:"three-of-a-kind", 3:"two-pairs", 2:"one-pair", 1:"highest-card"}
+
 
     def __init__(self, player_list):
         self._players = player_list
@@ -23,8 +27,7 @@ class Table:
 
         # Resetting phase
         for player in self._players:
-            player.reset_investment()
-            player.reset_fold()
+            player.reset_all()
         self._deck.reset()
         self._visible_cards.clear()
         self._pot = 0
@@ -120,7 +123,159 @@ class Table:
     
     def next_player(self):
         self._current_player = next(self._current_player_gen_obj)
+
+
+    def check_hand(self, hand):
+        if self.check_royal_flush(hand):
+            return 10
+        elif self.check_straight_flush(hand):
+            return 9
+        elif self.check_four_of_a_kind(hand):
+            return 8
+        elif self.check_full_house(hand):
+            return 7
+        elif self.check_flush(hand):
+            return 6
+        elif self.check_straight(hand):
+            return 5
+        elif self.check_three_of_a_kind(hand):
+            return 4
+        elif self.check_two_pair(hand):
+            return 3
+        elif self.check_one_pair(hand):
+            return 2
+        else:
+            return 1
+
+    def check_royal_flush(self, hand):
+        if self.check_straight_flush(hand):
+            values = [card.rank for card in hand]
+            if set(values) == set([10, 11, 12, 13, 14]):
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    def check_straight_flush(self, hand):
+        if self.check_flush(hand) and self.check_straight(hand):
+            return True
+        else:
+            return False
+
+    def check_four_of_a_kind(self, hand):
+        values = [card.rank for card in hand]
+        value_counts = defaultdict(lambda:0)
+        for v in values:
+            value_counts[v] += 1
+        if sorted(value_counts.values()) == [1, 4]:
+            return True
+        return False
+
+    def check_full_house(self, hand):
+        values = [card.rank for card in hand]
+        value_counts = defaultdict(lambda:0)
+        for v in values:
+            value_counts[v] += 1
+        if sorted(value_counts.values()) == [2, 3]:
+            return True
+        return False
+    
+    def check_flush(self, hand):
+        suits = [card.suit for card in hand]
+        if len(set(suits)) == 1:
+            return True
+        else:
+            return False
+    
+    def check_straight(self, hand):
+        values = [card.rank for card in hand]
+        value_counts = defaultdict(lambda:0)
+        for v in values:
+            value_counts[v] += 1
+        rank_values = [i for i in values]
+        value_range = max(rank_values) - min(rank_values)
+        if len(set(value_counts.values())) == 1 and (value_range == 4):
+            return True
+        else:
+            if(set(values)) == set([14, 2, 3, 4, 5]):
+                return True
+        if(set(values)) == set([11, 12, 13, 14, 2]):
+            return False
+        return False
+
+    def check_three_of_a_kind(self, hand):
+        values = [card.rank for card in hand]
+        value_counts = defaultdict(lambda:0)
+        for v in values:
+            value_counts[v] += 1
+        if set(value_counts.values()) == set([3, 1]):
+            return True
+        else:
+            return False
+
    
+    def check_two_pair(self, hand):
+        values = [card.rank for card in hand]
+        value_counts = defaultdict(lambda:0)
+        for v in values:
+            value_counts[v] += 1
+        if sorted(value_counts.values()) == [1, 2, 2]:
+            return True
+        else:
+            False
+    
+    def check_one_pair(self, hand):
+        values = [card.rank for card in hand]
+        value_counts = defaultdict(lambda:0)
+        for v in values:
+            value_counts[v] += 1
+        if 2 in value_counts.values():
+            return True
+        else:
+            return False
+
+    def play(self, cards):
+        best_hand = 0
+        best_sum = 0
+        combination = combinations(cards, 5)
+        for i in combination:
+            hand_value = self.check_hand(list(i))
+            if hand_value > best_hand:
+                best_hand = hand_value
+                best_sum = sum([card.rank for card in list(i)])
+            if hand_value == best_hand:
+                if sum([card.rank for card in list(i)]) > best_sum:
+                    best_sum = sum([card.rank for card in list(i)])
+        return [best_hand, best_sum]
+
+    def show(self):
+        for player in self._players:
+            if player.isFolded:
+                continue
+            else:
+                print(player.name, "'s cards: ",end = "")
+                for card in player.hand:
+                    print(card, end = ",")
+                print()
+                play = self.play(player.hand + self._visible_cards)
+                player.set_best_hand(play[0])
+                player.set_best_sum(play[1])
+                print("Best hand:", player.best_hand)
+                print("Best sum:", player.best_sum)
+        max_combination = max(p.best_hand for p in self._players)
+        max_sum = max(p.best_sum for p in self._players)
+        ties_with_max = [p for p in self._players if p.best_hand == max_combination and p.best_sum == max_sum]
+
+        if len(ties_with_max) == 1: # if one player wins whole pot, no ties
+            ties_with_max[0].change_balance(self.pot)
+            print(ties_with_max[0].name, "has won the pot:", self.pot)
+        else:
+            # TODO BE MODIFIED TO CHECK FOR TIE BREAKERS
+            split = self.pot / len(ties_with_max)
+            for p in ties_with_max:
+                p.change_balance(split)
+                print(p, "has won a split of the pot:", split)
 
 # Old big blind will become small blind, i.e., game goes clockwise
 # 
