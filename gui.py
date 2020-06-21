@@ -203,6 +203,13 @@ def room_loop():
 
         screen.fill(black)
 
+        #Room lobby title
+        lobby_title_font = pygame.font.Font(None, 40)
+        lobby_title_surface = lobby_title_font.render("Room: " + room_name_input, True, white)
+        title_rect = lobby_title_surface.get_rect(center=(round(SCREEN_WIDTH / 2), round(SCREEN_HEIGHT / 5)))
+        screen.blit(lobby_title_surface, title_rect)
+
+
         pygame.display.flip()
         clock.tick(60)
 
