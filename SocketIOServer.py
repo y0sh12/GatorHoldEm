@@ -78,15 +78,47 @@ def start_game(room):
     room.game_in_progress = True
     sio.emit('message', "game starting", room=room.room_id)
     table = room.get_Table()
+    # while(True):
     table.new_round()
     table.distribute_cards()
     small_blind = str(table.small_blind) + " is the small blind"
     big_blind = str(table.big_blind) + " is the big blind"
+    dealer = str(table._dealer) + " is the dealer"
     for player in room.get_player_list():
         card_string = str(player.hand[0]), str(player.hand[1])
         sio.emit('emit_hand', card_string, room=player.get_client_number())
+    sio.emit('message', dealer, room=room.room_id)
     sio.emit('message', small_blind, room=room.room_id)
     sio.emit('message', big_blind, room=room.room_id)
+    check = len(room.get_player_list())
+    fold = 0
+    while(check > 0):
+        player = table.current_player
+        is_check = True if player.investment == table.minimum_bet else False
+        checkOrCall = "Check" if is_check else "Call"
+        info = str(player.balance), str(player.investment), str(table.minimum_bet), str(checkOrCall)
+        sio.emit('your_turn', info, room = player.get_client_number())
+        ## option = Ask the player which option they want to choose
+        if(option == 1):
+            player.change_balance(-(table.minimum_bet - player.investment))
+            table.add_to_pot(table.minimum_bet - player.investment)
+            player.add_investment(table.minimum_bet - player.investment)
+            if is_check:
+                check -=1
+        if(option == 2):
+            player.fold()
+            fold += 1
+            check -= 1
+        if(option == 3):
+            check = len(room.get_player_list()) - fold
+            # _raise = Ask player how much raise
+            table.change_minimum_bet(_raise)
+            player.change_balance(-(table.minimum_bet - player.investment))
+            table.add_to_pot(table.minimum_bet - player.investment)
+            player.add_investment(table.minimum_bet - player.investment)
+        table.next_player() # ++player
+
+
 
 
 if __name__ == '__main__':

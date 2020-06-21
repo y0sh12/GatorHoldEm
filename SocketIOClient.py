@@ -41,8 +41,8 @@ def on_event(message, room):
 
 
 @sio.on('your_turn')
-def on_event(message):
-    print(message)
+def on_event(balance, investment, minimumBet, checkOrCall):
+    print("Your balance:", balance, "\nYour Investment:", investment,"\nMinimum Bet to Play:", minimumBet, "\n1.)", checkOrCall, "2.) Fold 3.) Raise")
 
 @sio.on('message')
 def on_event(message):
@@ -50,13 +50,17 @@ def on_event(message):
 
 @sio.on('emit_hand')
 def on_event(card1, card2):
-    print(card1, card2)
+    print("Your hand:", card1, card2)
     
 
 @sio.on('connection_error')
 def on_event(error):
     print("The game has started or has reached maximum player limit")
 
+@sio.event
+def name_(data):
+    # print("name asked for")
+    return data
 
 def main():
     global name
@@ -67,8 +71,6 @@ def main():
     print("You are now in the lobby")
     room = input("What room would you like to join?\n")
     sio.emit('goto_room', room)
-
-
 if __name__ == '__main__':
     try:
         main()
