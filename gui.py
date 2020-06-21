@@ -22,10 +22,15 @@ white = (255, 255, 255)
 red = (0, 255, 0)
 
 # Variables
+# 1. Clock variables
 clock = pygame.time.Clock()
+# 2. Font variables
 base_font = pygame.font.Font(None, 16)
 title_font = pygame.font.Font(None, 108)
 label_font = pygame.font.Font(None, 30)
+# 3. Game variables
+name_input = ''
+room_name_input = ''
 
 # Screen object creation
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -87,6 +92,8 @@ def intro_loop():
                         user_text = user_text[:-1]
 
                     elif event.key == K_RETURN:
+                        global name_input
+                        name_input = user_text
                         room_name_loop()
 
                     else:
@@ -102,9 +109,9 @@ def intro_loop():
 
             # Check if window was closed
             elif event.type == QUIT:
+                intro = False
                 pygame.quit()
                 sys.exit()
-                intro = False
 
         screen.fill(black)
 
@@ -114,6 +121,7 @@ def intro_loop():
         clock.tick(60)
 
 
+# Loop for room name prompt
 def room_name_loop():
     # Variables
     user_text = "Room name prompt!"
@@ -132,6 +140,11 @@ def room_name_loop():
                     if event.key == K_BACKSPACE:
                         user_text = user_text[:-1]
 
+                    elif event.key == K_RETURN:
+                        global room_name_input
+                        room_name_input = user_text
+                        room_loop()
+
                     else:
                         user_text += event.unicode
 
@@ -149,13 +162,46 @@ def room_name_loop():
 
             # Check if window was closed
             elif event.type == QUIT:
+                intro = False
                 pygame.quit()
                 sys.exit()
-                intro = False
 
         screen.fill(black)
 
         menu_draw(input_rect, user_text, label_text, text_active)
+
+        pygame.display.flip()
+        clock.tick(60)
+
+
+# Loop for lobby
+def room_loop():
+    # Variables
+    room = True
+
+    # Run loop
+    while room:
+        # Check event queue
+        for event in pygame.event.get():
+            # Check if key was pressed
+            if event.type == KEYDOWN:
+
+                if event.key == K_ESCAPE:
+                    room = False
+                    continue
+
+            # Check if mouse button was pressed
+            elif event.type == MOUSEBUTTONDOWN:
+                print('Mouse pressed!')
+                # if input_rect.collidepoint(event.pos):
+
+            # Check if window was closed
+            elif event.type == QUIT:
+                intro = False
+                pygame.quit()
+                sys.exit()
+
+        screen.fill(black)
 
         pygame.display.flip()
         clock.tick(60)
