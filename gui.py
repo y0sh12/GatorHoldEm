@@ -25,6 +25,7 @@ red = (0, 255, 0)
 clock = pygame.time.Clock()
 base_font = pygame.font.Font(None, 16)
 title_font = pygame.font.Font(None, 108)
+label_font = pygame.font.Font(None, 30)
 
 # Screen object creation
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -36,7 +37,7 @@ pygame.display.set_caption('GatorHoldEm')
 # 1. Input box rectangle
 # 2. Input box contents
 # 3. Input box activity
-def menu_draw(input_rect, user_text, text_active):
+def menu_draw(input_rect, user_text, label_text, text_active):
     color_active = pygame.Color('green')
     color_passive = pygame.Color('aquamarine3')
     color = color_passive
@@ -50,6 +51,11 @@ def menu_draw(input_rect, user_text, text_active):
     title_surface = title_font.render("GatorHoldEm", True, white)
     title_rect = title_surface.get_rect(center=(round(SCREEN_WIDTH / 2), round(SCREEN_HEIGHT / 4)))
     screen.blit(title_surface, title_rect)
+
+    # Draw label on screen
+    label_surface = label_font.render(label_text, True, white)
+    label_rect = label_surface.get_rect(center=(input_rect.centerx, input_rect.centery - 50))
+    screen.blit(label_surface, label_rect)
 
     # Draw input box on screen
     pygame.draw.rect(screen, color, input_rect, 1)
@@ -65,6 +71,7 @@ def menu_draw(input_rect, user_text, text_active):
 def intro_loop():
     # Variables
     user_text = ''
+    label_text = 'Please enter your name:'
     input_rect = pygame.Rect(300, 400, 100, 32)
     text_active = False
     intro = True
@@ -101,15 +108,16 @@ def intro_loop():
 
         screen.fill(black)
 
-        menu_draw(input_rect, user_text, text_active)
+        menu_draw(input_rect, user_text, label_text, text_active)
 
         pygame.display.flip()
-        clock.tick(3)
+        clock.tick(60)
 
 
 def room_name_loop():
     # Variables
     user_text = "Room name prompt!"
+    label_text = 'Enter room name to join:'
     input_rect = pygame.Rect(300, 400, 100, 32)
     text_active = False
     room = True
@@ -147,15 +155,10 @@ def room_name_loop():
 
         screen.fill(black)
 
-        if text_active:
-            color = color_active
-        else:
-            color = color_passive
-
-        menu_draw(input_rect, user_text, text_active)
+        menu_draw(input_rect, user_text, label_text, text_active)
 
         pygame.display.flip()
-        clock.tick(3)
+        clock.tick(60)
 
 
 intro_loop()
