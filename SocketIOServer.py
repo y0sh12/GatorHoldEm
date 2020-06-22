@@ -73,23 +73,8 @@ def find_room(sid):
             return room
     return None
 
-
-def start_game(room):
-    room.game_in_progress = True
-    sio.emit('message', "game starting", room=room.room_id)
+def game_loop(room):
     table = room.get_Table()
-    # while(True):
-    table.new_round()
-    table.distribute_cards()
-    small_blind = str(table.small_blind) + " is the small blind"
-    big_blind = str(table.big_blind) + " is the big blind"
-    dealer = str(table._dealer) + " is the dealer"
-    for player in room.get_player_list():
-        card_string = str(player.hand[0]), str(player.hand[1])
-        sio.emit('emit_hand', card_string, room=player.get_client_number())
-    sio.emit('message', dealer, room=room.room_id)
-    sio.emit('message', small_blind, room=room.room_id)
-    sio.emit('message', big_blind, room=room.room_id)
     check = len(room.get_player_list())
     fold = 0
     while(check > 0):
@@ -119,7 +104,24 @@ def start_game(room):
         table.next_player() # ++player
 
 
-
+def start_game(room):
+    room.game_in_progress = True
+    sio.emit('message', "game starting", room=room.room_id)
+    table = room.get_Table()
+    # while(True):
+    table.new_round()
+    table.distribute_cards()
+    small_blind = str(table.small_blind) + " is the small blind"
+    big_blind = str(table.big_blind) + " is the big blind"
+    dealer = str(table._dealer) + " is the dealer"
+    for player in room.get_player_list():
+        card_string = str(player.hand[0]), str(player.hand[1])
+        sio.emit('emit_hand', card_string, room=player.get_client_number())
+    sio.emit('message', dealer, room=room.room_id)
+    sio.emit('message', small_blind, room=room.room_id)
+    sio.emit('message', big_blind, room=room.room_id)
+    game_loop(room)
+    
 
 if __name__ == '__main__':
     try:
