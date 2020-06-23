@@ -4,6 +4,12 @@ from deck import Deck
 from player import Player
 from card import Card
 
+# TO DO
+# 1.) Code fo pairs, tie break
+# 2.) limit raise to player blance remaining
+# 3.) Testing possible hands
+
+
 def print_balance(room1):
     for player in room1.get_player_list():
         print("Name: ", player.name, " ")
