@@ -264,9 +264,11 @@ class Table:
                 print("Best hand:", player.best_hand)
                 print("Best sum:", player.best_sum)
         max_combination = max(p.best_hand for p in self._players)
-        max_sum = max(p.best_sum for p in self._players)
+        max_sum = max(p.best_sum for p in self._players if p.best_hand == max_combination)
+        print("Max sum: ", max_sum, "Max combination: ", max_combination)
         ties_with_max = [p for p in self._players if p.best_hand == max_combination and p.best_sum == max_sum]
 
+        print(len(ties_with_max))
         if len(ties_with_max) == 1: # if one player wins whole pot, no ties
             ties_with_max[0].change_balance(self.pot)
             print(ties_with_max[0].name, "has won the pot:", self.pot)

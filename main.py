@@ -49,7 +49,11 @@ def game_loop(room1):
             player.add_investment(room1._table.minimum_bet - player.investment)
 
         print(player, " after Balance: ", player.balance, " After Investment: ", player.investment, "\n")
+
+        # iterate through all players, count is Folded. After if len(player) - count_isFoled == 1, call show, break
         room1._table.next_player() # ++player
+
+
         
 
 def main():
@@ -91,7 +95,7 @@ def main():
         print("Current big Blind", room1._table._big_blind)
 
         game_loop(room1) #pre-flop
-
+        #plyers = 1, break
 
         print("Number of cards before flopping is ", room1._table._deck.num_cards)
         print("************************THE FLOP*********************")
