@@ -82,9 +82,9 @@ def game_loop(room):
         is_check = True if player.investment == table.minimum_bet else False
         checkOrCall = "Check" if is_check else "Call"
         info = str(player.balance), str(player.investment), str(table.minimum_bet), str(checkOrCall)
-        sio.emit('your_turn', info, room = player.get_client_number())
+        option = sio.call(event='your_turn', data=info, sid=player.get_client_number())
         ## option = Ask the player which option they want to choose
-        if(option == 1):
+        if option == 1:
             player.change_balance(-(table.minimum_bet - player.investment))
             table.add_to_pot(table.minimum_bet - player.investment)
             player.add_investment(table.minimum_bet - player.investment)
