@@ -63,12 +63,19 @@ def on_event(ask):
     howMuch = input(str(ask + "\n"))
     return howMuch
 
+@sio.on('which_players_turn')
+def on_event(data):
+    print(data, 'has to go')
+
+@sio.on('player_action')
+def on_event(player, option):
+    print(player, 'chose option', option)
+
 def main():
     global name
     name = input("What is your name?\n")
-    # sio.connect('http://localhost:5000')
-    # sio.connect('http://172.105.150.126:5000')
-    sio.connect('http://45.33.96.41:5000')
+    sio.connect('http://localhost:5000')
+    # sio.connect('http://45.33.96.41:5000')
     print('Your sid is', sio.sid)
     print("You are now in the lobby")
     room = input("What room would you like to join?\n")
