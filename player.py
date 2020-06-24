@@ -27,7 +27,7 @@ class Player:
     @property
     def balance(self):
         return self._balance
-    
+
     @property
     def best_hand(self):
         return self._best_hand

@@ -99,9 +99,14 @@ def game_loop(room):
             pass
         sio.emit('player_action', player.get_name, option, room=room.room_id)
         if int(option) == 1:
-            player.change_balance(-(table.minimum_bet - player.investment))
-            table.add_to_pot(table.minimum_bet - player.investment)
-            player.add_investment(table.minimum_bet - player.investment)
+            if table.minimum_bet >= player.balance:
+                table.add_to_pot(player.balance)
+                player.add_investment(player.balance)
+                player.change_balance(-player.balance)
+            else:
+                player.change_balance(-(table.minimum_bet - player.investment))
+                table.add_to_pot(table.minimum_bet - player.investment)
+                player.add_investment(table.minimum_bet - player.investment)
             if is_check:
                 check -=1
         if int(option) == 2:
@@ -109,27 +114,61 @@ def game_loop(room):
             fold += 1
             check -= 1
         if int(option) == 3:
-            check = len(room.get_player_list()) - fold
             # _raise = Ask player how much raise
-            ask = "By how much do you want to raise"
-            _raise = sio.call(event = 'raise', data = ask, sid = player.get_client_number())
-            table.change_minimum_bet(int(_raise))
-            player.change_balance(-(table.minimum_bet - player.investment))
-            table.add_to_pot(table.minimum_bet - player.investment)
-            player.add_investment(table.minimum_bet - player.investment)
-        
-        
-        # Check if everybody is folded
+            error = 0
+            while error < 3:
+                ask = "By how much do you want to raise"
+                _raise = sio.call(event = 'raise', data = ask, sid = player.get_client_number())
+                if int(_raise) > player.balance:
+                    sio.emit('message', "You ain't a millionaire, try a smaller raise", room=player.get_client_number())
+                    error += 1
+                else:
+                    table.change_minimum_bet(int(_raise))
+                    player.change_balance(-(table.minimum_bet - player.investment))
+                    table.add_to_pot(table.minimum_bet - player.investment)
+                    player.add_investment(table.minimum_bet - player.investment)
+                    check = len(room.get_player_list()) - fold
+                    break
+            if error == 4:
+                player.fold()
+                fold += 1
+                check -= 1
+
+
+        # Counting folded players
         folded = 0
         for p in room.get_player_list():
             if p.isFolded:
                 folded += 1
+
+        # Case to check if everyone *currently in game* is folded and there is only one player remaining.
         if len(room.get_player_list()) - folded <= 1:
             for p in room.get_player_list():
                 if not p.isFolded:
                     p.change_balance(table.pot)
                     sio.emit('message', str(p) + " has won the pot: " + str(table.pot), room = room.room_id)
             return False
+        
+        # count all broke players
+        broke = 0
+        for p in room.get_player_list():
+            if p.balance == 0:
+                broke += 1
+        
+        # Temporary fix
+        # Check if all the not folded players are trying to go all in
+        if len(room.get_player_list()) - folded == broke:
+            print()
+            # Check if all player are broke
+            # show()
+            #    return False
+            # Check if everybody is folded
+
+        # TO DO
+        # No distinction between someone who is bankrupt (out of the game) and someone who is all in.
+        # add a boolean for players active()
+        # generator instead of skipping over balance = 0 players, we can skip over active = false (and isFolded)
+
         table.next_player() #++player
 
     return True
