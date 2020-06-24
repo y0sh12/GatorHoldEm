@@ -5,9 +5,12 @@ from player import Player
 from card import Card
 
 # TO DO
-# 1.) Code fo pairs, tie break
-# 2.) limit raise to player blance remaining
+# 1.) Code for pairs, tie break
+# 2.) limit raise to player balance remaining
 # 3.) Testing possible hands
+# 4.) Twice checking should be rectified
+# 5.) Give pot to player in round if all other players fold
+# 6.) Create dict for all the players balances
 
 
 def print_balance(room1):

@@ -17,7 +17,7 @@ class Player:
     @property
     def investment(self):
         return self._investment
-
+    
     def reset_investment(self):
         self._investment = 0
     

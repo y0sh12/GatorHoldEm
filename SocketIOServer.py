@@ -45,7 +45,7 @@ def on_event(sid, name, room_id):
     room.add_player(Player(sid, name, False))
     print(room.get_player_list())
     sio.emit('user_connection', (name + " has joined the room!"), room=room_id, skip_sid=sid)
-    if room.game_in_progress is not False and len(room.get_player_list()) == 3:
+    if room.game_in_progress is False and len(room.get_player_list()) == 3:
         start_game(room)
 
 
@@ -120,7 +120,9 @@ def game_loop(room):
             player.change_balance(-(table.minimum_bet - player.investment))
             table.add_to_pot(table.minimum_bet - player.investment)
             player.add_investment(table.minimum_bet - player.investment)
-
+        
+        
+        # Check if everybody is folded
         folded = 0
         for p in room.get_player_list():
             if p.isFolded:
@@ -129,6 +131,7 @@ def game_loop(room):
             for p in room.get_player_list():
                 if not p.isFolded:
                     p.change_balance(table.pot)
+                    sio.emit('message', str(p) + " has won the pot: " + str(table.pot), room = room.room_id)
             return False
         table.next_player()  # ++player
 
@@ -165,6 +168,8 @@ def start_game(room):
     room.game_in_progress = True
     sio.emit('message', "game starting", room=room.room_id)
     table = room.get_Table()
+    
+    balance_dict = {p.get_client_number():p.balance for p in room.get_player_list()}
 
     while True:
         isBroke = 0
@@ -180,13 +185,16 @@ def start_game(room):
             small_blind = str(table.small_blind) + " is the small blind"
             big_blind = str(table.big_blind) + " is the big blind"
             dealer = str(table._dealer) + " is the dealer"
+            minbet = "The minimum bet is " + str(table.minimum_bet)
+
             for player in room.get_player_list():
                 card_string = str(player.hand[0]), str(player.hand[1])
                 sio.emit('emit_hand', card_string, room=player.get_client_number())
             sio.emit('message', dealer, room=room.room_id)
             sio.emit('message', small_blind, room=room.room_id)
             sio.emit('message', big_blind, room=room.room_id)
-
+            sio.emit('message', minbet, room = room.room_id)
+            
             if not game_loop(room):
                 continue
 
@@ -220,6 +228,11 @@ def start_game(room):
                 continue
 
             show(room)
+    winner = None
+    for player in room.get_player_list():
+            if player.balance != 0:
+                winner = player
+    sio.emit('message', str(winner) + " HAS WON THE GAME AND HAS EARNED $" + str(winner.balance) + "!", room = room.room_id)
 
 
 if __name__ == '__main__':

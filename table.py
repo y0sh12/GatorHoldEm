@@ -46,8 +46,8 @@ class Table:
                 break
         
         # Taking the blind amounts
-        self._small_blind.change_balance(-self._minimumBet / 2)
-        self._small_blind.add_investment(self._minimumBet / 2)
+        self._small_blind.change_balance(-self._minimumBet // 2)
+        self._small_blind.add_investment(self._minimumBet // 2)
 
         self._big_blind.change_balance(-self._minimumBet)
         self._big_blind.add_investment(self._minimumBet)
@@ -198,9 +198,9 @@ class Table:
         if len(set(value_counts.values())) == 1 and (value_range == 4):
             return True
         else:
-            if(set(values)) == set([14, 2, 3, 4, 5]):
+            if set(values) == set([14, 2, 3, 4, 5]):
                 return True
-        if(set(values)) == set([11, 12, 13, 14, 2]):
+        if set(values) == set([11, 12, 13, 14, 2]) or set(values) == set([12, 13, 14, 2, 3]) or set(values) == set([13, 14, 2, 3, 4])  :
             return False
         return False
 
