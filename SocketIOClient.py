@@ -66,8 +66,9 @@ def on_event(ask):
 def main():
     global name
     name = input("What is your name?\n")
-    sio.connect('http://localhost:5000')
+    # sio.connect('http://localhost:5000')
     # sio.connect('http://172.105.150.126:5000')
+    sio.connect('http://45.33.96.41:5000')
     print('Your sid is', sio.sid)
     print("You are now in the lobby")
     room = input("What room would you like to join?\n")
