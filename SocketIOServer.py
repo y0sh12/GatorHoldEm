@@ -43,7 +43,7 @@ def on_event(sid, name, room_id):
     room.add_player(Player(sid, name, False))
     print(room.get_player_list())
     sio.emit('user_connection', (name + " has joined the room!"), room=room_id, skip_sid=sid)
-    if room.game_in_progress is not False and len(room.get_player_list()) == 3:
+    if room.game_in_progress is False and len(room.get_player_list()) == 3:
         start_game(room)
 
 

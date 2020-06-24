@@ -80,6 +80,7 @@ def main():
     print("You are now in the lobby")
     room = input("What room would you like to join?\n")
     sio.emit('goto_room', room)
+
 if __name__ == '__main__':
     try:
         main()
