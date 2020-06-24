@@ -15,6 +15,14 @@ def connect(sid, environ):
     print(sid, "in lobby")
 
 
+@sio.on('active_player_list')
+def on_event(id):
+    room = next((room for room in roomList if room.room_id == id), None)
+    if room is None:
+        return None
+
+    return room.get_player_list()
+
 @sio.event
 def disconnect(sid):
     room = find_room(sid)
