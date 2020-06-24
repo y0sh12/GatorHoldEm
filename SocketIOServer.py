@@ -50,7 +50,7 @@ def goto_room(sid, room_id):
     # temporary code to only have a max of 3 ppl per room
     if len(find_room.get_player_list()) < 3:
         sio.enter_room(sid, room_id)
-        print(sid, "joined room", room_id)
+        print(sid, "/;. room", room_id)
         sio.emit('joined_room', ("You have successfully joined the room " + room_id, room_id), room=sid)
     else:
         sio.emit('connection_error', "Unauthorized", room=sid)

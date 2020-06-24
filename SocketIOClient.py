@@ -20,7 +20,6 @@ label_font = ""
 name_input = ''
 room_name_input = ''
 
-
 from pygame.locals import (
     MOUSEBUTTONDOWN,
     KEYDOWN,
@@ -29,6 +28,7 @@ from pygame.locals import (
     K_RETURN,
     QUIT
 )
+
 
 @sio.event
 def connect():
@@ -68,21 +68,25 @@ def on_event(message, room):
 
 @sio.on('your_turn')
 def on_event(balance, investment, minimumBet, checkOrCall):
-    choice = input(str("Your balance: " + balance + " \nYour Investment: " + investment + " \nMinimum Bet to Play: " + minimumBet + " \n1.) " + checkOrCall + " 2.) Fold 3.) Raise"))
+    choice = input(str(
+        "Your balance: " + balance + " \nYour Investment: " + investment + " \nMinimum Bet to Play: " + minimumBet + " \n1.) " + checkOrCall + " 2.) Fold 3.) Raise"))
     return choice
+
 
 @sio.on('message')
 def on_event(message):
     print(message)
 
+
 @sio.on('emit_hand')
 def on_event(card1, card2):
     print("Your hand:", card1, card2)
-    
+
 
 @sio.on('connection_error')
 def on_event(error):
     print("The game has started or has reached maximum player limit")
+
 
 def menu_draw(input_rect, user_text, label_text, text_active):
     color_active = pygame.Color('green')
@@ -112,6 +116,7 @@ def menu_draw(input_rect, user_text, label_text, text_active):
 
     input_rect.w = max(200, input_surface.get_width() + 10)
     pygame.display.update(input_rect)
+
 
 def room_loop():
     # Variables
@@ -143,7 +148,6 @@ def room_loop():
 
         pygame.display.flip()
         clock.tick(60)
-
 
 
 def intro_loop():
@@ -244,6 +248,7 @@ def room_name_loop():
 
         pygame.display.flip()
         clock.tick(60)
+
 
 def main():
     global screen

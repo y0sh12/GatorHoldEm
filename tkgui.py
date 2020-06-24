@@ -2,12 +2,25 @@ import tkinter as tk
 import sys
 import socketio
 
+# Dictionary that holds general player info. Variables are type of info to store & value
+player_dict = {}
+
+
+def player_dict_set(specifier, value):
+    player_dict[specifier] = value
+
+
+def player_dict_get(specifier):
+    return player_dict[specifier]
+
+
+# SocketIO connection calls
 sio = socketio.Client()
 
 
 @sio.event
 def connect():
-    print("Welcome", name + "!")
+    print("Welcome", player_dict["name"] + "!")
     print("You have successfully connected to the Gator Hold \'em server!")
     print("Good Luck!")
 
@@ -37,7 +50,7 @@ def on_event(message):
 
 @sio.on('joined_room')
 def on_event(message, room):
-    sio.emit('my_name', (name, room))
+    sio.emit('my_name', (player_dict["name"], player_dict["room_name"]))
     print(message)
 
 
@@ -126,10 +139,13 @@ class MainMenu(tk.Frame):
         if self.name_entry.get() == '' or self.room_entry.get() == '':
             print("Invalid entry. Try again!")
             return
-        print("Name entered: " + self.name_entry.get())
-        print("Room name entered: " + self.room_entry.get())
+
+        player_dict_set("name", self.name_entry.get())
+        player_dict_set("room_name", self.room_entry.get())
 
         # Server call to create new player and join/create room, error handling
+        sio.connect('http://localhost:5000')
+
 
         # If successful, proceed to lobby page
         self.controller.show_frame(Lobby)
