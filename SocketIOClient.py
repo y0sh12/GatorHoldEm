@@ -3,7 +3,10 @@ import sys
 import socketio
 
 # Dictionary that holds general player info. Variables are type of info to store & value
-player_dict = {}
+player_dict = {
+    'name': '',
+    'room_name': ''
+}
 
 
 def player_dict_set(specifier, value):
@@ -142,10 +145,11 @@ class MainMenu(tk.Frame):
 
         player_dict_set("name", self.name_entry.get())
         player_dict_set("room_name", self.room_entry.get())
+        print(player_dict_get('room_name'))
 
         # Server call to create new player and join/create room, error handling
         sio.connect('http://localhost:5000')
-
+        sio.emit('goto_room', player_dict_get('room_name'))
 
         # If successful, proceed to lobby page
         self.controller.show_frame(Lobby)
@@ -154,14 +158,14 @@ class MainMenu(tk.Frame):
 class Lobby(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        self.label = tk.Label(self, text="Lobby page!!")
+        self.label = tk.Label(self, text='Lobby')
         self.label.pack(padx=10, pady=10)
 
         self.back_to_home = tk.Button(self, text="Back to Home",
                                       command=lambda: controller.show_frame(MainMenu))
         self.back_to_home.pack()
 
-        self.back_to_home = tk.Button(self, text="Go to Game",
+        self.back_to_home = tk.Button(self, text="Start the Game!",
                                       command=lambda: controller.show_frame(Game))
         self.back_to_home.pack()
 
