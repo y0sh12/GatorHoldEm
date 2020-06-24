@@ -59,8 +59,7 @@ def on_event(message, room):
 
 @sio.on('your_turn')
 def on_event(balance, investment, minimumBet, checkOrCall):
-    choice = input(str(
-        "Your balance: " + balance + " \nYour Investment: " + investment + " \nMinimum Bet to Play: " + minimumBet + " \n1.) " + checkOrCall + " 2.) Fold 3.) Raise"))
+    choice = input(str("Your balance: " + balance + " \nYour Investment: " + investment + " \nMinimum Bet to Play: " + minimumBet + " \n1.) " + checkOrCall + " 2.) Fold 3.) Raise\n"))
     return choice
 
 

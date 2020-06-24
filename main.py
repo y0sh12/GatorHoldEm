@@ -4,6 +4,12 @@ from deck import Deck
 from player import Player
 from card import Card
 
+# TO DO
+# 1.) Code fo pairs, tie break
+# 2.) limit raise to player blance remaining
+# 3.) Testing possible hands
+
+
 def print_balance(room1):
     for player in room1.get_player_list():
         print("Name: ", player.name, " ")
@@ -49,7 +55,11 @@ def game_loop(room1):
             player.add_investment(room1._table.minimum_bet - player.investment)
 
         print(player, " after Balance: ", player.balance, " After Investment: ", player.investment, "\n")
+
+        # iterate through all players, count is Folded. After if len(player) - count_isFoled == 1, call show, break
         room1._table.next_player() # ++player
+
+
         
 
 def main():
@@ -91,7 +101,7 @@ def main():
         print("Current big Blind", room1._table._big_blind)
 
         game_loop(room1) #pre-flop
-
+        #plyers = 1, break
 
         print("Number of cards before flopping is ", room1._table._deck.num_cards)
         print("************************THE FLOP*********************")
