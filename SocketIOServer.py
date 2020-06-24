@@ -35,7 +35,7 @@ def on_event(sid, name, room_id):
     room.add_player(Player(sid, name, False))
     print(room.get_player_list())
     sio.emit('user_connection', (name + " has joined the room!"), room=room_id, skip_sid=sid)
-    if room.game_in_progress == False and len(room.get_player_list()) == 3:
+    if room.game_in_progress is not False and len(room.get_player_list()) == 3:
         start_game(room)
 
 
@@ -79,12 +79,17 @@ def game_loop(room):
     table = room.get_Table()
     check = len(room.get_player_list())
     fold = 0
-    while(check > 0):
+    while check > 0:
         player = table.current_player
         is_check = True if player.investment == table.minimum_bet else False
         checkOrCall = "Check" if is_check else "Call"
         info = str(player.balance), str(player.investment), str(table.minimum_bet), str(checkOrCall)
-        option = sio.call(event='your_turn', data=info, sid=player.get_client_number())
+        sio.emit('which_players_turn', player.get_name(), room=room.room_id)
+        try:
+            option = sio.call(event='your_turn', data=info, sid=player.get_client_number())
+        except e as TimeoutError:
+            pass
+        sio.emit('player_action', player.get_name, option, room=room.room_id)
         if int(option) == 1:
             player.change_balance(-(table.minimum_bet - player.investment))
             table.add_to_pot(table.minimum_bet - player.investment)
@@ -115,13 +120,9 @@ def game_loop(room):
                 if not p.isFolded:
                     p.change_balance(table.pot)
             return False
-        
-
-        table.next_player() # ++player
+        table.next_player() #++player
 
     return True
-        
-
 
 def show(room):
     table = room.get_Table()
@@ -147,9 +148,6 @@ def show(room):
         for p in ties_with_max:
             p.change_balance(split)
             sio.emit('message', str(p) + "has won a split of the pot: " + str(split) + "\n", room = room.room_id)
-
-
-
 
 def start_game(room):
     room.game_in_progress = True
@@ -210,7 +208,6 @@ def start_game(room):
                 continue
             
             show(room)
-
 
 
 if __name__ == '__main__':
