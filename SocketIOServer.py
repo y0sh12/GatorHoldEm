@@ -14,7 +14,7 @@ app = socketio.WSGIApp(sio)
 def connect(sid, environ):
     print(sid, "in lobby")
 
-
+# sio.call(event='active_player_list', data=room.room_id)
 @sio.on('active_player_list')
 def on_event(id):
     room = next((room for room in roomList if room.room_id == id), None)
