@@ -179,11 +179,11 @@ class Lobby(tk.Frame):
 
         self.back_to_home = tk.Button(self, text="Back to Home",
                                       command=lambda: controller.show_frame(MainMenu))
-        self.back_to_home.pack()
+        self.back_to_home.pack(pady=10)
 
         self.back_to_home = tk.Button(self, text="Start the Game!",
                                       command=lambda: controller.show_frame(Game))
-        self.back_to_home.pack()
+        self.back_to_home.pack(pady=10)
 
 
 class Game(tk.Frame):
