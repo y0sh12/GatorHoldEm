@@ -1,38 +1,26 @@
+import tkinter as tk
 import sys
 import socketio
-import pygame
 
+# Dictionary that holds general player info. Variables are type of info to store & value
+player_dict = {}
+
+
+def player_dict_set(specifier, value):
+    player_dict[specifier] = value
+
+
+def player_dict_get(specifier):
+    return player_dict[specifier]
+
+
+# SocketIO connection calls
 sio = socketio.Client()
-name = ""
-
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-black = (0, 0, 0)
-white = (255, 255, 255)
-red = (0, 255, 0)
-screen = ""
-clock = ""
-
-base_font = ""
-title_font = ""
-label_font = ""
-
-name_input = ''
-room_name_input = ''
-
-from pygame.locals import (
-    MOUSEBUTTONDOWN,
-    KEYDOWN,
-    K_ESCAPE,
-    K_BACKSPACE,
-    K_RETURN,
-    QUIT
-)
 
 
 @sio.event
 def connect():
-    print("Welcome", name + "!")
+    print("Welcome", player_dict["name"] + "!")
     print("You have successfully connected to the Gator Hold \'em server!")
     print("Good Luck!")
 
@@ -62,7 +50,7 @@ def on_event(message):
 
 @sio.on('joined_room')
 def on_event(message, room):
-    sio.emit('my_name', (name, room))
+    sio.emit('my_name', (player_dict["name"], player_dict["room_name"]))
     print(message)
 
 
@@ -88,190 +76,114 @@ def on_event(error):
     print("The game has started or has reached maximum player limit")
 
 
-def menu_draw(input_rect, user_text, label_text, text_active):
-    color_active = pygame.Color('green')
-    color_passive = pygame.Color('aquamarine3')
-    color = color_passive
+class GatorHoldEm(tk.Tk):
+    def __init__(self, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
+        self.title("GatorHoldEm")
+        self.geometry('800x600')
 
-    if text_active:
-        color = color_active
-    else:
-        color = color_passive
+        container = tk.Frame(self)
+        container.pack(side="top", fill="both", expand=True)
 
-    # Draw title on screen
-    title_surface = title_font.render("GatorHoldEm", True, white)
-    title_rect = title_surface.get_rect(center=(round(SCREEN_WIDTH / 2), round(SCREEN_HEIGHT / 4)))
-    screen.blit(title_surface, title_rect)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
 
-    # Draw label on screen
-    label_surface = label_font.render(label_text, True, white)
-    label_rect = label_surface.get_rect(center=(input_rect.centerx, input_rect.centery - 50))
-    screen.blit(label_surface, label_rect)
+        self.frames = {}
 
-    # Draw input box on screen
-    pygame.draw.rect(screen, color, input_rect, 1)
+        for F in (MainMenu, Lobby, Game):
+            frame = F(container, self)
+            self.frames[F] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
 
-    input_surface = base_font.render(user_text, True, (100, 255, 20))
-    screen.blit(input_surface, (input_rect.x + 10, input_rect.y + 10))
+        self.show_frame(MainMenu)
 
-    input_rect.w = max(200, input_surface.get_width() + 10)
-    pygame.display.update(input_rect)
+    def show_frame(self, cont):
+        frame = self.frames[cont]
+        frame.tkraise()
 
 
-def room_loop():
-    # Variables
-    room = True
+class MainMenu(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        # Widget declarations
+        # Title
+        self.title = tk.Label(self, font=(None, 24), text="GatorHoldEm", height=3, width=20, fg="black")
+        self.title.grid(row=0, column=1, padx=100, pady=50, sticky='S')
 
-    # Run loop
-    while room:
-        # Check event queue
-        for event in pygame.event.get():
-            # Check if key was pressed
-            if event.type == KEYDOWN:
+        # Name label
+        self.name_label = tk.Label(self, text="Enter your name here:", foreground="black")
+        self.name_label.grid(row=1, column=0)
 
-                if event.key == K_ESCAPE:
-                    room = False
-                    continue
+        # Name input
+        self.name_entry = tk.Entry(self, fg="black", bg="white", width=50)
+        self.name_entry.grid(row=1, column=1)
 
-            # Check if mouse button was pressed
-            elif event.type == MOUSEBUTTONDOWN:
-                print('Mouse pressed!')
-                # if input_rect.collidepoint(event.pos):
+        # Room label
+        self.room_label = tk.Label(self, text="Enter name of room to join:", foreground="black")
+        self.room_label.grid(row=2, column=0)
 
-            # Check if window was closed
-            elif event.type == QUIT:
-                intro = False
-                pygame.quit()
-                sys.exit()
+        # Room input
+        self.room_entry = tk.Entry(self, fg="black", bg="white", width=50)
+        self.room_entry.grid(row=2, column=1)
 
-        screen.fill(black)
+        self.button = tk.Button(self, text="Submit", bg="blue", width=25, command=self.handle_click)
+        self.button.grid(row=3, column=1, padx=0, pady=25)
 
-        pygame.display.flip()
-        clock.tick(60)
+    # Widget event handlers
+    # def handle_keypress(self, event):
+    #     print(event.char)
 
+    def handle_click(self):
+        # Error check for proper name and room inputs
+        if self.name_entry.get() == '' or self.room_entry.get() == '':
+            print("Invalid entry. Try again!")
+            return
 
-def intro_loop():
-    # Variables
-    user_text = ''
-    label_text = 'Please enter your name:'
-    input_rect = pygame.Rect(300, 400, 100, 32)
-    text_active = False
-    intro = True
+        player_dict_set("name", self.name_entry.get())
+        player_dict_set("room_name", self.room_entry.get())
 
-    # Run loop
-    while intro:
-        # Check event queue
-        for event in pygame.event.get():
-            # Check if key was pressed
-            if event.type == KEYDOWN:
-                if text_active:
-                    if event.key == K_BACKSPACE:
-                        user_text = user_text[:-1]
-
-                    elif event.key == K_RETURN:
-                        global name_input
-                        name_input = user_text
-                        room_name_loop()
-
-                    else:
-                        user_text += event.unicode
-
-            # Check if mouse button was pressed
-            elif event.type == MOUSEBUTTONDOWN:
-                if input_rect.collidepoint(event.pos):
-                    text_active = True
-
-                else:
-                    text_active = False
-
-            # Check if window was closed
-            elif event.type == QUIT:
-                intro = False
-                pygame.quit()
-                sys.exit()
-
-        screen.fill(black)
-
-        menu_draw(input_rect, user_text, label_text, text_active)
-
-        pygame.display.flip()
-        clock.tick(60)
+        # Server call to create new player and join/create room, error handling
+        sio.connect('http://localhost:5000')
 
 
-def room_name_loop():
-    # Variables
-    user_text = "Room name prompt!"
-    label_text = 'Enter room name to join:'
-    input_rect = pygame.Rect(300, 400, 100, 32)
-    text_active = False
-    room = True
+        # If successful, proceed to lobby page
+        self.controller.show_frame(Lobby)
 
-    # Run loop
-    while room:
-        # Check event queue
-        for event in pygame.event.get():
-            # Check if key was pressed
-            if event.type == KEYDOWN:
-                if text_active:
-                    if event.key == K_BACKSPACE:
-                        user_text = user_text[:-1]
 
-                    elif event.key == K_RETURN:
-                        global room_name_input
-                        room_name_input = user_text
-                        room_loop()
+class Lobby(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.label = tk.Label(self, text="Lobby page!!")
+        self.label.pack(padx=10, pady=10)
 
-                    else:
-                        user_text += event.unicode
+        self.back_to_home = tk.Button(self, text="Back to Home",
+                                      command=lambda: controller.show_frame(MainMenu))
+        self.back_to_home.pack()
 
-                if event.key == K_ESCAPE:
-                    room = False
-                    continue
+        self.back_to_home = tk.Button(self, text="Go to Game",
+                                      command=lambda: controller.show_frame(Game))
+        self.back_to_home.pack()
 
-            # Check if mouse button was pressed
-            elif event.type == MOUSEBUTTONDOWN:
-                if input_rect.collidepoint(event.pos):
-                    text_active = True
 
-                else:
-                    text_active = False
+class Game(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
 
-            # Check if window was closed
-            elif event.type == QUIT:
-                intro = False
-                pygame.quit()
-                sys.exit()
+        self.label = tk.Label(self, text="Game page!!")
+        self.label.pack(padx=10, pady=10)
 
-        screen.fill(black)
-
-        menu_draw(input_rect, user_text, label_text, text_active)
-
-        pygame.display.flip()
-        clock.tick(60)
+        self.back_to_home = tk.Button(self, text="Back to Home",
+                                      command=lambda: controller.show_frame(MainMenu))
+        self.back_to_home.pack()
 
 
 def main():
-    global screen
-    global clock
-    global base_font
-    global title_font
-    global label_font
-    global name_input
-    global room_name_input
-    pygame.init()
-    clock = pygame.time.Clock()
-    base_font = pygame.font.Font(None, 16)
-    title_font = pygame.font.Font(None, 108)
-    label_font = pygame.font.Font(None, 30)
-    # 3. Game variables
-    name_input = ''
-    room_name_input = ''
+    # Start main loop
+    app = GatorHoldEm()
+    app.mainloop()
 
-    # Screen object creation
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption('GatorHoldEm')
-    intro_loop()
-
+    # Example client code
     # global name
     # name = input("What is your name?\n")
     # sio.connect('http://localhost:5000')
