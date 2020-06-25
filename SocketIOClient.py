@@ -203,13 +203,46 @@ class Lobby(tk.Frame):
 class Game(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-
-        self.label = tk.Label(self, text="Game page!!")
-        self.label.pack(padx=10, pady=10)
+        self.background_image = tk.PhotoImage(file="./res/felt.png")
+        self.background_label = tk.Label(self, image=self.background_image)
+        self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
         self.back_to_home = tk.Button(self, text="Back to Home",
                                       command=lambda: controller.show_frame(MainMenu))
         self.back_to_home.pack()
+        self.pl_list = []
+        self.text = [tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar()]
+
+        self.label = [0, 0, 0, 0, 0, 0]
+        self.pl_name = ["", "", "", "", "", ""]
+        self.label[0] = tk.Label(self, textvariable=self.text[0])
+        self.label[1] = tk.Label(self, textvariable=self.text[1])
+        self.label[2] = tk.Label(self, textvariable=self.text[2])
+        self.label[3] = tk.Label(self, textvariable=self.text[3])
+        self.label[4] = tk.Label(self, textvariable=self.text[4])
+        self.label[5] = tk.Label(self, textvariable=self.text[5])
+
+        self.pl_x = [0, 0, 0, 0, 0, 0]
+        self.pl_y = [0, 20, 40, 60, 80, 100]
+
+        self.button = tk.Button(self, text="players", bg="blue", width=25, command=self.update_players)
+        self.button.pack()
+
+    def update_players(self):
+        #self.pl_list = sio.emit('active_player_list', '1')
+        for counter, t in enumerate(self.text):
+            t.set("")
+            self.label[counter].place(x=0, y=self.pl_y[counter], width=50, height=20)
+        self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
+        if self.pl_list is not None:
+            for counter, pl in enumerate(self.pl_list):
+                self.text[counter].set(pl['_name'])
+                print(pl['_name'])
+        else:
+            print("empty")
+
+
+
 
 
 def main():
