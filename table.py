@@ -230,7 +230,7 @@ class Table:
         if sorted(value_counts.values()) == [1, 2, 2]:
             return [True, 2 * (sorted(value_counts.keys())[1] + sorted(value_counts.keys())[2])]
         else:
-            [False, None]
+            return [False, None]
     
     def check_one_pair(self, hand):
         values = [card.rank for card in hand]
@@ -252,8 +252,14 @@ class Table:
             if hand_value > best_hand:
                 best_hand = hand_value
                 best_sum = sum([card.rank for card in list(i)])
-                if hand_value = 2 or hand_value = 3 or hand_value = 4 or hand_value = 8:
-                    hand_sum = self.check_hand(list(i))[1] 
+                if hand_value == 2:
+                    hand_sum = self.check_one_pair(list(i))[1] 
+                if hand_value == 3:
+                    hand_sum = self.check_two_pair(list(i))[1] 
+                if hand_value == 4:
+                    hand_sum = self.check_three_of_a_kind(list(i))[1] 
+                if hand_value == 8:
+                    hand_sum = self.check_four_of_a_kind(list(i))[1] 
             if hand_value == best_hand:
                 if sum([card.rank for card in list(i)]) > best_sum:
                     best_sum = sum([card.rank for card in list(i)])

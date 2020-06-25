@@ -98,8 +98,11 @@ def game_loop(room):
         except e as TimeoutError:
             pass
         sio.emit('player_action', player.get_name, option, room=room.room_id)
+
         if int(option) == 1:
-            if table.minimum_bet >= player.balance:
+            # Going all in because cannot match table bet
+            if table.minimum_bet >= player.balance + player.investment:
+                sio.emit('message', 'You are going all in!\n', room=player.get_client_number())
                 table.add_to_pot(player.balance)
                 player.add_investment(player.balance)
                 player.change_balance(-player.balance)
@@ -198,7 +201,7 @@ def show(room):
     sio.emit('message', 'THE FINAL SHOWDOWN', room = room.room_id)
     table = room.get_Table()
     for player in room.get_player_list():
-        if player.isFolded:
+        if player.isFolded or player.bankrupt:
                 continue
         else:
             play = table.play(player.hand + table._visible_cards)
@@ -209,7 +212,7 @@ def show(room):
             sio.emit('message', "Your best hand: " + str(player.best_hand), room = player.get_client_number())
             sio.emit('message', "Your best sum: " + str(player.best_sum), room = player.get_client_number())
     max_combination = max(p.best_hand for p in room.get_player_list())
-    if max_combination = 2 or max_combination = 3 or max_combination = 4 or max_combination = 8:
+    if max_combination == 2 or max_combination == 3 or max_combination == 4 or max_combination == 8:
         max_hand_sum = max(p.best_hand_sum for p in room.get_player_list() if p.best_hand == max_combination)
         max_sum = max(p.best_sum for p in room.get_player_list()if p.best_hand == max_combination and p.best_hand_sum == max_hand_sum)
         ties_with_max = [p for p in room.get_player_list() if p.best_hand == max_combination and p.best_sum == max_sum and p.best_hand_sum == max_hand_sum]
