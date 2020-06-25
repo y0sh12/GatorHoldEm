@@ -17,12 +17,16 @@ def connect(sid, environ):
 
 # sio.call(event='active_player_list', data=room.room_id)
 @sio.on('active_player_list')
-def on_event(id):
-    room = next((room for room in roomList if room.room_id == id), None)
+def on_event(sid, room_id):
+    room = next((room for room in roomList if room.room_id == room_id), None)
     if room is None:
+        print("room does not exist")
         return None
-
-    return room.get_player_list()
+    print(room.get_player_list())
+    pl_list = []
+    for pl in room.get_player_list():
+        pl_list.append(pl.__dict__)
+    return pl_list
 
 
 @sio.event

@@ -189,6 +189,9 @@ class Lobby(tk.Frame):
 class Game(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
+        self.background_image = tk.PhotoImage(file="./res/felt.png")
+        self.background_label = tk.Label(self, image=self.background_image)
+        self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
         self.label = tk.Label(self, text="Game page!!")
         self.label.pack(padx=10, pady=10)
@@ -196,6 +199,22 @@ class Game(tk.Frame):
         self.back_to_home = tk.Button(self, text="Back to Home",
                                       command=lambda: controller.show_frame(MainMenu))
         self.back_to_home.pack()
+        self.pl_list = []
+
+        self.button = tk.Button(self, text="players", bg="blue", width=25, command=self.display_players)
+        self.button.pack()
+
+    def display_players(self):
+        #self.pl_list = sio.emit('active_player_list', '1')
+        self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
+        if self.pl_list is not None:
+            for pl in self.pl_list:
+                print(pl['_name'])
+        else:
+            print("empty")
+
+
+
 
 
 def main():
