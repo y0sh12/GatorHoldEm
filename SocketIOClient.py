@@ -5,7 +5,8 @@ import socketio
 # Dictionary that holds general player info. Variables are type of info to store & value
 player_dict = {
     'name': '',
-    'room_name': ''
+    'room_name': '',
+    'room_list': []
 }
 
 
@@ -44,11 +45,24 @@ def disconnect():
 @sio.on('user_connection')
 def on_event(message):
     print(message)
+    player_room = player_dict_get('room_name')
+    room_members = sio.emit('active_player_list', player_room)
+    if room_members:
+        print("Not empty!!!")
+    else:
+        print("Empty!!!")
 
 
 @sio.on('user_disconnect')
 def on_event(message):
     print(message)
+    player_room = player_dict_get('room_name')
+    room_members = sio.emit('active_player_list', player_room)
+    if room_members:
+        for player in room_members:
+            print(player.name)
+    else:
+        print("Empty!!!")
 
 
 @sio.on('joined_room')
