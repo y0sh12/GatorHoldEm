@@ -137,7 +137,7 @@ class Table:
             return 10
         elif self.check_straight_flush(hand):
             return 9
-        elif self.check_four_of_a_kind(hand):
+        elif self.check_four_of_a_kind(hand)[0]:
             return 8
         elif self.check_full_house(hand):
             return 7
@@ -145,11 +145,11 @@ class Table:
             return 6
         elif self.check_straight(hand):
             return 5
-        elif self.check_three_of_a_kind(hand):
+        elif self.check_three_of_a_kind(hand)[0]:
             return 4
-        elif self.check_two_pair(hand):
+        elif self.check_two_pair(hand)[0]:
             return 3
-        elif self.check_one_pair(hand):
+        elif self.check_one_pair(hand)[0]:
             return 2
         else:
             return 1
@@ -176,8 +176,8 @@ class Table:
         for v in values:
             value_counts[v] += 1
         if sorted(value_counts.values()) == [1, 4]:
-            return True
-        return False
+            return [True, 4 * sorted(value_counts.keys()[1])]
+        return [False, None]
 
     def check_full_house(self, hand):
         values = [card.rank for card in hand]
@@ -217,9 +217,9 @@ class Table:
         for v in values:
             value_counts[v] += 1
         if set(value_counts.values()) == set([3, 1]):
-            return True
+            return [True, 3 * sorted(value_counts.keys())[2]]
         else:
-            return False
+            return [False, None]
 
    
     def check_two_pair(self, hand):
@@ -228,9 +228,9 @@ class Table:
         for v in values:
             value_counts[v] += 1
         if sorted(value_counts.values()) == [1, 2, 2]:
-            return True
+            return [True, 2 * (sorted(value_counts.keys())[1] + sorted(value_counts.keys())[2])]
         else:
-            False
+            [False, None]
     
     def check_one_pair(self, hand):
         values = [card.rank for card in hand]
@@ -238,23 +238,26 @@ class Table:
         for v in values:
             value_counts[v] += 1
         if 2 in value_counts.values():
-            return True
+            return [True, 2 * sorted(value_counts.keys())[3]]
         else:
-            return False
+            return [False, None]
 
     def play(self, cards):
         best_hand = 0
         best_sum = 0
+        hand_sum = None
         combination = combinations(cards, 5)
         for i in combination:
             hand_value = self.check_hand(list(i))
             if hand_value > best_hand:
                 best_hand = hand_value
                 best_sum = sum([card.rank for card in list(i)])
+                if hand_value = 2 or hand_value = 3 or hand_value = 4 or hand_value = 8:
+                    hand_sum = self.check_hand(list(i))[1] 
             if hand_value == best_hand:
                 if sum([card.rank for card in list(i)]) > best_sum:
                     best_sum = sum([card.rank for card in list(i)])
-        return [best_hand, best_sum]
+        return [best_hand, best_sum, hand_sum]
 
     def show(self):
         for player in self._players:
