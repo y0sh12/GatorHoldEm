@@ -11,6 +11,7 @@ from card import Card
 # 4.) Twice checking should be rectified
 # 5.) Give pot to player in round if all other players fold
 # ----------------------- 6.) Create dict for all the players balances
+# 7.) Error handling if someone leaves mid game.
 
 
 def print_balance(room1):

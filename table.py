@@ -22,10 +22,12 @@ class Table:
         self._small_blind_gen_obj = self._small_blind_gen()
         self._small_blind = None # next(self._small_blind_gen_obj)
         self._big_blind = None
+        self._skip_to_show = False
 
     def new_round(self):
 
         # Resetting phase
+        self._skip_to_show = False
         for player in self._players:
             player.reset_all()
         self._deck.reset()
@@ -52,7 +54,7 @@ class Table:
         self._big_blind.change_balance(-self._minimumBet)
         self._big_blind.add_investment(self._minimumBet)
 
-        self.add_to_pot(1.5 * self._minimumBet)
+        self.add_to_pot(self._minimumBet + self._minimumBet // 2)
 
         # Current player pointer
         self._current_player_gen_obj = self._current_player_gen()
@@ -61,8 +63,6 @@ class Table:
             if self._current_player == self._big_blind:
                 break
         self._current_player = next(self._current_player_gen_obj)
-
-
     
     @property
     def current_player(self):
@@ -80,6 +80,9 @@ class Table:
     def minimum_bet(self):
         return self._minimumBet
 
+    def change_minimum_bet(self, amount):
+        self._minimumBet += amount
+
     @property
     def pot(self):
         return self._pot
@@ -95,9 +98,13 @@ class Table:
     def big_blind(self):
         return self._big_blind
 
-    def change_minimum_bet(self, amount):
-        self._minimumBet += amount
+    @property
+    def skip_to_show(self):
+        return self._skip_to_show
 
+    @skip_to_show.setter
+    def skip_to_show(self, _value):
+        self._skip_to_show = _value
     # Deals 2 cards to each player's hand
 
     def distribute_cards(self):
@@ -108,7 +115,7 @@ class Table:
     def _small_blind_gen(self):
         while True:
             for p in self._players:
-                if p.balance == 0:
+                if p.bankrupt:
                     pass
                 else:
                     yield p
@@ -116,7 +123,7 @@ class Table:
     def _current_player_gen(self):
         while True:
             for p in self._players:
-                if p.balance == 0 or p.isFolded:
+                if p.bankrupt or p.isFolded:
                     pass
                 else:
                     yield p

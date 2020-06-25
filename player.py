@@ -12,8 +12,16 @@ class Player:
         self._investment = 0
         self._best_hand = 0
         self._best_sum = 0
+        self._bankrupt = False
 
-    # investment is amount currently in pot
+    @property
+    def bankrupt(self):
+        return self._bankrupt
+
+    def declare_bankrupt(self):
+        self._bankrupt = True
+
+    # investment is amount player currently has in pot
     @property
     def investment(self):
         return self._investment

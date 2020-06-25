@@ -135,30 +135,51 @@ def game_loop(room):
                 check -= 1
 
 
-        # Counting folded players
-        folded = 0
+        # Counting not folded players
+        active_players = 0
         for p in room.get_player_list():
-            if p.isFolded:
-                folded += 1
+            if not p.isFolded and not p.bankrupt:
+                active_players += 1
+        
+        # If everyone  else is folded
+        if active_players == 1:
+           for p in room.get_player_list():
+               if not p.isFolded:
+                   p.change_balance(table.pot)
+                   sio.emit('message', str(p) + " has won the pot: " + str(table.pot), room = room.room_id)
+           return False
+
+        
+        sane_players = 0
+        for p in room.get_player_list():
+            # player is active and not all in
+            if not p.bankrupt and not p.isFolded and p.balance != 0:
+                sane_players += 1
+        
+        # Check edge case if everyone has gone all in
+        if sane_players == 0:
+            table.skip_to_show = True
+            return True
+                
 
         # Case to check if everyone *currently in game* is folded and there is only one player remaining.
-        if len(room.get_player_list()) - folded <= 1:
-            for p in room.get_player_list():
-                if not p.isFolded:
-                    p.change_balance(table.pot)
-                    sio.emit('message', str(p) + " has won the pot: " + str(table.pot), room = room.room_id)
-            return False
+        # if len(room.get_player_list()) - folded <= 1:
+        #    for p in room.get_player_list():
+        #        if not p.isFolded:
+        #            p.change_balance(table.pot)
+        #            sio.emit('message', str(p) + " has won the pot: " + str(table.pot), room = room.room_id)
+        #    return False
         
         # count all broke players
-        broke = 0
-        for p in room.get_player_list():
-            if p.balance == 0:
-                broke += 1
+        # broke = 0
+        # for p in room.get_player_list():
+        #     if p.balance == 0:
+        #         broke += 1
         
         # Temporary fix
         # Check if all the not folded players are trying to go all in
-        if len(room.get_player_list()) - folded == broke:
-            print()
+        # if len(room.get_player_list()) - folded == broke:
+        #     print()
             # Check if all player are broke
             # show()
             #    return False
@@ -174,6 +195,7 @@ def game_loop(room):
     return True
 
 def show(room):
+    sio.emit('message', 'THE FINAL SHOWDOWN', room = room.room_id)
     table = room.get_Table()
     for player in room.get_player_list():
         if player.isFolded:
@@ -206,6 +228,8 @@ def start_game(room):
     balance_dict = {p.get_client_number():p.balance for p in room.get_player_list()}
 
     while True:
+
+        # break out of the loop if all players (except one winner) are bankrupt
         isBroke = 0
         for player in room.get_player_list():
             if player.balance == 0:
@@ -240,8 +264,9 @@ def start_game(room):
             visibleCards = str(table._visible_cards[0]) + str(table._visible_cards[1]) + str(table._visible_cards[2])
             sio.emit('message', visibleCards, room = room.room_id)
             
-            if not game_loop(room):
-                continue
+            if not table.skip_to_show:
+                if not game_loop(room):
+                    continue
             
             sio.emit('message', "---------THE TURN----------\n", room = room.room_id)
             table._deck.pick_card() #the burn card
@@ -249,8 +274,9 @@ def start_game(room):
             visibleCards += str(table._visible_cards[3])
             sio.emit('message', visibleCards, room = room.room_id)
 
-            if not game_loop(room):
-                continue
+            if not table.skip_to_show:
+                if not game_loop(room):
+                    continue
             
             sio.emit('message', "---------THE RIVER----------\n", room = room.room_id)
             table._deck.pick_card() #the burn card
@@ -258,10 +284,17 @@ def start_game(room):
             visibleCards += str(table._visible_cards[4])
             sio.emit('message', visibleCards, room = room.room_id)
             
-            if not game_loop(room):
-                continue
+            if not table.skip_to_show:
+                if not game_loop(room):
+                    continue
             
             show(room)
+            
+            # At the end of the round, declare players bankrupt if they are out of money
+            for p in room.get_player_list():
+                if p.balance <= 0:
+                    p.declare_bankrupt()
+
     winner = None
     for player in room.get_player_list():
             if player.balance != 0:
