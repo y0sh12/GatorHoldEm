@@ -22,10 +22,12 @@ class Table:
         self._small_blind_gen_obj = self._small_blind_gen()
         self._small_blind = None # next(self._small_blind_gen_obj)
         self._big_blind = None
+        self._skip_to_show = False
 
     def new_round(self):
 
         # Resetting phase
+        self._skip_to_show = False
         for player in self._players:
             player.reset_all()
         self._deck.reset()
@@ -52,7 +54,7 @@ class Table:
         self._big_blind.change_balance(-self._minimumBet)
         self._big_blind.add_investment(self._minimumBet)
 
-        self.add_to_pot(1.5 * self._minimumBet)
+        self.add_to_pot(self._minimumBet + self._minimumBet // 2)
 
         # Current player pointer
         self._current_player_gen_obj = self._current_player_gen()
@@ -61,8 +63,6 @@ class Table:
             if self._current_player == self._big_blind:
                 break
         self._current_player = next(self._current_player_gen_obj)
-
-
     
     @property
     def current_player(self):
@@ -80,6 +80,9 @@ class Table:
     def minimum_bet(self):
         return self._minimumBet
 
+    def change_minimum_bet(self, amount):
+        self._minimumBet += amount
+
     @property
     def pot(self):
         return self._pot
@@ -95,9 +98,13 @@ class Table:
     def big_blind(self):
         return self._big_blind
 
-    def change_minimum_bet(self, amount):
-        self._minimumBet += amount
+    @property
+    def skip_to_show(self):
+        return self._skip_to_show
 
+    @skip_to_show.setter
+    def skip_to_show(self, _value):
+        self._skip_to_show = _value
     # Deals 2 cards to each player's hand
 
     def distribute_cards(self):
@@ -108,7 +115,7 @@ class Table:
     def _small_blind_gen(self):
         while True:
             for p in self._players:
-                if p.balance == 0:
+                if p.bankrupt:
                     pass
                 else:
                     yield p
@@ -116,7 +123,7 @@ class Table:
     def _current_player_gen(self):
         while True:
             for p in self._players:
-                if p.balance == 0 or p.isFolded:
+                if p.bankrupt or p.isFolded:
                     pass
                 else:
                     yield p
@@ -130,7 +137,7 @@ class Table:
             return 10
         elif self.check_straight_flush(hand):
             return 9
-        elif self.check_four_of_a_kind(hand):
+        elif self.check_four_of_a_kind(hand)[0]:
             return 8
         elif self.check_full_house(hand):
             return 7
@@ -138,11 +145,11 @@ class Table:
             return 6
         elif self.check_straight(hand):
             return 5
-        elif self.check_three_of_a_kind(hand):
+        elif self.check_three_of_a_kind(hand)[0]:
             return 4
-        elif self.check_two_pair(hand):
+        elif self.check_two_pair(hand)[0]:
             return 3
-        elif self.check_one_pair(hand):
+        elif self.check_one_pair(hand)[0]:
             return 2
         else:
             return 1
@@ -169,8 +176,8 @@ class Table:
         for v in values:
             value_counts[v] += 1
         if sorted(value_counts.values()) == [1, 4]:
-            return True
-        return False
+            return [True, 4 * sorted(value_counts.keys()[1])]
+        return [False, None]
 
     def check_full_house(self, hand):
         values = [card.rank for card in hand]
@@ -210,9 +217,9 @@ class Table:
         for v in values:
             value_counts[v] += 1
         if set(value_counts.values()) == set([3, 1]):
-            return True
+            return [True, 3 * sorted(value_counts.keys())[2]]
         else:
-            return False
+            return [False, None]
 
    
     def check_two_pair(self, hand):
@@ -221,9 +228,9 @@ class Table:
         for v in values:
             value_counts[v] += 1
         if sorted(value_counts.values()) == [1, 2, 2]:
-            return True
+            return [True, 2 * (sorted(value_counts.keys())[1] + sorted(value_counts.keys())[2])]
         else:
-            False
+            return [False, None]
     
     def check_one_pair(self, hand):
         values = [card.rank for card in hand]
@@ -231,23 +238,32 @@ class Table:
         for v in values:
             value_counts[v] += 1
         if 2 in value_counts.values():
-            return True
+            return [True, 2 * sorted(value_counts.keys())[3]]
         else:
-            return False
+            return [False, None]
 
     def play(self, cards):
         best_hand = 0
         best_sum = 0
+        hand_sum = None
         combination = combinations(cards, 5)
         for i in combination:
             hand_value = self.check_hand(list(i))
             if hand_value > best_hand:
                 best_hand = hand_value
                 best_sum = sum([card.rank for card in list(i)])
+                if hand_value == 2:
+                    hand_sum = self.check_one_pair(list(i))[1] 
+                if hand_value == 3:
+                    hand_sum = self.check_two_pair(list(i))[1] 
+                if hand_value == 4:
+                    hand_sum = self.check_three_of_a_kind(list(i))[1] 
+                if hand_value == 8:
+                    hand_sum = self.check_four_of_a_kind(list(i))[1] 
             if hand_value == best_hand:
                 if sum([card.rank for card in list(i)]) > best_sum:
                     best_sum = sum([card.rank for card in list(i)])
-        return [best_hand, best_sum]
+        return [best_hand, best_sum, hand_sum]
 
     def show(self):
         for player in self._players:

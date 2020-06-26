@@ -12,8 +12,17 @@ class Player:
         self._investment = 0
         self._best_hand = 0
         self._best_sum = 0
+        self._bankrupt = False
+        self._best_hand_sum = None
 
-    # investment is amount currently in pot
+    @property
+    def bankrupt(self):
+        return self._bankrupt
+
+    def declare_bankrupt(self):
+        self._bankrupt = True
+
+    # investment is amount player currently has in pot
     @property
     def investment(self):
         return self._investment
@@ -27,7 +36,7 @@ class Player:
     @property
     def balance(self):
         return self._balance
-    
+
     @property
     def best_hand(self):
         return self._best_hand
@@ -35,6 +44,10 @@ class Player:
     @property
     def best_sum(self):
         return self._best_sum
+
+    @property
+    def best_hand_sum(self):
+        return self._best_hand_sum
     
     @property 
     def name(self):
@@ -49,6 +62,9 @@ class Player:
 
     def set_best_sum(self, value):
         self._best_sum = value
+
+    def set_best_hand_sum(self, value):
+        self._best_hand_sum = value
     
     def change_balance(self, gains):
         self._balance = self._balance + int(gains)
@@ -68,6 +84,7 @@ class Player:
         self.set_best_hand(0)
         self.reset_hand()
         self.set_best_sum(0)
+        self.set_best_hand_sum(None)
 
     @property
     def isFolded(self):

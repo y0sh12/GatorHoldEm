@@ -6,11 +6,14 @@ from card import Card
 
 # TO DO
 # 1.) Code for pairs, tie break
-# 2.) limit raise to player balance remaining
+# -- Testing remaining ---- 2.) limit raise to player balance remaining
 # 3.) Testing possible hands
 # 4.) Twice checking should be rectified
 # 5.) Give pot to player in round if all other players fold
-# 6.) Create dict for all the players balances
+# ----------------------- 6.) Create dict for all the players balances
+# 7.) Error handling if someone leaves mid game.
+# 8.) Raise 0, not possible. 
+# 9.) 2 people one person goes all in, skip to show
 
 
 def print_balance(room1):
