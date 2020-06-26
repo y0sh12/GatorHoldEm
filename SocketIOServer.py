@@ -93,11 +93,12 @@ def game_loop(room):
         checkOrCall = "Check" if is_check else "Call"
         info = str(player.balance), str(player.investment), str(table.minimum_bet), str(checkOrCall)
         sio.emit('which_players_turn', player.get_name(), room=room.room_id)
+        option = ''
         try:
             option = sio.call(event='your_turn', data=info, sid=player.get_client_number())
-        except e as TimeoutError:
+        except TimeoutError:
             pass
-        sio.emit('player_action', player.get_name, option, room=room.room_id)
+        sio.emit('player_action', (player.get_name(), option), room=room.room_id)
 
         if int(option) == 1:
             # Going all in because cannot match table bet
