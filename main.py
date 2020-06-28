@@ -24,10 +24,12 @@ def print_balance(room1):
             print(h, end=" ")
             print("Balance: ", player.balance)
 
-def game_loop(room1):
-    check = len(room1._players)
-    fold = 0
-    while check > 0:
+def game_loop(room1, num_raises=0):
+
+    bankrupt_players = sum([1 for p in room1.get_player_list() if p.bankrupt])
+    folded = 0
+    check = len(room1._players) - folded - bankrupt_players
+    while True:
         player = room1._table.current_player
         print("Current player is: ", player)
         print(player, "Current Balance: ", player.balance, " Current Investment: ", player.investment)
@@ -39,27 +41,43 @@ def game_loop(room1):
         print("Minimum Bet to Play:", room1._table.minimum_bet)
         is_check = True if player.investment == room1._table.minimum_bet else False
         checkOrCall = "Check" if is_check else "Call"
-        print("1.)", checkOrCall, "2.) Fold 3.) Raise")
+        if num_raises < 3:
+            print("1.)", checkOrCall, "2.) Fold 3.) Raise")
+        else:
+            print("1.)", checkOrCall, "2.) Fold")
+     
+
         option = int(input())
         if(option == 1):
             player.change_balance(-(room1._table.minimum_bet - player.investment))
             room1._table.add_to_pot(room1._table.minimum_bet - player.investment)
             player.add_investment(room1._table.minimum_bet - player.investment)
-            if is_check:
-                check -=1
+            # if is_check:
+            #    check -=1
         if(option == 2):
             player.fold()
-            fold += 1
-            check -= 1
-        if(option == 3):
-            check = len(room1._players) - fold
+            # fold += 1
+            # check -= 1
+        if option == 3 and num_raises < 3:
+            check = len(room1._players) - folded - bankrupt_players
             print("By how much?")
             _raise = int(input())
             room1._table.change_minimum_bet(_raise)
             player.change_balance(-(room1._table.minimum_bet - player.investment))
             room1._table.add_to_pot(room1._table.minimum_bet - player.investment)
             player.add_investment(room1._table.minimum_bet - player.investment)
+            num_raises += 1
 
+        # if we get to last action and we 
+        # 4th person not getting an opportunity to call
+        if (player == table.last_action and num_raises >= 3) and (player == table.last_action and option == 1):
+            pass
+
+        # player == table.last_action and num_raises >= 3, he has to call and check: if he folds 
+
+
+        # if lastaction and ischeck and option == 1
+            
         print(player, " after Balance: ", player.balance, " After Investment: ", player.investment, "\n")
 
         # iterate through all players, count is Folded. After if len(player) - count_isFoled == 1, call show, break
@@ -81,7 +99,7 @@ def main():
     # test.distribute_cards(playerList)
     # for player in playerList:
     #     print("Name: ", player.name, " ")
-    #     print("Hand: ", end="")
+    #     print("Hand: ", end="")= 
     #     for h in player.hand:
     #         print(h, end=" ")
     #     print("Balance: ", player.balance)
@@ -109,6 +127,10 @@ def main():
         game_loop(room1) #pre-flop
         #plyers = 1, break
 
+        # looping through players, when we get to last_call (player that gets to call last), we check if investment is equal to min bet AFTER the player's action.
+
+        # player.next()
+
         print("Number of cards before flopping is ", room1._table._deck.num_cards)
         print("************************THE FLOP*********************")
         room1._table._deck.pick_card() #the burn card
@@ -122,6 +144,7 @@ def main():
         print() 
         
         # print(room1._table._deck.num_cards)
+        room1._table.change_last_action()
         game_loop(room1) #pre-turn
         
         print("************************THE TURN*********************")

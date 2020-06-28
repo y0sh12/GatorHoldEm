@@ -19,10 +19,13 @@ class Table:
         self._visible_cards = []
         self._minimumBet = 50
         self._pot = 0
-        self._small_blind_gen_obj = self._small_blind_gen()
-        self._small_blind = None # next(self._small_blind_gen_obj)
+        self._dealer_gen_obj = self._dealer_gen()
+        self._small_blind = None
         self._big_blind = None
+        self._dealer = None
+        self._current_player = None
         self._skip_to_show = False
+        self._last_action = None
 
     def new_round(self):
 
@@ -39,11 +42,12 @@ class Table:
 
         #New round initialization phase    
         # Dealer and blinds pointers that change only at the end of the round
-        self._dealer = next(self._small_blind_gen_obj)
-        self._small_blind = next(self._small_blind_gen_obj)
-        self._big_blind = next(self._small_blind_gen_obj)
+        self._dealer = next(self._dealer_gen_obj)
+        self._small_blind = next(self._dealer_gen_obj)
+        self._big_blind = next(self._dealer_gen_obj)
+        self._last_action = self._big_blind
         while True:
-            pointer = next(self._small_blind_gen_obj)
+            pointer = next(self._dealer_gen_obj)
             if pointer == self._dealer:
                 break
         
@@ -62,6 +66,8 @@ class Table:
             self._current_player = next(self._current_player_gen_obj)
             if self._current_player == self._big_blind:
                 break
+        
+        #Pre - flop point to player left of big blind
         self._current_player = next(self._current_player_gen_obj)
     
     @property
@@ -106,13 +112,21 @@ class Table:
     def skip_to_show(self, _value):
         self._skip_to_show = _value
     # Deals 2 cards to each player's hand
+    
+    @property
+    def last_action(self):
+        return self._last_action
+    
+    # Call after flop
+    def change_last_action(self):
+        self._last_action = self._dealer
 
     def distribute_cards(self):
         for _ in range(2):
             for p in self._players:
                 p.deal(self._deck.pick_card())
     
-    def _small_blind_gen(self):
+    def _dealer_gen(self):
         while True:
             for p in self._players:
                 if p.bankrupt:

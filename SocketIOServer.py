@@ -83,11 +83,12 @@ def find_room(sid):
 
 # return True if game can still be continued
 # returns False if everybody folded
-def game_loop(room):
+def game_loop(room, num_raises = 0):
     table = room.get_Table()
-    check = len(room.get_player_list())
-    fold = 0
-    while check > 0:
+    bankrupt_players = sum([1 for p in room1.get_player_list() if p.bankrupt])
+    folded = sum([1 for p in room1.get_player_list() if p.isFolded])
+    check = len(room.get_player_list()) - bankrupt_players - folded
+    while True:
         player = table.current_player
         is_check = True if player.investment == table.minimum_bet else False
         checkOrCall = "Check" if is_check else "Call"
@@ -111,11 +112,11 @@ def game_loop(room):
                 player.change_balance(-(table.minimum_bet - player.investment))
                 table.add_to_pot(table.minimum_bet - player.investment)
                 player.add_investment(table.minimum_bet - player.investment)
-            if is_check:
-                check -=1
+            # if is_check:
+            check -=1
         if int(option) == 2:
             player.fold()
-            fold += 1
+            folded += 1
             check -= 1
         if int(option) == 3:
             # _raise = Ask player how much raise
@@ -131,11 +132,11 @@ def game_loop(room):
                     player.change_balance(-(table.minimum_bet - player.investment))
                     table.add_to_pot(table.minimum_bet - player.investment)
                     player.add_investment(table.minimum_bet - player.investment)
-                    check = len(room.get_player_list()) - fold
+                    check = len(room.get_player_list()) - folded - bankrupt_players
                     break
             if error == 4:
                 player.fold()
-                fold += 1
+                folded += 1
                 check -= 1
 
 
@@ -164,35 +165,9 @@ def game_loop(room):
         if sane_players == 0:
             table.skip_to_show = True
             return True
-                
 
-        # Case to check if everyone *currently in game* is folded and there is only one player remaining.
-        # if len(room.get_player_list()) - folded <= 1:
-        #    for p in room.get_player_list():
-        #        if not p.isFolded:
-        #            p.change_balance(table.pot)
-        #            sio.emit('message', str(p) + " has won the pot: " + str(table.pot), room = room.room_id)
-        #    return False
-        
-        # count all broke players
-        # broke = 0
-        # for p in room.get_player_list():
-        #     if p.balance == 0:
-        #         broke += 1
-        
-        # Temporary fix
-        # Check if all the not folded players are trying to go all in
-        # if len(room.get_player_list()) - folded == broke:
-        #     print()
-            # Check if all player are broke
-            # show()
-            #    return False
-            # Check if everybody is folded
-
-        # TO DO
-        # No distinction between someone who is bankrupt (out of the game) and someone who is all in.
-        # add a boolean for players active()
-        # generator instead of skipping over balance = 0 players, we can skip over active = false (and isFolded)
+        if check <= 1 and player == table.last_action:
+            break
 
         table.next_player() #++player
 
@@ -275,6 +250,7 @@ def start_game(room):
             visibleCards = str(table._visible_cards[0]) + str(table._visible_cards[1]) + str(table._visible_cards[2])
             sio.emit('message', visibleCards, room = room.room_id)
             
+            table.change_last_action()
             if not table.skip_to_show:
                 if not game_loop(room):
                     continue
