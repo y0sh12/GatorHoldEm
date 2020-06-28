@@ -3,17 +3,15 @@ import sys
 import socketio
 from PIL import Image, ImageTk
 
-
 # Dictionary that holds general player info. Variables are type of info to store & value
 player_dict = {
     'name': '',
     'room_name': '',
     'room_list': [None] * 6,
+    'room_list_len': 0,
     'card1': "",
     'card2': ""
 }
-
-
 def player_dict_set(specifier, value):
     player_dict[specifier] = value
 
@@ -74,6 +72,8 @@ def on_event(balance, investment, minimumBet, checkOrCall):
 @sio.on('message')
 def on_event(message):
     print(message)
+    if message == "game starting":
+        player_dict_set('game_starting', True)
 
 
 @sio.on('emit_hand')
@@ -109,12 +109,12 @@ def update_room_list():
     room_members = sio.call(event='active_player_list', data=player_dict_get('room_name'))
     curr_room_members = player_dict['room_list']
     if room_members:
+        player_dict_set('room_list_len', len(room_members))
         for index, player in enumerate(curr_room_members):
             if index < len(room_members):
                 curr_room_members[index].set(room_members[index]['_name'])
             else:
                 curr_room_members[index].set('')
-
     else:
         return
 
@@ -131,6 +131,7 @@ class GatorHoldEm(tk.Tk):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
 
+        # Create StringVar list room_list to hold lobby members
         new_room_list = []
         for index in range(6):
             new_string_var = tk.StringVar()
@@ -177,10 +178,11 @@ class MainMenu(tk.Frame):
         self.room_entry = tk.Entry(self, fg="black", bg="white", width=50)
         self.room_entry.grid(row=2, column=1)
 
+        # Submit button
         self.submit = tk.Button(self, text="Submit", bg="blue", width=25, command=self.handle_click)
         self.submit.grid(row=3, column=1, padx=0, pady=25)
 
-    # Event handle for submitting name and room name
+    # Event handle for submit and connecting to server
     def handle_click(self):
         # Error check for proper name and room inputs
         if self.name_entry.get() == '' or self.room_entry.get() == '':
@@ -198,17 +200,18 @@ class MainMenu(tk.Frame):
         # If successful, update room members and display lobby page
         update_room_list()
 
-        test = player_dict_get('room_list')
-        print('Full list of players:')
-        for var in test:
-            print(var.get())
-        self.controller.show_frame(Lobby)
+        # Start game if there are three people in the lobby, else continue to lobby
+        if player_dict_get('room_list_len') == 3:
+            self.controller.show_frame(Game)
+        else:
+            self.controller.show_frame(Lobby)
 
 
 class Lobby(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
+
         # Lobby title
         self.lobby_title = tk.Label(self, text='Lobby')
         self.lobby_title.pack(padx=10, pady=10)
@@ -218,11 +221,7 @@ class Lobby(tk.Frame):
         player_list = player_dict_get('room_list')
 
         for index, label in enumerate(self.label_list):
-            self.label_list[index] = tk.Label(self, textvariable=player_list[index]).pack(pady=10)
-
-        # for index, label in enumerate(self.label_list):
-        #     label[index] = tk.Label(self, textvariable=player_dict_get('room_list')[index])
-        #     label.pack(pady=10)
+            self.label_list[index] = tk.Label(self, textvariable=player_list[index]).pack(pady=5)
 
         # Back to home button
         self.back_to_home = tk.Button(self, text="Back to Home",
@@ -238,17 +237,16 @@ class Lobby(tk.Frame):
 
     def update(self):
         if sio.connected:
+            # Update list of room members
             update_room_list()
 
         # Call this function again in three seconds
-        self.after(3000, self.update)
+        self.after(6000, self.update)
 
     def leaving_lobby(self):
-        print("Leaving_lobby???")
         sio.disconnect()
         sio.wait()
         self.controller.show_frame(MainMenu)
-
 
 class Game(tk.Frame):
     def __init__(self, parent, controller):
