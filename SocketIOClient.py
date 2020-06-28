@@ -6,7 +6,7 @@ import socketio
 player_dict = {
     'name': '',
     'room_name': '',
-    'room_list': []
+    'room_list': [None] * 6
 }
 
 
@@ -45,24 +45,13 @@ def disconnect():
 @sio.on('user_connection')
 def on_event(message):
     print(message)
-    player_room = player_dict_get('room_name')
-    room_members = sio.emit('active_player_list', player_room)
-    if room_members:
-        print("Not empty!!!")
-    else:
-        print("Empty!!!")
+    update_room_list()
 
 
 @sio.on('user_disconnect')
 def on_event(message):
     print(message)
-    player_room = player_dict_get('room_name')
-    room_members = sio.emit('active_player_list', player_room)
-    if room_members:
-        for player in room_members:
-            print(player.name)
-    else:
-        print("Empty!!!")
+    update_room_list()
 
 
 @sio.on('joined_room')
@@ -109,6 +98,21 @@ def on_event(player, option):
     print(player, 'chose option', option)
 
 
+# General global functions
+def update_room_list():
+    room_members = sio.call(event='active_player_list', data=player_dict_get('room_name'))
+    curr_room_members = player_dict['room_list']
+    if room_members:
+        for index, player in enumerate(curr_room_members):
+            if index < len(room_members):
+                curr_room_members[index].set(room_members[index]['_name'])
+            else:
+                curr_room_members[index].set('')
+
+    else:
+        return
+
+
 class GatorHoldEm(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -120,6 +124,13 @@ class GatorHoldEm(tk.Tk):
 
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
+
+        new_room_list = []
+        for index in range(6):
+            new_string_var = tk.StringVar()
+            new_room_list.append(new_string_var)
+
+        player_dict_set('room_list', new_room_list)
 
         self.frames = {}
 
@@ -160,44 +171,77 @@ class MainMenu(tk.Frame):
         self.room_entry = tk.Entry(self, fg="black", bg="white", width=50)
         self.room_entry.grid(row=2, column=1)
 
-        self.button = tk.Button(self, text="Submit", bg="blue", width=25, command=self.handle_click)
-        self.button.grid(row=3, column=1, padx=0, pady=25)
+        self.submit = tk.Button(self, text="Submit", bg="blue", width=25, command=self.handle_click)
+        self.submit.grid(row=3, column=1, padx=0, pady=25)
 
-    # Widget event handlers
-    # def handle_keypress(self, event):
-    #     print(event.char)
-
+    # Event handle for submitting name and room name
     def handle_click(self):
         # Error check for proper name and room inputs
         if self.name_entry.get() == '' or self.room_entry.get() == '':
             print("Invalid entry. Try again!")
             return
 
+        # Set up local name and room values
         player_dict_set("name", self.name_entry.get())
         player_dict_set("room_name", self.room_entry.get())
-        print(player_dict_get('room_name'))
 
         # Server call to create new player and join/create room, error handling
         sio.connect('http://localhost:5000')
         sio.emit('goto_room', player_dict_get('room_name'))
 
-        # If successful, proceed to lobby page
+        # If successful, update room members and display lobby page
+        update_room_list()
+
+        test = player_dict_get('room_list')
+        print('Full list of players:')
+        for var in test:
+            print(var.get())
         self.controller.show_frame(Lobby)
 
 
 class Lobby(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        self.label = tk.Label(self, text='Lobby')
-        self.label.pack(padx=10, pady=10)
+        self.controller = controller
+        # Lobby title
+        self.lobby_title = tk.Label(self, text='Lobby')
+        self.lobby_title.pack(padx=10, pady=10)
 
+        # List of players in lobby
+        self.label_list = [0] * 6
+        player_list = player_dict_get('room_list')
+
+        for index, label in enumerate(self.label_list):
+            self.label_list[index] = tk.Label(self, textvariable=player_list[index]).pack(pady=10)
+
+        # for index, label in enumerate(self.label_list):
+        #     label[index] = tk.Label(self, textvariable=player_dict_get('room_list')[index])
+        #     label.pack(pady=10)
+
+        # Back to home button
         self.back_to_home = tk.Button(self, text="Back to Home",
-                                      command=lambda: controller.show_frame(MainMenu))
+                                      command=self.leaving_lobby)
         self.back_to_home.pack(pady=10)
 
-        self.back_to_home = tk.Button(self, text="Start the Game!",
-                                      command=lambda: controller.show_frame(Game))
-        self.back_to_home.pack(pady=10)
+        # Start the game button
+        self.start_the_game = tk.Button(self, text="Start the Game!",
+                                        command=lambda: self.controller.show_frame(Game))
+        self.start_the_game.pack(pady=10)
+
+        self.update()
+
+    def update(self):
+        if sio.connected:
+            update_room_list()
+
+        # Call this function again in three seconds
+        self.after(3000, self.update)
+
+    def leaving_lobby(self):
+        print("Leaving_lobby???")
+        sio.disconnect()
+        sio.wait()
+        self.controller.show_frame(MainMenu)
 
 
 class Game(tk.Frame):
@@ -229,7 +273,7 @@ class Game(tk.Frame):
         self.button.pack()
 
     def update_players(self):
-        #self.pl_list = sio.emit('active_player_list', '1')
+        # self.pl_list = sio.emit('active_player_list', '1')
         for counter, t in enumerate(self.text):
             t.set("")
             self.label[counter].place(x=0, y=self.pl_y[counter], width=50, height=20)
@@ -242,7 +286,8 @@ class Game(tk.Frame):
             print("empty")
 
 
-
+def update():
+    print("hi")
 
 
 def main():
