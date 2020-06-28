@@ -1,12 +1,16 @@
 import tkinter as tk
 import sys
 import socketio
+from PIL import Image, ImageTk
+
 
 # Dictionary that holds general player info. Variables are type of info to store & value
 player_dict = {
     'name': '',
     'room_name': '',
-    'room_list': [None] * 6
+    'room_list': [None] * 6,
+    'card1': "",
+    'card2': ""
 }
 
 
@@ -75,6 +79,8 @@ def on_event(message):
 @sio.on('emit_hand')
 def on_event(card1, card2):
     print("Your hand:", card1, card2)
+    player_dict_set("card1", card1)
+    player_dict_set("card2", card2)
 
 
 @sio.on('connection_error')
@@ -247,43 +253,141 @@ class Lobby(tk.Frame):
 class Game(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
+        self.con = controller
         self.background_image = tk.PhotoImage(file="./res/felt.png")
         self.background_label = tk.Label(self, image=self.background_image)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-        self.back_to_home = tk.Button(self, text="Back to Home",
-                                      command=lambda: controller.show_frame(MainMenu))
+        self.back_to_home = tk.Button(self, text="Back to Lobby",
+                                      command=lambda: [self.exit(), controller.show_frame(Lobby)])
         self.back_to_home.pack()
         self.pl_list = []
-        self.text = [tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar()]
+        self.pl_text = [tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar()]
+        self.bal_text = [tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar()]
 
-        self.label = [0, 0, 0, 0, 0, 0]
+        self.running = True
+        self.pl_label = [0, 0, 0, 0, 0, 0]
+        self.bal_label = [0, 0, 0, 0, 0, 0]
         self.pl_name = ["", "", "", "", "", ""]
-        self.label[0] = tk.Label(self, textvariable=self.text[0])
-        self.label[1] = tk.Label(self, textvariable=self.text[1])
-        self.label[2] = tk.Label(self, textvariable=self.text[2])
-        self.label[3] = tk.Label(self, textvariable=self.text[3])
-        self.label[4] = tk.Label(self, textvariable=self.text[4])
-        self.label[5] = tk.Label(self, textvariable=self.text[5])
+        self.pl_label[0] = tk.Label(self, textvariable=self.pl_text[0])
+        self.pl_label[1] = tk.Label(self, textvariable=self.pl_text[1])
+        self.pl_label[2] = tk.Label(self, textvariable=self.pl_text[2])
+        self.pl_label[3] = tk.Label(self, textvariable=self.pl_text[3])
+        self.pl_label[4] = tk.Label(self, textvariable=self.pl_text[4])
+        self.pl_label[5] = tk.Label(self, textvariable=self.pl_text[5])
 
-        self.pl_x = [0, 0, 0, 0, 0, 0]
-        self.pl_y = [0, 20, 40, 60, 80, 100]
+        self.bal_label[0] = tk.Label(self, textvariable=self.bal_text[0])
+        self.bal_label[1] = tk.Label(self, textvariable=self.bal_text[1])
+        self.bal_label[2] = tk.Label(self, textvariable=self.bal_text[2])
+        self.bal_label[3] = tk.Label(self, textvariable=self.bal_text[3])
+        self.bal_label[4] = tk.Label(self, textvariable=self.bal_text[4])
+        self.bal_label[5] = tk.Label(self, textvariable=self.bal_text[5])
 
-        self.button = tk.Button(self, text="players", bg="blue", width=25, command=self.update_players)
+        self.card1_image = 0
+        self.card1_label = 0
+        self.card2_label = 0
+        self.card2_image = 0
+
+        self.pl_x = [0, 300, 300, 0, -300, -300]
+        self.pl_y = [540, 440, 240, 140, 240, 440]
+        self.card1_x = [350, 50, 50, 350, 650, 650]
+        self.card1_y = [490, 390, 190, 90, 190, 390]
+        self.card2_x = [400, 100, 100, 400, 700, 700]
+        self.card2_y = [490, 390, 190, 90, 190, 390]
+
+        self.button = tk.Button(self, text="players", bg="blue", width=25, command=self.up)
         self.button.pack()
+
+        self.pl_label_width = 100
+        self.bal_label_width = 50
+
+
+    def up(self):
+        self.running = True
+        while self.running:
+            self.after(100, self.update_players())
+            #print(player_dict_get("card1"))
+
+    def exit(self):
+
+        self.running = False
 
     def update_players(self):
         # self.pl_list = sio.emit('active_player_list', '1')
-        for counter, t in enumerate(self.text):
+        for counter, t in enumerate(self.pl_text):
             t.set("")
-            self.label[counter].place(x=0, y=self.pl_y[counter], width=50, height=20)
+            x_player = 400 - self.pl_label_width/2 - self.pl_x[counter]
+            x_balance = 400 - self.bal_label_width/2 - self.pl_x[counter]
+            y_player = self.pl_y[counter]
+            y_balance = self.pl_y[counter]+20
+            self.pl_label[counter].place(x=x_player, y=y_player, width=self.pl_label_width, height=20)
+            self.bal_label[counter].place(x=x_balance, y=y_balance, width=self.bal_label_width, height=20)
         self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
         if self.pl_list is not None:
             for counter, pl in enumerate(self.pl_list):
-                self.text[counter].set(pl['_name'])
-                print(pl['_name'])
+                self.pl_text[counter].set(pl['_name'])
+                self.bal_text[counter].set(pl['_balance'])
+                # print(pl['_name'])
         else:
             print("empty")
+        card1_path = ""
+        if player_dict_get("card1") != "":
+            temp = player_dict_get("card1").split()
+            if temp[3] == "11":
+                temp[3] = "jack"
+            if temp[3] == "12":
+                temp[3] = "queen"
+            if temp[3] == "13":
+                temp[3] = "king"
+            if temp[3] == "14":
+                temp[3] = "ace"
+            card1_path = "./res/" + temp[3] + "_of_" + temp[1].lower() + "s.png"
+            self.card1_image = Image.open(card1_path)
+            self.card1_image = self.card1_image.resize((50, 50), Image.ANTIALIAS)
+            self.card1_image = ImageTk.PhotoImage(self.card1_image)
+            self.card1_label = tk.Label(self, image=self.card1_image)
+            seat = 0
+            for counter, pl in enumerate(self.pl_list):
+                if pl["_name"] == player_dict_get("name"):
+                    seat = counter
+            self.card1_label.place(x=self.card1_x[seat], y=self.card1_y[seat], width=50, height=50)
+
+        card2_path = ""
+        if player_dict_get("card2") != "":
+            temp = player_dict_get("card2").split()
+            if temp[3] == "11":
+                temp[3] = "jack"
+            if temp[3] == "12":
+                temp[3] = "queen"
+            if temp[3] == "13":
+                temp[3] = "king"
+            if temp[3] == "14":
+                temp[3] = "ace"
+            card2_path = "./res/" + temp[3] + "_of_" + temp[1].lower() + "s.png"
+            self.card2_image = Image.open(card2_path)
+            self.card2_image = self.card2_image.resize((50, 50), Image.ANTIALIAS)
+            self.card2_image = ImageTk.PhotoImage(self.card2_image)
+            self.card2_label = tk.Label(self, image=self.card2_image)
+            seat = 0
+            for counter, pl in enumerate(self.pl_list):
+                if pl["_name"] == player_dict_get("name"):
+                    seat = counter
+            self.card2_label.place(x=self.card2_x[seat], y=self.card2_y[seat], width=50, height=50)
+
+        # self.card1_image = tk.PhotoImage(file=card1_path)
+        # self.card2_image = tk.PhotoImage(file=card2_path)
+
+
+
+
+
+        self.update()
+
+
+
+
+        #self.after(2000, self.update_players)
+
 
 
 def update():

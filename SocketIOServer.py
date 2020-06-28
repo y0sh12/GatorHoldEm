@@ -4,6 +4,7 @@ import eventlet
 from room import Room
 from player import Player
 from table import Table
+import copy
 
 roomList = []
 sio = socketio.Server()
@@ -25,7 +26,9 @@ def on_event(sid, room_id):
     print(room.get_player_list())
     pl_list = []
     for pl in room.get_player_list():
-        pl_list.append(pl.__dict__)
+        temp_pl = copy.deepcopy(pl)
+        temp_pl.hand = []
+        pl_list.append(temp_pl.__dict__)
     return pl_list
 
 
@@ -104,7 +107,7 @@ def game_loop(room):
             option = sio.call(event='your_turn', data=info, sid=player.get_client_number())
         except e as TimeoutError:
             pass
-        sio.emit('player_action', player.get_name, option, room=room.room_id)
+        sio.emit('player_action', (player.get_name(), option), room=room.room_id)
         if int(option) == 1:
             player.change_balance(-(table.minimum_bet - player.investment))
             table.add_to_pot(table.minimum_bet - player.investment)

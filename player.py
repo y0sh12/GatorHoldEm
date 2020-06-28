@@ -56,6 +56,10 @@ class Player:
     @property
     def hand(self):
         return self._hand
+
+    @hand.setter
+    def hand(self, hand):
+        self._hand = hand
     
     def set_best_hand(self, value):
         self._best_hand = value
