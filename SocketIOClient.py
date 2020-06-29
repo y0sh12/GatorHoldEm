@@ -16,6 +16,7 @@ player_dict = {
     'investment': 0,
     'minimumBet': 0,
     'checkOrCall': 'Call',
+    'game_starting': False,
     'my_turn': False,
     'choice': '',
     'raise_amount': 0
@@ -338,7 +339,9 @@ class Lobby(tk.Frame):
         self.controller = controller
 
         # Lobby title
-        self.lobby_title = tk.Label(self, text='Lobby')
+        self.lobby_title_text = tk.StringVar()
+        self.changed_title = False
+        self.lobby_title = tk.Label(self, textvariable=self.lobby_title_text)
         self.lobby_title.pack(padx=10, pady=10)
 
         # List of players in lobby
@@ -361,8 +364,16 @@ class Lobby(tk.Frame):
 
         self.update()
 
+        # Start game if there are three people in the lobby, else continue to lobby
+        if player_dict_get('room_list_len') == 3:
+            self.controller.show_frame(Game)
+
     def update(self):
         if sio.connected:
+            # Change title of lobby once
+            if not self.changed_title:
+                self.lobby_title_text.set('Room: ' + player_dict_get('room_name'))
+                self.changed_title = True
             # Update list of room members
             update_room_list()
 
