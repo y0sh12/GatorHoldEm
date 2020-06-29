@@ -36,7 +36,7 @@ class Table:
         self._deck.reset()
         self._visible_cards.clear()
         self._pot = 0
-        self._minimumBet = 50 + 25 * Table.theRound
+        self._minimumBet = 50
         Table.theRound += 1
 
 
