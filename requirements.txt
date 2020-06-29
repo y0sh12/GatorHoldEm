@@ -1,2 +1,3 @@
 eventlet
 socketio
+Pillow

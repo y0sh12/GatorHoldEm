@@ -4,6 +4,7 @@ import eventlet
 from room import Room
 from player import Player
 from table import Table
+import copy
 
 roomList = []
 sio = socketio.Server()
@@ -14,14 +15,22 @@ app = socketio.WSGIApp(sio)
 def connect(sid, environ):
     print(sid, "in lobby")
 
+
 # sio.call(event='active_player_list', data=room.room_id)
 @sio.on('active_player_list')
-def on_event(id):
-    room = next((room for room in roomList if room.room_id == id), None)
+def on_event(sid, room_id):
+    room = next((room for room in roomList if room.room_id == room_id), None)
     if room is None:
+        print("room does not exist")
         return None
+    print(room.get_player_list())
+    pl_list = []
+    for pl in room.get_player_list():
+        temp_pl = copy.deepcopy(pl)
+        temp_pl.hand = []
+        pl_list.append(temp_pl.__dict__)
+    return pl_list
 
-    return room.get_player_list()
 
 @sio.event
 def disconnect(sid):
@@ -55,8 +64,8 @@ def goto_room(sid, room_id):
     if find_room is None:
         roomList.append(Room(room_id))
         find_room = roomList[-1]
-    print (find_room.room_id)
-    print (find_room.get_player_list())
+    print(find_room.room_id)
+    print(find_room.get_player_list())
     # temporary code to only have a max of 3 ppl per room
     if len(find_room.get_player_list()) < 3:
         sio.enter_room(sid, room_id)
@@ -66,11 +75,11 @@ def goto_room(sid, room_id):
         sio.emit('connection_error', "Unauthorized", room=sid)
 
 
-
 @sio.event
 def leave_room(sid, room):
     sio.leave_room(sid, room)
     print(sid, "left room", room)
+
 
 @sio.event
 def leave_room(sid):
@@ -82,6 +91,7 @@ def find_room(sid):
         if room.player_present_sid(sid):
             return room
     return None
+
 
 # return True if game can still be continued
 # returns False if everybody folded
@@ -97,13 +107,11 @@ def game_loop(room, num_raises = 0):
         checkOrCall = "Check" if is_check else "Call"
         info = str(player.balance), str(player.investment), str(table.minimum_bet), str(checkOrCall)
         sio.emit('which_players_turn', player.get_name(), room=room.room_id)
-        option = ''
         try:
             option = sio.call(event='your_turn', data=info, sid=player.get_client_number())
-        except TimeoutError:
+        except e as TimeoutError:
             pass
         sio.emit('player_action', (player.get_name(), option), room=room.room_id)
-
         if int(option) == 1:
             # Going all in because cannot match table bet
             if table.minimum_bet >= player.balance + player.investment:
@@ -117,6 +125,7 @@ def game_loop(room, num_raises = 0):
                 player.add_investment(table.minimum_bet - player.investment)
             # if is_check:
             check -=1
+            
         if int(option) == 2:
             # if last action player's last action is to fold we should end the round there.
             # 2 active players??
@@ -148,7 +157,30 @@ def game_loop(room, num_raises = 0):
             folded += 1
             check -= 1
         if int(option) == 3:
+            check = len(room.get_player_list()) - fold
             # _raise = Ask player how much raise
+
+#             ask = "By how much do you want to raise"
+#             _raise = sio.call(event='raise', data=ask, sid=player.get_client_number())
+#             table.change_minimum_bet(int(_raise))
+#             player.change_balance(-(table.minimum_bet - player.investment))
+#             table.add_to_pot(table.minimum_bet - player.investment)
+#             player.add_investment(table.minimum_bet - player.investment)
+        
+        
+#         # Check if everybody is folded
+#         folded = 0
+#         for p in room.get_player_list():
+#             if p.isFolded:
+#                 folded += 1
+#         if len(room.get_player_list()) - folded <= 1:
+#             for p in room.get_player_list():
+#                 if not p.isFolded:
+#                     p.change_balance(table.pot)
+#                     sio.emit('message', str(p) + " has won the pot: " + str(table.pot), room = room.room_id)
+#             return False
+#         table.next_player()  # ++player
+
             error = 0
             while error < 3:
                 ask = "By how much do you want to raise"
@@ -203,40 +235,35 @@ def game_loop(room, num_raises = 0):
 
         table.next_player() #++player
 
+
     return True
 
+
 def show(room):
-    sio.emit('message', 'THE FINAL SHOWDOWN', room = room.room_id)
     table = room.get_Table()
     for player in room.get_player_list():
-        if player.isFolded or player.bankrupt:
-                continue
+        if player.isFolded:
+            continue
         else:
             play = table.play(player.hand + table._visible_cards)
             player.set_best_hand(play[0])
             player.set_best_sum(play[1])
-            if play[2] != None:
-                player.set_best_hand_sum(play[2])
-            sio.emit('message', "Your best hand: " + str(player.best_hand), room = player.get_client_number())
-            sio.emit('message', "Your best sum: " + str(player.best_sum), room = player.get_client_number())
+            sio.emit('message', "Your best hand: " + str(player.best_hand), room=player.get_client_number())
+            sio.emit('message', "Your best sum: " + str(player.best_sum), room=player.get_client_number())
     max_combination = max(p.best_hand for p in room.get_player_list())
-    if max_combination == 2 or max_combination == 3 or max_combination == 4 or max_combination == 8:
-        max_hand_sum = max(p.best_hand_sum for p in room.get_player_list() if p.best_hand == max_combination)
-        max_sum = max(p.best_sum for p in room.get_player_list()if p.best_hand == max_combination and p.best_hand_sum == max_hand_sum)
-        ties_with_max = [p for p in room.get_player_list() if p.best_hand == max_combination and p.best_sum == max_sum and p.best_hand_sum == max_hand_sum]
-    else:
-        max_sum = max(p.best_sum for p in room.get_player_list()if p.best_hand == max_combination)
-        ties_with_max = [p for p in room.get_player_list() if p.best_hand == max_combination and p.best_sum == max_sum]
+    max_sum = max(p.best_sum for p in room.get_player_list() if p.best_hand == max_combination)
+    ties_with_max = [p for p in room.get_player_list() if p.best_hand == max_combination and p.best_sum == max_sum]
 
-    if len(ties_with_max) == 1: # if one player wins whole pot, no ties
+    if len(ties_with_max) == 1:  # if one player wins whole pot, no ties
         ties_with_max[0].change_balance(table.pot)
-        sio.emit('message', str(ties_with_max[0]) + " has won the pot: " + str(table.pot) + "\n", room = room.room_id)
+        sio.emit('message', str(ties_with_max[0]) + " has won the pot: " + str(table.pot) + "\n", room=room.room_id)
     else:
         # TODO BE MODIFIED TO CHECK FOR TIE BREAKERS
         split = table.pot / len(ties_with_max)
         for p in ties_with_max:
             p.change_balance(split)
-            sio.emit('message', str(p) + "has won a split of the pot: " + str(split) + "\n", room = room.room_id)
+            sio.emit('message', str(p) + "has won a split of the pot: " + str(split) + "\n", room=room.room_id)
+
 
 def start_game(room):
     room.game_in_progress = True
@@ -246,17 +273,16 @@ def start_game(room):
     balance_dict = {p.get_client_number():p.balance for p in room.get_player_list()}
 
     while True:
-
-        # break out of the loop if all players (except one winner) are bankrupt
         isBroke = 0
         for player in room.get_player_list():
             if player.balance == 0:
                 isBroke += 1
         if len(room.get_player_list()) - isBroke == 1:
             break
-        else :
+        else:
             table.new_round()
-            sio.emit('message', "Round: " + str(Table.theRound), room = room.room_id)
+            sio.emit('new_hand')
+            sio.emit('message', "Round: " + str(Table.theRound), room=room.room_id)
             table.distribute_cards()
             small_blind = str(table.small_blind) + " is the small blind"
             big_blind = str(table.big_blind) + " is the big blind"
@@ -272,18 +298,20 @@ def start_game(room):
             sio.emit('message', minbet, room = room.room_id)
             
             if not game_loop(room):
-                continue 
-            
-            sio.emit('message', "---------THE FLOP----------\n", room = room.room_id)
-            table._deck.pick_card() #the burn card
-            table.add_to_visible_cards(table._deck.pick_card()) 
-            table.add_to_visible_cards(table._deck.pick_card())   #The FLOP - three cards
+                continue
+
+            sio.emit('message', "---------THE FLOP----------\n", room=room.room_id)
+            table._deck.pick_card()  # the burn card
             table.add_to_visible_cards(table._deck.pick_card())
-            visibleCards = str(table._visible_cards[0]) + str(table._visible_cards[1]) + str(table._visible_cards[2])
-            sio.emit('message', visibleCards, room = room.room_id)
+            table.add_to_visible_cards(table._deck.pick_card())  # The FLOP - three cards
+            table.add_to_visible_cards(table._deck.pick_card())
+            visibleCards = str(table._visible_cards[0]) + " " + str(table._visible_cards[1]) + " " + str(table._visible_cards[2])
+            sio.emit('flop', visibleCards, room=room.room_id)
+
             
             table.change_last_action()
 
+            # Change the first player to player left of last action player.
             while True:
                 first_player = next(table._dealer_gen_obj)
                 if not first_player.isFolded:
@@ -300,47 +328,38 @@ def start_game(room):
                 if current_d == table.dealer:
                     break
 
-
-
-                """
-                curr_p = table.current_player
-                if curr_p == table.dealer:
-                    while True:
-                        if not curr
-                else:
-                    table.next_player()
-                """
             if not table.skip_to_show:
                 if not game_loop(room):
                     continue
-            
-            sio.emit('message', "---------THE TURN----------\n", room = room.room_id)
-            table._deck.pick_card() #the burn card
-            table.add_to_visible_cards(table._deck.pick_card()) #The TURN - one card
-            visibleCards += str(table._visible_cards[3])
-            sio.emit('message', visibleCards, room = room.room_id)
+
+            sio.emit('message', "---------THE TURN----------\n", room=room.room_id)
+            table._deck.pick_card()  # the burn card
+            table.add_to_visible_cards(table._deck.pick_card())  # The TURN - one card
+            visibleCards += " " + str(table._visible_cards[3])
+            sio.emit('turn', visibleCards, room=room.room_id)
 
             if not table.skip_to_show:
                 if not game_loop(room):
                     continue
-            
-            sio.emit('message', "---------THE RIVER----------\n", room = room.room_id)
-            table._deck.pick_card() #the burn card
-            table.add_to_visible_cards(table._deck.pick_card()) #The RIVER - one card
-            visibleCards += str(table._visible_cards[4])
-            sio.emit('message', visibleCards, room = room.room_id)
-            
+
+            sio.emit('message', "---------THE RIVER----------\n", room=room.room_id)
+            table._deck.pick_card()  # the burn card
+            table.add_to_visible_cards(table._deck.pick_card())  # The RIVER - one card
+            visibleCards += " " + str(table._visible_cards[4])
+            sio.emit('river', visibleCards, room=room.room_id)
+
             if not table.skip_to_show:
                 if not game_loop(room):
                     continue
-            
+
             show(room)
             
             # At the end of the round, declare players bankrupt if they are out of money
             for p in room.get_player_list():
                 if p.balance <= 0:
                     p.declare_bankrupt()
-
+            
+            
     winner = None
     for player in room.get_player_list():
             if player.balance != 0:
