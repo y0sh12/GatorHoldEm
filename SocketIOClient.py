@@ -12,12 +12,31 @@ player_dict = {
     'card1': "",
     'card2': ""
 }
+
+
 def player_dict_set(specifier, value):
     player_dict[specifier] = value
 
 
 def player_dict_get(specifier):
     return player_dict[specifier]
+
+
+game_info = {
+    'curr_turn': '',
+    'curr_action': '',
+    'pot': '',
+    'server_message': '',
+    'board': []
+}
+
+
+def game_info_set(specifier, value):
+    game_info[specifier] = value
+
+
+def game_info_get(specifier):
+    return game_info[specifier]
 
 
 # SocketIO connection calls
@@ -248,6 +267,7 @@ class Lobby(tk.Frame):
         sio.wait()
         self.controller.show_frame(MainMenu)
 
+
 class Game(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -299,12 +319,11 @@ class Game(tk.Frame):
         self.pl_label_width = 100
         self.bal_label_width = 50
 
-
     def up(self):
         self.running = True
         while self.running:
             self.after(100, self.update_players())
-            #print(player_dict_get("card1"))
+            # print(player_dict_get("card1"))
 
     def exit(self):
 
@@ -314,10 +333,10 @@ class Game(tk.Frame):
         # self.pl_list = sio.emit('active_player_list', '1')
         for counter, t in enumerate(self.pl_text):
             t.set("")
-            x_player = 400 - self.pl_label_width/2 - self.pl_x[counter]
-            x_balance = 400 - self.bal_label_width/2 - self.pl_x[counter]
+            x_player = 400 - self.pl_label_width / 2 - self.pl_x[counter]
+            x_balance = 400 - self.bal_label_width / 2 - self.pl_x[counter]
             y_player = self.pl_y[counter]
-            y_balance = self.pl_y[counter]+20
+            y_balance = self.pl_y[counter] + 20
             self.pl_label[counter].place(x=x_player, y=y_player, width=self.pl_label_width, height=20)
             self.bal_label[counter].place(x=x_balance, y=y_balance, width=self.bal_label_width, height=20)
         self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
@@ -375,17 +394,9 @@ class Game(tk.Frame):
         # self.card1_image = tk.PhotoImage(file=card1_path)
         # self.card2_image = tk.PhotoImage(file=card2_path)
 
-
-
-
-
         self.update()
 
-
-
-
-        #self.after(2000, self.update_players)
-
+        # self.after(2000, self.update_players)
 
 
 def update():
