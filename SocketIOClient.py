@@ -466,6 +466,7 @@ class Game(tk.Frame):
 
     def set_raise_val(self, val):
         player_dict_set('raise_amount', val)
+        game_info_set('up', True)
 
     def start_up(self):
         self.running = True
