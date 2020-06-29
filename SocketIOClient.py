@@ -100,6 +100,8 @@ def on_event(message, room):
 def on_event(balance, investment, minimumBet, checkOrCall):
     game_info_set('up', True)
 
+    # CHECK/CALL = 1, FOLD = 2, RAISE = 3
+    # THIS IS WHERE TURN CHOICE IS SENT
     new_balance = balance.replace('Your balance: ', '')
     new_investment = investment.replace('Your Investment: ', '')
     new_minimumBet = balance.replace('Minimum Bet to Play: ', '')
@@ -108,9 +110,6 @@ def on_event(balance, investment, minimumBet, checkOrCall):
     player_dict_set('investment', new_investment)
     player_dict_set('minimumBet', new_minimumBet)
     player_dict_set('checkOrCall', new_checkOrCall)
-
-    print(player_dict_get('balance'), player_dict_get('investment'), player_dict_get('minimumBet'),
-          player_dict_get('checkOrCall'))
 
     choice = input(str(
         "Your balance: " + balance + " \nYour Investment: " + investment + " \nMinimum Bet to Play: " + minimumBet + " \n1.) " + checkOrCall + " 2.) Fold 3.) Raise\n"))
