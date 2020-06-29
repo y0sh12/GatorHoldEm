@@ -157,7 +157,6 @@ def game_loop(room, num_raises = 0):
             folded += 1
             check -= 1
         if int(option) == 3:
-            check = len(room.get_player_list()) - fold
             # _raise = Ask player how much raise
 
 #             ask = "By how much do you want to raise"
@@ -240,29 +239,37 @@ def game_loop(room, num_raises = 0):
 
 
 def show(room):
+    sio.emit('message', 'THE FINAL SHOWDOWN', room = room.room_id)
     table = room.get_Table()
     for player in room.get_player_list():
-        if player.isFolded:
-            continue
+        if player.isFolded or player.bankrupt:
+                continue
         else:
             play = table.play(player.hand + table._visible_cards)
             player.set_best_hand(play[0])
             player.set_best_sum(play[1])
-            sio.emit('message', "Your best hand: " + str(player.best_hand), room=player.get_client_number())
-            sio.emit('message', "Your best sum: " + str(player.best_sum), room=player.get_client_number())
+            if play[2] != None:
+                player.set_best_hand_sum(play[2])
+            sio.emit('message', "Your best hand: " + str(player.best_hand), room = player.get_client_number())
+            sio.emit('message', "Your best sum: " + str(player.best_sum), room = player.get_client_number())
     max_combination = max(p.best_hand for p in room.get_player_list())
-    max_sum = max(p.best_sum for p in room.get_player_list() if p.best_hand == max_combination)
-    ties_with_max = [p for p in room.get_player_list() if p.best_hand == max_combination and p.best_sum == max_sum]
+    if max_combination == 2 or max_combination == 3 or max_combination == 4 or max_combination == 8:
+        max_hand_sum = max(p.best_hand_sum for p in room.get_player_list() if p.best_hand == max_combination)
+        max_sum = max(p.best_sum for p in room.get_player_list()if p.best_hand == max_combination and p.best_hand_sum == max_hand_sum)
+        ties_with_max = [p for p in room.get_player_list() if p.best_hand == max_combination and p.best_sum == max_sum and p.best_hand_sum == max_hand_sum]
+    else:
+        max_sum = max(p.best_sum for p in room.get_player_list()if p.best_hand == max_combination)
+        ties_with_max = [p for p in room.get_player_list() if p.best_hand == max_combination and p.best_sum == max_sum]
 
-    if len(ties_with_max) == 1:  # if one player wins whole pot, no ties
+    if len(ties_with_max) == 1: # if one player wins whole pot, no ties
         ties_with_max[0].change_balance(table.pot)
-        sio.emit('message', str(ties_with_max[0]) + " has won the pot: " + str(table.pot) + "\n", room=room.room_id)
+        sio.emit('message', str(ties_with_max[0]) + " has won the pot: " + str(table.pot) + "\n", room = room.room_id)
     else:
         # TODO BE MODIFIED TO CHECK FOR TIE BREAKERS
         split = table.pot / len(ties_with_max)
         for p in ties_with_max:
             p.change_balance(split)
-            sio.emit('message', str(p) + "has won a split of the pot: " + str(split) + "\n", room=room.room_id)
+            sio.emit('message', str(p) + "has won a split of the pot: " + str(split) + "\n", room = room.room_id)
 
 
 def start_game(room):
