@@ -11,8 +11,13 @@ player_dict = {
     'room_list_len': 0,
     'card1': '',
     'card2': '',
-    'running': False
+    'running': False,
+    'balance': 0,
+    'investment': 0,
+    'minimumBet': 0,
+    'checkOrCall': 'Call'
 }
+
 
 def player_dict_set(specifier, value):
     player_dict[specifier] = value
@@ -94,6 +99,19 @@ def on_event(message, room):
 @sio.on('your_turn')
 def on_event(balance, investment, minimumBet, checkOrCall):
     game_info_set('up', True)
+
+    new_balance = balance.replace('Your balance: ', '')
+    new_investment = investment.replace('Your Investment: ', '')
+    new_minimumBet = balance.replace('Minimum Bet to Play: ', '')
+    new_checkOrCall = checkOrCall.replace('1.) ', '').replace('2.) ', '').replace('3. ', '')
+    player_dict_set('balance', new_balance)
+    player_dict_set('investment', new_investment)
+    player_dict_set('minimumBet', new_minimumBet)
+    player_dict_set('checkOrCall', new_checkOrCall)
+
+    print(player_dict_get('balance'), player_dict_get('investment'), player_dict_get('minimumBet'),
+          player_dict_get('checkOrCall'))
+
     choice = input(str(
         "Your balance: " + balance + " \nYour Investment: " + investment + " \nMinimum Bet to Play: " + minimumBet + " \n1.) " + checkOrCall + " 2.) Fold 3.) Raise\n"))
 
@@ -132,7 +150,6 @@ def on_event(message):
     if message == "game starting":
         player_dict_set('game_starting', True)
 
-
     if game_info_get('flop'):
         temp = message.split()
         print(temp)
@@ -142,25 +159,26 @@ def on_event(message):
         game_info['board'][1] = temp[5] + " " + temp[7]
         game_info['board'][2] = temp[9] + " " + temp[11]
         game_info_set('flop', False)
-    #if message == "---------THE FLOP----------\n":
-       # game_info_set('flop', True)
+    # if message == "---------THE FLOP----------\n":
+    # game_info_set('flop', True)
 
     if game_info_get('turn'):
         temp = message.split()
         print(temp)
         game_info['board'][3] = temp[13] + " " + temp[15]
         game_info_set('turn', False)
-    #if message == "---------THE TURN----------\n":
-       # game_info_set('turn', True)
+    # if message == "---------THE TURN----------\n":
+    # game_info_set('turn', True)
 
     if game_info_get('river'):
         temp = message.split()
         print(temp)
         game_info['board'][4] = temp[17] + " " + temp[19]
         game_info_set('river', False)
-    #if message == "---------THE RIVER----------\n":
-       # game_info_set('river', True)
+    # if message == "---------THE RIVER----------\n":
+    # game_info_set('river', True)
     game_info_set('up', True)
+
 
 @sio.on('emit_hand')
 def on_event(card1, card2):
@@ -183,9 +201,9 @@ def on_event(ask):
     return howMuch
 
 
-
 @sio.on('which_players_turn')
 def on_event(data):
+    game_info_set('curr_turn', data)
     print(data, 'has to go')
     game_info_set('up', True)
 
@@ -193,7 +211,8 @@ def on_event(data):
 @sio.on('player_action')
 def on_event(player, option):
     print(player, 'chose option', option)
-    game_info_set('up', True)
+    print(player)
+    print(option)
 
 
 # General global functions
@@ -322,7 +341,8 @@ class Lobby(tk.Frame):
 
         # Start the game button
         self.start_the_game = tk.Button(self, text="Start the Game!",
-                                        command=lambda: [self.controller.show_frame(Game), player_dict_set('running', True)])
+                                        command=lambda: [self.controller.show_frame(Game),
+                                                         player_dict_set('running', True)])
         self.start_the_game.pack(pady=10)
 
         self.update()
@@ -379,7 +399,8 @@ class Game(tk.Frame):
         self.card_back_image = ImageTk.PhotoImage(self.card_back_image)
         self.card_back_label = tk.Label(self, image=self.card_back_image, bg="black")
 
-        self.board_card_image = [self.card_back_image, self.card_back_image, self.card_back_image, self.card_back_image, self.card_back_image]
+        self.board_card_image = [self.card_back_image, self.card_back_image, self.card_back_image, self.card_back_image,
+                                 self.card_back_image]
         self.board_card_label = [0, 0, 0, 0, 0]
 
         self.card1_image = 0
@@ -403,6 +424,24 @@ class Game(tk.Frame):
 
         self.pl_label_width = 100
         self.bal_label_width = 50
+
+        # Label for current turn
+        self.curr_player_text = tk.StringVar()
+        self.curr_player_label = tk.Label(self, textvar=self.curr_player_text).place(x=0, y=575, height=25)
+
+        # Buttons for call/check, fold, and raise
+        self.fold_button = tk.Button(self, text='Fold')
+
+        self.call_check_text = tk.StringVar()
+        self.call_check_text.set(player_dict_get('checkOrCall'))
+        self.call_check_button = tk.Button(self, textvar=self.call_check_text)
+
+        self.raise_button = tk.Button(self, text='Raise')
+
+        self.fold_button.place(x=650, y=550, height=25, width=50)
+        self.call_check_button.place(x=700, y=550, height=25, width=50)
+        self.raise_button.place(x=750, y=550, height=25, width=50)
+
 
     def start_up(self):
         self.running = True
@@ -487,6 +526,11 @@ class Game(tk.Frame):
                 if pl["_name"] == player_dict_get("name"):
                     seat = counter
             self.card2_label.place(x=self.card2_x[seat], y=self.card2_y[seat], width=50, height=50)
+        # Update player turn
+        self.curr_player_text.set("Current player turn: " + game_info_get('curr_turn'))
+
+        # Update call/check text
+        self.call_check_text.set(player_dict_get('checkOrCall'))
 
         for counter, c in enumerate(self.board_card_label):
             if game_info['board'][counter] == '':
