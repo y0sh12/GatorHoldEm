@@ -1,4 +1,4 @@
-timport json
+import json
 
 
 class Player:

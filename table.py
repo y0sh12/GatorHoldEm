@@ -105,6 +105,10 @@ class Table:
         return self._big_blind
 
     @property
+    def dealer(self):
+        return self._dealer
+
+    @property
     def skip_to_show(self):
         return self._skip_to_show
 
@@ -119,7 +123,20 @@ class Table:
     
     # Call after flop
     def change_last_action(self):
-        self._last_action = self._dealer
+        # If the dealer has folded pick the active palyer to the right of the dealer.
+        if self._dealer.isFolded:
+            previous_p = self._dealer
+            current_p = next(self._dealer_gen_obj)
+            while True:
+                if current_p == self._dealer:
+                    break
+                else:
+                    if not current_p.isFolded:
+                        previous_p = current_p
+                    current_p = next(self._dealer_gen_obj)
+            self._last_action = previous_p
+        else:
+            self._last_action = self._dealer
 
     def distribute_cards(self):
         for _ in range(2):

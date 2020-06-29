@@ -41,7 +41,9 @@ def disconnect(sid):
 def on_event(sid, name, room_id):
     room = next((room for room in roomList if room.room_id == room_id), None)
     room.add_player(Player(sid, name, False))
-    print(room.get_player_list())
+    print("Current Players in room are: ", end='')
+    for p in room.get_player_list():
+        print(p, end=' ')
     sio.emit('user_connection', (name + " has joined the room!"), room=room_id, skip_sid=sid)
     if room.game_in_progress is False and len(room.get_player_list()) == 3:
         start_game(room)
@@ -85,9 +87,10 @@ def find_room(sid):
 # returns False if everybody folded
 def game_loop(room, num_raises = 0):
     table = room.get_Table()
-    bankrupt_players = sum([1 for p in room1.get_player_list() if p.bankrupt])
-    folded = sum([1 for p in room1.get_player_list() if p.isFolded])
+    bankrupt_players = sum([1 for p in room.get_player_list() if p.bankrupt])
+    folded = sum([1 for p in room.get_player_list() if p.isFolded])
     check = len(room.get_player_list()) - bankrupt_players - folded
+    last_action_was_fold = False
     while True:
         player = table.current_player
         is_check = True if player.investment == table.minimum_bet else False
@@ -115,7 +118,33 @@ def game_loop(room, num_raises = 0):
             # if is_check:
             check -=1
         if int(option) == 2:
-            player.fold()
+            # if last action player's last action is to fold we should end the round there.
+            # 2 active players??
+
+            # -TO-DO- change_last_action player, point to previous person before dealer if dealer folds
+            # -TO-DO- after flop, if last_action player folds on his last action.
+
+            #If there are only 2 other active players remaining then code should not run
+
+            if player == table.last_action:
+ 
+                #modify last action to player to the right.
+                prev = table.current_player
+                table.next_player()
+                current = table.current_player
+                while True:
+                    if current == player:
+                        break
+                    else:
+                        prev = current
+                        table.next_player()
+                        current = table.current_player
+                if not check <= 1:
+                    table._last_action = prev
+                else:
+                    last_action_was_fold = True
+
+            player.fold()   
             folded += 1
             check -= 1
         if int(option) == 3:
@@ -145,7 +174,7 @@ def game_loop(room, num_raises = 0):
         for p in room.get_player_list():
             if not p.isFolded and not p.bankrupt:
                 active_players += 1
-        
+
         # If everyone  else is folded
         if active_players == 1:
            for p in room.get_player_list():
@@ -154,7 +183,7 @@ def game_loop(room, num_raises = 0):
                    sio.emit('message', str(p) + " has won the pot: " + str(table.pot), room = room.room_id)
            return False
 
-        
+
         sane_players = 0
         for p in room.get_player_list():
             # player is active and not all in
@@ -167,6 +196,9 @@ def game_loop(room, num_raises = 0):
             return True
 
         if check <= 1 and player == table.last_action:
+            if last_action_was_fold:
+                table._last_action = prev
+            table.next_player()
             break
 
         table.next_player() #++player
@@ -251,6 +283,33 @@ def start_game(room):
             sio.emit('message', visibleCards, room = room.room_id)
             
             table.change_last_action()
+
+            while True:
+                first_player = next(table._dealer_gen_obj)
+                if not first_player.isFolded:
+                    while True:
+                        if table.current_player == first_player:
+                            break
+                        else:
+                            table.next_player()
+                    break
+            
+            #Point dealer generator back to dealer
+            while True:
+                current_d = next(table._dealer_gen_obj)
+                if current_d == table.dealer:
+                    break
+
+
+
+                """
+                curr_p = table.current_player
+                if curr_p == table.dealer:
+                    while True:
+                        if not curr
+                else:
+                    table.next_player()
+                """
             if not table.skip_to_show:
                 if not game_loop(room):
                     continue
