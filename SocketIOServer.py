@@ -187,6 +187,7 @@ def start_game(room):
             break
         else:
             table.new_round()
+            sio.emit('new_hand')
             sio.emit('message', "Round: " + str(Table.theRound), room=room.room_id)
             table.distribute_cards()
             small_blind = str(table.small_blind) + " is the small blind"
@@ -210,8 +211,8 @@ def start_game(room):
             table.add_to_visible_cards(table._deck.pick_card())
             table.add_to_visible_cards(table._deck.pick_card())  # The FLOP - three cards
             table.add_to_visible_cards(table._deck.pick_card())
-            visibleCards = str(table._visible_cards[0]) + str(table._visible_cards[1]) + str(table._visible_cards[2])
-            sio.emit('message', visibleCards, room=room.room_id)
+            visibleCards = str(table._visible_cards[0]) + " " + str(table._visible_cards[1]) + " " + str(table._visible_cards[2])
+            sio.emit('flop', visibleCards, room=room.room_id)
 
             if not game_loop(room):
                 continue
@@ -219,8 +220,8 @@ def start_game(room):
             sio.emit('message', "---------THE TURN----------\n", room=room.room_id)
             table._deck.pick_card()  # the burn card
             table.add_to_visible_cards(table._deck.pick_card())  # The TURN - one card
-            visibleCards += str(table._visible_cards[3])
-            sio.emit('message', visibleCards, room=room.room_id)
+            visibleCards += " " + str(table._visible_cards[3])
+            sio.emit('turn', visibleCards, room=room.room_id)
 
             if not game_loop(room):
                 continue
@@ -228,8 +229,8 @@ def start_game(room):
             sio.emit('message', "---------THE RIVER----------\n", room=room.room_id)
             table._deck.pick_card()  # the burn card
             table.add_to_visible_cards(table._deck.pick_card())  # The RIVER - one card
-            visibleCards += str(table._visible_cards[4])
-            sio.emit('message', visibleCards, room=room.room_id)
+            visibleCards += " " + str(table._visible_cards[4])
+            sio.emit('river', visibleCards, room=room.room_id)
 
             if not game_loop(room):
                 continue

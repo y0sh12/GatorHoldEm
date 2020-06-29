@@ -9,10 +9,10 @@ player_dict = {
     'room_name': '',
     'room_list': [None] * 6,
     'room_list_len': 0,
-    'card1': "",
-    'card2': ""
+    'card1': '',
+    'card2': '',
+    'running': False
 }
-
 
 def player_dict_set(specifier, value):
     player_dict[specifier] = value
@@ -25,9 +25,13 @@ def player_dict_get(specifier):
 game_info = {
     'curr_turn': '',
     'curr_action': '',
-    'pot': '',
+    'pot': 0,
     'server_message': '',
-    'board': []
+    'board': ['', '', '', '', ''],
+    'flop': False,
+    'turn': False,
+    'river': False,
+    'up': True
 }
 
 
@@ -48,6 +52,7 @@ def connect():
     print("Welcome", player_dict_get('name') + "!")
     print("You have successfully connected to the Gator Hold \'em server!")
     print("Good Luck!")
+    game_info_set('up', True)
 
 
 @sio.event
@@ -56,36 +61,69 @@ def connect_error(data):
         print("The game has started or has reached maximum player limit")
     else:
         print("The connection failed!")
+    game_info_set('up', True)
 
 
 @sio.event
 def disconnect():
     print("You have left the game. Come back soon!")
+    game_info_set('up', True)
 
 
 @sio.on('user_connection')
 def on_event(message):
     print(message)
     update_room_list()
+    game_info_set('up', True)
 
 
 @sio.on('user_disconnect')
 def on_event(message):
     print(message)
     update_room_list()
+    game_info_set('up', True)
 
 
 @sio.on('joined_room')
 def on_event(message, room):
     sio.emit('my_name', (player_dict_get('name'), player_dict_get('room_name')))
     print(message)
+    game_info_set('up', True)
 
 
 @sio.on('your_turn')
 def on_event(balance, investment, minimumBet, checkOrCall):
+    game_info_set('up', True)
     choice = input(str(
         "Your balance: " + balance + " \nYour Investment: " + investment + " \nMinimum Bet to Play: " + minimumBet + " \n1.) " + checkOrCall + " 2.) Fold 3.) Raise\n"))
+
     return choice
+
+
+@sio.on('new_hand')
+def on_event():
+    game_info_set('up', True)
+    game_info['board'] = ['', '', '', '', '']
+
+
+@sio.on('flop')
+def on_event(flop):
+    temp = flop.split()
+    game_info['board'][0] = temp[1] + " " + temp[3]
+    game_info['board'][1] = temp[5] + " " + temp[7]
+    game_info['board'][2] = temp[9] + " " + temp[11]
+
+
+@sio.on('turn')
+def on_event(turn):
+    temp = turn.split()
+    game_info['board'][3] = temp[13] + " " + temp[15]
+
+
+@sio.on('river')
+def on_event(river):
+    temp = river.split()
+    game_info['board'][4] = temp[17] + " " + temp[19]
 
 
 @sio.on('message')
@@ -95,32 +133,67 @@ def on_event(message):
         player_dict_set('game_starting', True)
 
 
+    if game_info_get('flop'):
+        temp = message.split()
+        print(temp)
+        print(temp[0] + " " + temp[0])
+        print(game_info['board'][0])
+        game_info['board'][0] = temp[1] + " " + temp[3]
+        game_info['board'][1] = temp[5] + " " + temp[7]
+        game_info['board'][2] = temp[9] + " " + temp[11]
+        game_info_set('flop', False)
+    #if message == "---------THE FLOP----------\n":
+       # game_info_set('flop', True)
+
+    if game_info_get('turn'):
+        temp = message.split()
+        print(temp)
+        game_info['board'][3] = temp[13] + " " + temp[15]
+        game_info_set('turn', False)
+    #if message == "---------THE TURN----------\n":
+       # game_info_set('turn', True)
+
+    if game_info_get('river'):
+        temp = message.split()
+        print(temp)
+        game_info['board'][4] = temp[17] + " " + temp[19]
+        game_info_set('river', False)
+    #if message == "---------THE RIVER----------\n":
+       # game_info_set('river', True)
+    game_info_set('up', True)
+
 @sio.on('emit_hand')
 def on_event(card1, card2):
     print("Your hand:", card1, card2)
     player_dict_set("card1", card1)
     player_dict_set("card2", card2)
+    game_info_set('up', True)
 
 
 @sio.on('connection_error')
 def on_event(error):
     print("The game has started or has reached maximum player limit")
+    game_info_set('up', True)
 
 
 @sio.on('raise')
 def on_event(ask):
+    game_info_set('up', True)
     howMuch = input(str(ask + "\n"))
     return howMuch
+
 
 
 @sio.on('which_players_turn')
 def on_event(data):
     print(data, 'has to go')
+    game_info_set('up', True)
 
 
 @sio.on('player_action')
 def on_event(player, option):
     print(player, 'chose option', option)
+    game_info_set('up', True)
 
 
 # General global functions
@@ -249,7 +322,7 @@ class Lobby(tk.Frame):
 
         # Start the game button
         self.start_the_game = tk.Button(self, text="Start the Game!",
-                                        command=lambda: self.controller.show_frame(Game))
+                                        command=lambda: [self.controller.show_frame(Game), player_dict_set('running', True)])
         self.start_the_game.pack(pady=10)
 
         self.update()
@@ -301,10 +374,22 @@ class Game(tk.Frame):
         self.bal_label[4] = tk.Label(self, textvariable=self.bal_text[4])
         self.bal_label[5] = tk.Label(self, textvariable=self.bal_text[5])
 
+        self.card_back_image = Image.open("./res/back.png")
+        self.card_back_image = self.card_back_image.resize((40, 70), Image.ANTIALIAS)
+        self.card_back_image = ImageTk.PhotoImage(self.card_back_image)
+        self.card_back_label = tk.Label(self, image=self.card_back_image, bg="black")
+
+        self.board_card_image = [self.card_back_image, self.card_back_image, self.card_back_image, self.card_back_image, self.card_back_image]
+        self.board_card_label = [0, 0, 0, 0, 0]
+
         self.card1_image = 0
         self.card1_label = 0
         self.card2_label = 0
         self.card2_image = 0
+        self.pot_label = 0
+
+        self.board_card_x = [220, 298, 375, 453, 530]
+        self.board_card_y = [260, 260, 260, 260, 260]
 
         self.pl_x = [0, 300, 300, 0, -300, -300]
         self.pl_y = [540, 440, 240, 140, 240, 440]
@@ -313,16 +398,21 @@ class Game(tk.Frame):
         self.card2_x = [400, 100, 100, 400, 700, 700]
         self.card2_y = [490, 390, 190, 90, 190, 390]
 
-        self.button = tk.Button(self, text="players", bg="blue", width=25, command=self.up)
+        self.button = tk.Button(self, text="players", bg="blue", width=25, command=self.start_up)
         self.button.pack()
 
         self.pl_label_width = 100
         self.bal_label_width = 50
 
-    def up(self):
+    def start_up(self):
         self.running = True
         while self.running:
-            self.after(100, self.update_players())
+            # self.update_players()
+            if game_info_get('up'):
+                self.update_players()
+                game_info_set('up', False)
+            else:
+                self.update()
             # print(player_dict_get("card1"))
 
     def exit(self):
@@ -369,6 +459,13 @@ class Game(tk.Frame):
                     seat = counter
             self.card1_label.place(x=self.card1_x[seat], y=self.card1_y[seat], width=50, height=50)
 
+        p = 0
+        for pl in self.pl_list:
+            p += pl['_investment']
+        game_info_set('pot', p)
+        self.pot_label = tk.Label(self, text="Pot: " + str(game_info_get('pot')))
+        self.pot_label.place(x=350, y=360, width=100, height=20)
+
         card2_path = ""
         if player_dict_get("card2") != "":
             temp = player_dict_get("card2").split()
@@ -390,6 +487,28 @@ class Game(tk.Frame):
                 if pl["_name"] == player_dict_get("name"):
                     seat = counter
             self.card2_label.place(x=self.card2_x[seat], y=self.card2_y[seat], width=50, height=50)
+
+        for counter, c in enumerate(self.board_card_label):
+            if game_info['board'][counter] == '':
+                c = tk.Label(self, image=self.card_back_image, bg="black")
+                c.place(x=self.board_card_x[counter], y=self.board_card_y[counter], width=50, height=80)
+            else:
+                temp = game_info['board'][counter].split()
+                if temp[1] == "11":
+                    temp[1] = "jack"
+                if temp[1] == "12":
+                    temp[1] = "queen"
+                if temp[1] == "13":
+                    temp[1] = "king"
+                if temp[1] == "14":
+                    temp[1] = "ace"
+                path = "./res/" + temp[1] + "_of_" + temp[0].lower() + "s.png"
+
+                self.board_card_image[counter] = Image.open(path)
+                self.board_card_image[counter] = self.board_card_image[counter].resize((40, 70), Image.ANTIALIAS)
+                self.board_card_image[counter] = ImageTk.PhotoImage(self.board_card_image[counter])
+                c = tk.Label(self, image=self.board_card_image[counter], bg="white")
+                c.place(x=self.board_card_x[counter], y=self.board_card_y[counter], width=50, height=80)
 
         # self.card1_image = tk.PhotoImage(file=card1_path)
         # self.card2_image = tk.PhotoImage(file=card2_path)
