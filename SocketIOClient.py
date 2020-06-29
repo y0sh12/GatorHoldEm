@@ -15,7 +15,10 @@ player_dict = {
     'balance': 0,
     'investment': 0,
     'minimumBet': 0,
-    'checkOrCall': 'Call'
+    'checkOrCall': 'Call',
+    'my_turn': False,
+    'choice': '',
+    'raise_amount': 0
 }
 
 
@@ -104,15 +107,24 @@ def on_event(balance, investment, minimumBet, checkOrCall):
     # THIS IS WHERE TURN CHOICE IS SENT
     new_balance = balance.replace('Your balance: ', '')
     new_investment = investment.replace('Your Investment: ', '')
-    new_minimumBet = balance.replace('Minimum Bet to Play: ', '')
+    new_minimumBet = minimumBet.replace('Minimum Bet to Play: ', '')
     new_checkOrCall = checkOrCall.replace('1.) ', '').replace('2.) ', '').replace('3. ', '')
     player_dict_set('balance', new_balance)
     player_dict_set('investment', new_investment)
     player_dict_set('minimumBet', new_minimumBet)
     player_dict_set('checkOrCall', new_checkOrCall)
 
-    choice = input(str(
-        "Your balance: " + balance + " \nYour Investment: " + investment + " \nMinimum Bet to Play: " + minimumBet + " \n1.) " + checkOrCall + " 2.) Fold 3.) Raise\n"))
+    player_dict_set('my_turn', True)
+
+    while(player_dict_get('my_turn')):
+        if player_dict_get('choice') != '':
+            choice = player_dict_get('choice')
+            player_dict_set('my_turn', False)
+            player_dict_set('choice', '')
+
+    game_info_set('up', True)
+    #choice = input(str(
+    #    "Your balance: " + balance + " \nYour Investment: " + investment + " \nMinimum Bet to Play: " + minimumBet + " \n1.) " + checkOrCall + " 2.) Fold 3.) Raise\n"))
 
     return choice
 
@@ -129,18 +141,21 @@ def on_event(flop):
     game_info['board'][0] = temp[1] + " " + temp[3]
     game_info['board'][1] = temp[5] + " " + temp[7]
     game_info['board'][2] = temp[9] + " " + temp[11]
+    game_info_set('up', True)
 
 
 @sio.on('turn')
 def on_event(turn):
     temp = turn.split()
     game_info['board'][3] = temp[13] + " " + temp[15]
+    game_info_set('up', True)
 
 
 @sio.on('river')
 def on_event(river):
     temp = river.split()
     game_info['board'][4] = temp[17] + " " + temp[19]
+    game_info_set('up', True)
 
 
 @sio.on('message')
@@ -196,7 +211,7 @@ def on_event(error):
 @sio.on('raise')
 def on_event(ask):
     game_info_set('up', True)
-    howMuch = input(str(ask + "\n"))
+    howMuch = player_dict_get('raise_amount')
     return howMuch
 
 
@@ -375,6 +390,9 @@ class Game(tk.Frame):
         self.pl_text = [tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar()]
         self.bal_text = [tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar()]
 
+        for t in self.pl_text:
+            t.set('')
+
         self.running = True
         self.pl_label = [0, 0, 0, 0, 0, 0]
         self.bal_label = [0, 0, 0, 0, 0, 0]
@@ -424,23 +442,30 @@ class Game(tk.Frame):
         self.pl_label_width = 100
         self.bal_label_width = 50
 
+        #raise amount slider
+        self.raise_slider = tk.Scale(self, from_=0, to=200, orient='horizontal', command=self.set_raise_val)
+        self.raise_slider.place(x=550, y=500, width=230, height=40)
+        #self.raise_slider.pack()
+
         # Label for current turn
         self.curr_player_text = tk.StringVar()
         self.curr_player_label = tk.Label(self, textvar=self.curr_player_text).place(x=0, y=575, height=25)
 
         # Buttons for call/check, fold, and raise
-        self.fold_button = tk.Button(self, text='Fold')
+        self.fold_button = tk.Button(self, text='Fold', command=lambda: [player_dict_set('choice', '2'), game_info_set('up', True)])
 
         self.call_check_text = tk.StringVar()
         self.call_check_text.set(player_dict_get('checkOrCall'))
-        self.call_check_button = tk.Button(self, textvar=self.call_check_text)
+        self.call_check_button = tk.Button(self, textvar=self.call_check_text, command=lambda: [player_dict_set('choice', '1'), game_info_set('up', True)])
 
-        self.raise_button = tk.Button(self, text='Raise')
+        self.raise_button = tk.Button(self, text='Raise', command=lambda: [player_dict_set('choice', '3'), game_info_set('up', True)])
 
-        self.fold_button.place(x=650, y=550, height=25, width=50)
-        self.call_check_button.place(x=700, y=550, height=25, width=50)
-        self.raise_button.place(x=750, y=550, height=25, width=50)
+        self.fold_button.place(x=550, y=550, height=40, width=70)
+        self.call_check_button.place(x=630, y=550, height=40, width=70)
+        self.raise_button.place(x=710, y=550, height=40, width=70)
 
+    def set_raise_val(self, val):
+        player_dict_set('raise_amount', val)
 
     def start_up(self):
         self.running = True
@@ -459,22 +484,48 @@ class Game(tk.Frame):
 
     def update_players(self):
         # self.pl_list = sio.emit('active_player_list', '1')
+        self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
+        min_raise = int(player_dict_get('minimumBet'))
+        self.raise_slider.config(from_=min_raise)
+        self.raise_slider.config(to=int(player_dict_get('balance')) - min_raise)
+
+        if player_dict_get('my_turn'):
+            self.raise_button["state"] = 'normal'
+            self.fold_button["state"] = 'normal'
+            self.call_check_button["state"] = 'normal'
+        else:
+            self.raise_button["state"] = 'disabled'
+            self.fold_button["state"] = 'disabled'
+            self.call_check_button["state"] = 'disabled'
+
+        if self.pl_list is not None:
+            for counter, pl in enumerate(self.pl_list):
+                self.pl_text[counter].set(pl['_name'])
+                self.bal_text[counter].set(pl['_balance'])
+                # print(pl['_name'])
+
         for counter, t in enumerate(self.pl_text):
-            t.set("")
             x_player = 400 - self.pl_label_width / 2 - self.pl_x[counter]
             x_balance = 400 - self.bal_label_width / 2 - self.pl_x[counter]
             y_player = self.pl_y[counter]
             y_balance = self.pl_y[counter] + 20
             self.pl_label[counter].place(x=x_player, y=y_player, width=self.pl_label_width, height=20)
             self.bal_label[counter].place(x=x_balance, y=y_balance, width=self.bal_label_width, height=20)
-        self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
-        if self.pl_list is not None:
-            for counter, pl in enumerate(self.pl_list):
-                self.pl_text[counter].set(pl['_name'])
-                self.bal_text[counter].set(pl['_balance'])
-                # print(pl['_name'])
-        else:
-            print("empty")
+            if t.get() == '':
+                self.pl_label[counter].config(bg="gray")
+                self.bal_label[counter].config(bg="gray")
+            else:
+                self.pl_label[counter].config(bg="white")
+                self.bal_label[counter].config(bg="white")
+
+        for counter, pl in enumerate(self.pl_list):
+            if pl['_isFolded']:
+                self.pl_label[counter].config(bg="gray")
+                self.bal_label[counter].config(bg="gray")
+            else:
+                self.pl_label[counter].config(bg="white")
+                self.bal_label[counter].config(bg="white")
+
         card1_path = ""
         if player_dict_get("card1") != "":
             temp = player_dict_get("card1").split()
@@ -530,6 +581,8 @@ class Game(tk.Frame):
 
         # Update call/check text
         self.call_check_text.set(player_dict_get('checkOrCall'))
+        if self.call_check_text.get() == "Call":
+            self.call_check_text.set("Call " + str(player_dict_get("minimumBet")))
 
         for counter, c in enumerate(self.board_card_label):
             if game_info['board'][counter] == '':
