@@ -32,18 +32,32 @@ def on_event(sid, room_id):
     return pl_list
 
 
+@sio.on('in_room')
+def in_room(sid, data):
+    name = data[0]
+    room_id = data[1]
+    room = next((room for room in roomList if room.room_id == room_id), None)
+    player_list = room.get_player_list()
+    player = next((player for player in player_list if player.get_name() == name), None)
+    if player is None:
+        return False
+    else:
+        return True
+
+
 @sio.event
 def disconnect(sid):
     room = find_room(sid)
-    player_list = room.get_player_list()
-    player = next((player for player in player_list if player.get_client_number() == sid), None)
-    if player is not None:
-        room.remove_player(player)
-        sio.emit('user_disconnect', (player.get_name() + " has left the room!"), room=room.room_id, skip_sid=sid)
-    player_list = room.get_player_list()
-    if len(player_list) == 0:
-        roomList.remove(room)
-    print('disconnect', sid)
+    if room is not None:
+        player_list = room.get_player_list()
+        player = next((player for player in player_list if player.get_client_number() == sid), None)
+        if player is not None:
+            room.remove_player(player)
+            sio.emit('user_disconnect', (player.get_name() + " has left the room!"), room=room.room_id, skip_sid=sid)
+        player_list = room.get_player_list()
+        if len(player_list) == 0:
+            roomList.remove(room)
+        print('disconnect', sid)
 
 
 @sio.on('my_name')
@@ -54,8 +68,6 @@ def on_event(sid, name, room_id):
     for p in room.get_player_list():
         print(p, end=' ')
     sio.emit('user_connection', (name + " has joined the room!"), room=room_id, skip_sid=sid)
-    if room.game_in_progress is False and len(room.get_player_list()) == 3:
-        start_game(room)
 
 
 @sio.event
@@ -67,7 +79,7 @@ def goto_room(sid, room_id):
     print(find_room.room_id)
     print(find_room.get_player_list())
     # temporary code to only have a max of 3 ppl per room
-    if len(find_room.get_player_list()) < 3:
+    if len(find_room.get_player_list()) < 6:
         sio.enter_room(sid, room_id)
         print(sid, "joined room", room_id)
         sio.emit('joined_room', ("You have successfully joined the room " + room_id, room_id), room=sid)
@@ -84,6 +96,113 @@ def leave_room(sid, room):
 @sio.event
 def leave_room(sid):
     print(sid)
+
+
+@sio.on('start_game')
+def start_game(sid, room_id):
+    room = next((room for room in roomList if room.room_id == room_id), None)
+    if room.game_in_progress:
+        return
+
+    room.game_in_progress = True
+    sio.emit('message', "game starting", room=room.room_id)
+    table = room.get_Table()
+
+    balance_dict = {p.get_client_number(): p.balance for p in room.get_player_list()}
+
+    while True:
+        isBroke = 0
+        for player in room.get_player_list():
+            if player.balance == 0:
+                isBroke += 1
+        if len(room.get_player_list()) - isBroke == 1:
+            break
+        else:
+            table.new_round()
+            sio.emit('new_hand')
+            sio.emit('message', "Round: " + str(Table.theRound), room=room.room_id)
+            table.distribute_cards()
+            small_blind = str(table.small_blind) + " is the small blind"
+            big_blind = str(table.big_blind) + " is the big blind"
+            dealer = str(table._dealer) + " is the dealer"
+            minbet = "The minimum bet is " + str(table.minimum_bet)
+
+            for player in room.get_player_list():
+                card_string = str(player.hand[0]), str(player.hand[1])
+                sio.emit('emit_hand', card_string, room=player.get_client_number())
+            sio.emit('message', dealer, room=room.room_id)
+            sio.emit('message', small_blind, room=room.room_id)
+            sio.emit('message', big_blind, room=room.room_id)
+            sio.emit('message', minbet, room=room.room_id)
+
+            if not game_loop(room):
+                continue
+
+            sio.emit('message', "---------THE FLOP----------\n", room=room.room_id)
+            table._deck.pick_card()  # the burn card
+            table.add_to_visible_cards(table._deck.pick_card())
+            table.add_to_visible_cards(table._deck.pick_card())  # The FLOP - three cards
+            table.add_to_visible_cards(table._deck.pick_card())
+            visibleCards = str(table._visible_cards[0]) + " " + str(table._visible_cards[1]) + " " + str(
+                table._visible_cards[2])
+            sio.emit('flop', visibleCards, room=room.room_id)
+
+            table.change_last_action()
+
+            # Change the first player to player left of last action player.
+            while True:
+                first_player = next(table._dealer_gen_obj)
+                if not first_player.isFolded:
+                    while True:
+                        if table.current_player == first_player:
+                            break
+                        else:
+                            table.next_player()
+                    break
+
+            # Point dealer generator back to dealer
+            while True:
+                current_d = next(table._dealer_gen_obj)
+                if current_d == table.dealer:
+                    break
+
+            if not table.skip_to_show:
+                if not game_loop(room):
+                    continue
+
+            sio.emit('message', "---------THE TURN----------\n", room=room.room_id)
+            table._deck.pick_card()  # the burn card
+            table.add_to_visible_cards(table._deck.pick_card())  # The TURN - one card
+            visibleCards += " " + str(table._visible_cards[3])
+            sio.emit('turn', visibleCards, room=room.room_id)
+
+            if not table.skip_to_show:
+                if not game_loop(room):
+                    continue
+
+            sio.emit('message', "---------THE RIVER----------\n", room=room.room_id)
+            table._deck.pick_card()  # the burn card
+            table.add_to_visible_cards(table._deck.pick_card())  # The RIVER - one card
+            visibleCards += " " + str(table._visible_cards[4])
+            sio.emit('river', visibleCards, room=room.room_id)
+
+            if not table.skip_to_show:
+                if not game_loop(room):
+                    continue
+
+            show(room)
+
+            # At the end of the round, declare players bankrupt if they are out of money
+            for p in room.get_player_list():
+                if p.balance <= 0:
+                    p.declare_bankrupt()
+
+    winner = None
+    for player in room.get_player_list():
+        if player.balance != 0:
+            winner = player
+    sio.emit('message', str(winner) + " HAS WON THE GAME AND HAS EARNED $" + str(winner.balance) + "!",
+             room=room.room_id)
 
 
 def find_room(sid):
@@ -270,109 +389,6 @@ def show(room):
         for p in ties_with_max:
             p.change_balance(split)
             sio.emit('message', str(p) + "has won a split of the pot: " + str(split) + "\n", room = room.room_id)
-
-
-
-def start_game(room):
-    room.game_in_progress = True
-    sio.emit('message', "game starting", room=room.room_id)
-    table = room.get_Table()
-    
-    balance_dict = {p.get_client_number():p.balance for p in room.get_player_list()}
-
-    while True:
-        isBroke = 0
-        for player in room.get_player_list():
-            if player.balance == 0:
-                isBroke += 1
-        if len(room.get_player_list()) - isBroke == 1:
-            break
-        else:
-            table.new_round()
-            sio.emit('new_hand')
-            sio.emit('message', "Round: " + str(Table.theRound), room=room.room_id)
-            table.distribute_cards()
-            small_blind = str(table.small_blind) + " is the small blind"
-            big_blind = str(table.big_blind) + " is the big blind"
-            dealer = str(table._dealer) + " is the dealer"
-            minbet = "The minimum bet is " + str(table.minimum_bet)
-
-            for player in room.get_player_list():
-                card_string = str(player.hand[0]), str(player.hand[1])
-                sio.emit('emit_hand', card_string, room=player.get_client_number())
-            sio.emit('message', dealer, room=room.room_id)
-            sio.emit('message', small_blind, room=room.room_id)
-            sio.emit('message', big_blind, room=room.room_id)
-            sio.emit('message', minbet, room = room.room_id)
-            
-            if not game_loop(room):
-                continue
-
-            sio.emit('message', "---------THE FLOP----------\n", room=room.room_id)
-            table._deck.pick_card()  # the burn card
-            table.add_to_visible_cards(table._deck.pick_card())
-            table.add_to_visible_cards(table._deck.pick_card())  # The FLOP - three cards
-            table.add_to_visible_cards(table._deck.pick_card())
-            visibleCards = str(table._visible_cards[0]) + " " + str(table._visible_cards[1]) + " " + str(table._visible_cards[2])
-            sio.emit('flop', visibleCards, room=room.room_id)
-
-            
-            table.change_last_action()
-
-            # Change the first player to player left of last action player.
-            while True:
-                first_player = next(table._dealer_gen_obj)
-                if not first_player.isFolded:
-                    while True:
-                        if table.current_player == first_player:
-                            break
-                        else:
-                            table.next_player()
-                    break
-            
-            #Point dealer generator back to dealer
-            while True:
-                current_d = next(table._dealer_gen_obj)
-                if current_d == table.dealer:
-                    break
-
-            if not table.skip_to_show:
-                if not game_loop(room):
-                    continue
-
-            sio.emit('message', "---------THE TURN----------\n", room=room.room_id)
-            table._deck.pick_card()  # the burn card
-            table.add_to_visible_cards(table._deck.pick_card())  # The TURN - one card
-            visibleCards += " " + str(table._visible_cards[3])
-            sio.emit('turn', visibleCards, room=room.room_id)
-
-            if not table.skip_to_show:
-                if not game_loop(room):
-                    continue
-
-            sio.emit('message', "---------THE RIVER----------\n", room=room.room_id)
-            table._deck.pick_card()  # the burn card
-            table.add_to_visible_cards(table._deck.pick_card())  # The RIVER - one card
-            visibleCards += " " + str(table._visible_cards[4])
-            sio.emit('river', visibleCards, room=room.room_id)
-
-            if not table.skip_to_show:
-                if not game_loop(room):
-                    continue
-
-            show(room)
-            
-            # At the end of the round, declare players bankrupt if they are out of money
-            for p in room.get_player_list():
-                if p.balance <= 0:
-                    p.declare_bankrupt()
-            
-            
-    winner = None
-    for player in room.get_player_list():
-            if player.balance != 0:
-                winner = player
-    sio.emit('message', str(winner) + " HAS WON THE GAME AND HAS EARNED $" + str(winner.balance) + "!", room = room.room_id)
 
 
 if __name__ == '__main__':
