@@ -131,18 +131,20 @@ def start_game(sid, room_id):
                 table.distribute_cards()
 
             """
-            small_blind = str(table.small_blind) + " is the small blind"
-            big_blind = str(table.big_blind) + " is the big blind"
-            dealer = str(table._dealer) + " is the dealer"
-            minbet = "The minimum bet is " + str(table.minimum_bet)
+            small_blind = str(table.small_blind)
+            big_blind = str(table.big_blind)
+            dealer = str(table.dealer)
+            min_bet = str(table.minimum_bet)
+            round_num = str(Table.theRound)
 
             for player in room.get_player_list():
                 card_string = str(player.hand[0]), str(player.hand[1])
                 sio.emit('emit_hand', card_string, room=player.get_client_number())
-            sio.emit('message', dealer, room=room.room_id)
-            sio.emit('message', small_blind, room=room.room_id)
-            sio.emit('message', big_blind, room=room.room_id)
-            sio.emit('message', minbet, room=room.room_id)
+            # sio.emit('message', dealer, room=room.room_id)
+            # sio.emit('message', small_blind, room=room.room_id)
+            # sio.emit('message', big_blind, room=room.room_id)
+            # sio.emit('message', minbet, room=room.room_id)
+            sio.emit('board_init_info', [dealer, small_blind, big_blind, min_bet, round_num], room=room.room_id)
 
             if not game_loop(room):
                 continue
@@ -241,7 +243,7 @@ def game_loop(room, num_raises = 0):
         is_check = True if player.investment == table.minimum_bet else False
         checkOrCall = "Check" if is_check else "Call"
         info = str(player.balance), str(player.investment), str(table.minimum_bet), str(checkOrCall)
-        sio.emit('which_players_turn', player.get_name(), room=room.room_id)
+        sio.emit('which_players_turn', [player.get_name(), str(table.minimum_bet)], room=room.room_id)
         try:
             option = sio.call(event='your_turn', data=info, sid=player.get_client_number())
         except e as TimeoutError:

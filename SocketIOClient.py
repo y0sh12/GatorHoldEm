@@ -35,12 +35,17 @@ game_info = {
     'curr_turn': '',
     'curr_action': '',
     'pot': 0,
+    'round_num': '',
     'server_message': '',
+    'dealer': '',
+    'small_blind': '',
+    'big_blind': '',
     'board': ['', '', '', '', ''],
     'flop': False,
     'turn': False,
     'river': False,
     'up': True
+
 }
 
 
@@ -117,14 +122,14 @@ def on_event(balance, investment, minimumBet, checkOrCall):
 
     player_dict_set('my_turn', True)
 
-    while(player_dict_get('my_turn')):
+    while (player_dict_get('my_turn')):
         if player_dict_get('choice') != '':
             choice = player_dict_get('choice')
             player_dict_set('my_turn', False)
             player_dict_set('choice', '')
 
     game_info_set('up', True)
-    #choice = input(str(
+    # choice = input(str(
     #    "Your balance: " + balance + " \nYour Investment: " + investment + " \nMinimum Bet to Play: " + minimumBet + " \n1.) " + checkOrCall + " 2.) Fold 3.) Raise\n"))
 
     return choice
@@ -157,6 +162,18 @@ def on_event(river):
     temp = river.split()
     game_info['board'][4] = temp[17] + " " + temp[19]
     game_info_set('up', True)
+
+
+@sio.on('board_init_info')
+def on_event(board_info):
+    # dealer, small_blind, big_blind, min_bet
+    game_info_set('dealer', board_info[0])
+    game_info_set('small_blind', board_info[1])
+    game_info_set('big_blind', board_info[2])
+    player_dict_set('minimumBet', board_info[3])
+    game_info_set('round_num', board_info[4])
+
+    print("Called the new board_init_info function")
 
 
 @sio.on('message')
@@ -222,8 +239,9 @@ def on_event(ask):
 
 @sio.on('which_players_turn')
 def on_event(data):
-    game_info_set('curr_turn', data)
-    print(data, 'has to go')
+    game_info_set('curr_turn', data[0])
+    player_dict_set('minimumBet', data[1])
+    print(data[0], 'has to go')
     game_info_set('up', True)
 
 
@@ -254,6 +272,7 @@ class GatorHoldEm(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         self.title("GatorHoldEm")
         self.geometry('800x600')
+        self.resizable(False, False)
 
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
@@ -444,6 +463,23 @@ class Game(tk.Frame):
         self.card2_image = 0
         self.pot_label = 0
 
+        self.min_bet_text = tk.StringVar()
+        self.min_bet_label = 0
+
+        self.small_blind_text = tk.StringVar()
+        self.small_blind_label = 0
+
+        self.big_blind_text = tk.StringVar()
+        self.big_blind_label = 0
+
+        self.dealer_text = tk.StringVar()
+        self.dealer_label = 0
+
+        self.round_num_text = tk.StringVar()
+        self.round_num_label = 0
+
+
+
         self.board_card_x = [220, 298, 375, 453, 530]
         self.board_card_y = [260, 260, 260, 260, 260]
 
@@ -460,23 +496,26 @@ class Game(tk.Frame):
         self.pl_label_width = 100
         self.bal_label_width = 50
 
-        #raise amount slider
+        # raise amount slider
         self.raise_slider = tk.Scale(self, from_=0, to=200, orient='horizontal', command=self.set_raise_val)
         self.raise_slider.place(x=550, y=500, width=230, height=40)
-        #self.raise_slider.pack()
+        # self.raise_slider.pack()
 
         # Label for current turn
         self.curr_player_text = tk.StringVar()
         self.curr_player_label = tk.Label(self, textvar=self.curr_player_text).place(x=0, y=575, height=25)
 
         # Buttons for call/check, fold, and raise
-        self.fold_button = tk.Button(self, text='Fold', command=lambda: [player_dict_set('choice', '2'), game_info_set('up', True)])
+        self.fold_button = tk.Button(self, text='Fold',
+                                     command=lambda: [player_dict_set('choice', '2'), game_info_set('up', True)])
 
         self.call_check_text = tk.StringVar()
         self.call_check_text.set(player_dict_get('checkOrCall'))
-        self.call_check_button = tk.Button(self, textvar=self.call_check_text, command=lambda: [player_dict_set('choice', '1'), game_info_set('up', True)])
+        self.call_check_button = tk.Button(self, textvar=self.call_check_text,
+                                           command=lambda: [player_dict_set('choice', '1'), game_info_set('up', True)])
 
-        self.raise_button = tk.Button(self, text='Raise', command=lambda: [player_dict_set('choice', '3'), game_info_set('up', True)])
+        self.raise_button = tk.Button(self, text='Raise',
+                                      command=lambda: [player_dict_set('choice', '3'), game_info_set('up', True)])
 
         self.fold_button.place(x=550, y=550, height=40, width=70)
         self.call_check_button.place(x=630, y=550, height=40, width=70)
@@ -490,7 +529,8 @@ class Game(tk.Frame):
         self.running = True
         while self.running:
             # self.update_players()
-            if game_info_get('up'):
+            # if game_info_get('up'):
+            if True:
                 self.update_players()
                 game_info_set('up', False)
             else:
@@ -511,11 +551,11 @@ class Game(tk.Frame):
 
         if bal + inv <= min_bet:
             self.raise_slider.config(from_=int(0))
-            self.raise_slider.config(to = int(0))
+            self.raise_slider.config(to=int(0))
         else:
             # If we constraint from to min_bet in cases w
             self.raise_slider.config(from_=int(0))
-            self.raise_slider.config(to=int(bal -(min_bet - inv)))
+            self.raise_slider.config(to=int(bal - (min_bet - inv)))
 
         if player_dict_get('my_turn'):
             self.raise_button["state"] = 'normal'
@@ -582,6 +622,28 @@ class Game(tk.Frame):
         game_info_set('pot', p)
         self.pot_label = tk.Label(self, text="Pot: " + str(game_info_get('pot')))
         self.pot_label.place(x=350, y=360, width=100, height=20)
+
+        self.min_bet_text.set('Minimum bet: ' + str(player_dict_get('minimumBet')))
+        self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text)
+        self.min_bet_label.place(x=350, y=380, width=100, height=20)
+
+        self.dealer_text.set('Dealer: ' + str(game_info_get('dealer')))
+        self.dealer_label = tk.Label(self, textvariable=self.dealer_text)
+        self.dealer_label.place(x=350, y=400, width=100, height=20)
+
+        self.small_blind_text.set('Small blind: ' + str(game_info_get('small_blind')))
+        self.small_blind_label = tk.Label(self, textvariable=self.small_blind_text)
+        self.small_blind_label.place(x=350, y=420, width=100, height=20)
+
+        self.big_blind_text.set('Big blind: ' + str(game_info_get('big_blind')))
+        self.big_blind_label = tk.Label(self, textvariable=self.big_blind_text)
+        self.big_blind_label.place(x=350, y=440, width=100, height=20)
+
+        self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
+        self.round_num_label = tk.Label(self, textvariable=self.round_num_text)
+        self.round_num_label.place(x=700, y=0, width=100, height=20)
+
+
 
         card2_path = ""
         if player_dict_get("card2") != "":
