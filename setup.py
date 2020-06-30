@@ -8,7 +8,7 @@ setup(
   author = "Sean O'Reilly, Yaswanth Potluri, Adriel Mohammed, Bharat Samineni, Azharullah Baig",
   author_email = 'a.baig@ufl.edu',
   url = 'https://github.com/y0sh12/GatorHoldEm',
-  download_url = 'https://github.com/y0sh12/GatorHoldEm/archive/v_01.tar.gz',
+  download_url = 'https://github.com/y0sh12/GatorHoldEm/archive/v0.1.tar.gz',
   keywords = ['poker', 'gatorholdem', 'texas'],
   install_requires=[
           'python-socketio[client]',
