@@ -141,7 +141,8 @@ class Table:
     def distribute_cards(self):
         for _ in range(2):
             for p in self._players:
-                p.deal(self._deck.pick_card())
+                if not p.bankrupt:
+                    p.deal(self._deck.pick_card())
     
     def _dealer_gen(self):
         while True:
