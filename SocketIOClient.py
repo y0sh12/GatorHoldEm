@@ -454,7 +454,7 @@ class Game(tk.Frame):
         self.card2_x = [400, 100, 100, 400, 700, 700]
         self.card2_y = [490, 390, 190, 90, 190, 390]
 
-        self.button = tk.Button(self, text="players", bg="blue", width=25, command=self.start_up)
+        self.button = tk.Button(self, text="I'm ready", bg="blue", width=25, command=self.start_up)
         self.button.pack()
 
         self.pl_label_width = 100
@@ -504,9 +504,18 @@ class Game(tk.Frame):
     def update_players(self):
         # self.pl_list = sio.emit('active_player_list', '1')
         self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
-        min_raise = int(player_dict_get('minimumBet'))
-        self.raise_slider.config(from_=min_raise)
-        self.raise_slider.config(to=int(player_dict_get('balance')) - min_raise)
+        min_bet = int(player_dict_get('minimumBet'))
+
+        bal = int(player_dict_get('balance'))
+        inv = int(player_dict_get('investment'))
+
+        if bal + inv <= min_bet:
+            self.raise_slider.config(from_=int(0))
+            self.raise_slider.config(to = int(0))
+        else:
+            # If we constraint from to min_bet in cases w
+            self.raise_slider.config(from_=int(0))
+            self.raise_slider.config(to=int(bal -(min_bet - inv)))
 
         if player_dict_get('my_turn'):
             self.raise_button["state"] = 'normal'
@@ -596,7 +605,7 @@ class Game(tk.Frame):
                     seat = counter
             self.card2_label.place(x=self.card2_x[seat], y=self.card2_y[seat], width=50, height=50)
         # Update player turn
-        self.curr_player_text.set("Current player turn: " + game_info_get('curr_turn'))
+        self.curr_player_text.set("Waiting on: " + game_info_get('curr_turn'))
 
         # Update call/check text
         self.call_check_text.set(player_dict_get('checkOrCall'))

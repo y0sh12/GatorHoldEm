@@ -122,6 +122,15 @@ def start_game(sid, room_id):
             sio.emit('new_hand')
             sio.emit('message', "Round: " + str(Table.theRound), room=room.room_id)
             table.distribute_cards()
+            """
+                SHOW TEST
+                players[0] = [Card()]
+                players[1]
+                
+                Comment out 
+                table.distribute_cards()
+
+            """
             small_blind = str(table.small_blind) + " is the small blind"
             big_blind = str(table.big_blind) + " is the big blind"
             dealer = str(table._dealer) + " is the dealer"
@@ -139,6 +148,13 @@ def start_game(sid, room_id):
                 continue
 
             sio.emit('message', "---------THE FLOP----------\n", room=room.room_id)
+            """
+            SHOW TEST
+            table.add_to_visible_cards(Card())
+            table.skip_to_show = True
+
+            Comment out below code
+            """
             table._deck.pick_card()  # the burn card
             table.add_to_visible_cards(table._deck.pick_card())
             table.add_to_visible_cards(table._deck.pick_card())  # The FLOP - three cards
