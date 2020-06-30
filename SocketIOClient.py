@@ -7,6 +7,7 @@ from PIL import Image, ImageTk
 player_dict = {
     'name': '',
     'room_name': '',
+    'in_a_room': False,
     'room_list': [None] * 6,
     'room_list_len': 0,
     'card1': '',
@@ -16,7 +17,6 @@ player_dict = {
     'investment': 0,
     'minimumBet': 0,
     'checkOrCall': 'Call',
-    'game_starting': False,
     'my_turn': False,
     'choice': '',
     'raise_amount': 0
@@ -164,6 +164,7 @@ def on_event(message):
     print(message)
     if message == "game starting":
         player_dict_set('game_starting', True)
+        player_dict_set('running', True)
 
     if game_info_get('flop'):
         temp = message.split()
@@ -206,6 +207,9 @@ def on_event(card1, card2):
 @sio.on('connection_error')
 def on_event(error):
     print("The game has started or has reached maximum player limit")
+    if error == "Unauthorized":
+        print(error)
+
     game_info_set('up', True)
 
 
@@ -322,15 +326,15 @@ class MainMenu(tk.Frame):
         # Server call to create new player and join/create room, error handling
         sio.connect('http://localhost:5000')
         sio.emit('goto_room', player_dict_get('room_name'))
-
+        room_members = sio.call(event='active_player_list', data=player_dict_get('room_name'))
+        in_room = sio.call(event='in_room', data=[player_dict_get('name'), player_dict_get('room_name')])
+        print(in_room)
         # If successful, update room members and display lobby page
-        update_room_list()
-
-        # Start game if there are three people in the lobby, else continue to lobby
-        if player_dict_get('room_list_len') == 3:
-            self.controller.show_frame(Game)
-        else:
+        if in_room:
+            update_room_list()
             self.controller.show_frame(Lobby)
+        else:
+            sio.disconnect()
 
 
 class Lobby(tk.Frame):
@@ -358,20 +362,23 @@ class Lobby(tk.Frame):
 
         # Start the game button
         self.start_the_game = tk.Button(self, text="Start the Game!",
-                                        command=lambda: [self.controller.show_frame(Game),
-                                                         player_dict_set('running', True)])
+                                        command=self.handle_submit)
         self.start_the_game.pack(pady=10)
 
         self.update()
 
-        # Start game if there are three people in the lobby, else continue to lobby
-        if player_dict_get('room_list_len') == 3:
-            self.controller.show_frame(Game)
+    def handle_submit(self):
+        sio.emit('start_game', player_dict_get('room_name'))
+        player_dict_set('running', True)
+        self.controller.show_frame(Game)
 
     def update(self):
         if sio.connected:
             # Change title of lobby once
-            if not self.changed_title:
+            if player_dict_get('running'):
+                self.handle_submit()
+
+            elif not self.changed_title:
                 self.lobby_title_text.set('Room: ' + player_dict_get('room_name'))
                 self.changed_title = True
             # Update list of room members
