@@ -3,13 +3,13 @@ from distutils.core import setup
 setup(
     name='GatorHoldEm',
     packages=['GatorHoldEm'],
-    version='0.1',
+    version='0.2',
     license='MIT',
     description='Poker game made for CIS4390',
     author="Sean O'Reilly, Yaswanth Potluri, Adriel Mohammed, Bharat Samineni, Azharullah Baig",
     author_email='a.baig@ufl.edu',
     url='https://github.com/y0sh12/GatorHoldEm',
-    download_url='https://github.com/y0sh12/GatorHoldEm/archive/v0.1.tar.gz',
+    download_url='https://github.com/y0sh12/GatorHoldEm/archive/v0.2.tar.gz',
     keywords=['poker', 'gatorholdem', 'texas'],
     install_requires=[
         'python-socketio[client]',
