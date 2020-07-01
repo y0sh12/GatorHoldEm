@@ -122,15 +122,13 @@ def on_event(balance, investment, minimumBet, checkOrCall):
 
     player_dict_set('my_turn', True)
 
-    while (player_dict_get('my_turn')):
+    while player_dict_get('my_turn'):
         if player_dict_get('choice') != '':
             choice = player_dict_get('choice')
             player_dict_set('my_turn', False)
             player_dict_set('choice', '')
 
     game_info_set('up', True)
-    # choice = input(str(
-    #    "Your balance: " + balance + " \nYour Investment: " + investment + " \nMinimum Bet to Play: " + minimumBet + " \n1.) " + checkOrCall + " 2.) Fold 3.) Raise\n"))
 
     return choice
 
@@ -172,6 +170,7 @@ def on_event(board_info):
     game_info_set('big_blind', board_info[2])
     player_dict_set('minimumBet', board_info[3])
     game_info_set('round_num', board_info[4])
+    game_info_set('up', True)
 
     print("Called the new board_init_info function")
 
@@ -180,7 +179,6 @@ def on_event(board_info):
 def on_event(message):
     print(message)
     if message == "game starting":
-        player_dict_set('game_starting', True)
         player_dict_set('running', True)
 
     if game_info_get('flop'):
@@ -530,8 +528,7 @@ class Game(tk.Frame):
         self.running = True
         while self.running:
             # self.update_players()
-            # if game_info_get('up'):
-            if True:
+            if game_info_get('up'):
                 self.update_players()
                 game_info_set('up', False)
             else:
@@ -622,23 +619,23 @@ class Game(tk.Frame):
             p += pl['_investment']
         game_info_set('pot', p)
         self.pot_label = tk.Label(self, text="Pot: " + str(game_info_get('pot')))
-        self.pot_label.place(x=350, y=360, width=100, height=20)
+        self.pot_label.place(x=300, y=360, width=200, height=20)
 
         self.min_bet_text.set('Minimum bet: ' + str(player_dict_get('minimumBet')))
         self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text)
-        self.min_bet_label.place(x=350, y=380, width=100, height=20)
+        self.min_bet_label.place(x=300, y=380, width=200, height=20)
 
         self.dealer_text.set('Dealer: ' + str(game_info_get('dealer')))
         self.dealer_label = tk.Label(self, textvariable=self.dealer_text)
-        self.dealer_label.place(x=350, y=400, width=100, height=20)
+        self.dealer_label.place(x=300, y=400, width=200, height=20)
 
         self.small_blind_text.set('Small blind: ' + str(game_info_get('small_blind')))
         self.small_blind_label = tk.Label(self, textvariable=self.small_blind_text)
-        self.small_blind_label.place(x=350, y=420, width=100, height=20)
+        self.small_blind_label.place(x=300, y=420, width=200, height=20)
 
         self.big_blind_text.set('Big blind: ' + str(game_info_get('big_blind')))
         self.big_blind_label = tk.Label(self, textvariable=self.big_blind_text)
-        self.big_blind_label.place(x=350, y=440, width=100, height=20)
+        self.big_blind_label.place(x=300, y=440, width=200, height=20)
 
         self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
         self.round_num_label = tk.Label(self, textvariable=self.round_num_text)
