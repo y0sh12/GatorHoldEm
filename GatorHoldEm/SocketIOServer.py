@@ -398,7 +398,7 @@ def show(room):
 
     if len(ties_with_max) == 1:  # if one player wins whole pot, no ties
         ties_with_max[0].change_balance(table.pot)
-        sio.emit('message', str(ties_with_max[0]) + " has won the pot: " + str(table.pot) + "\n", room=room.room_id)
+        sio.emit('message', str(ties_with_max[0]) + " has won the pot: " + str(table.pot), room=room.room_id)
     else:
         # TODO BE MODIFIED TO CHECK FOR TIE BREAKERS
         split = table.pot / len(ties_with_max)

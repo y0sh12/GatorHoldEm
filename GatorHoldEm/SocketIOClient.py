@@ -44,7 +44,8 @@ game_info = {
     'flop': False,
     'turn': False,
     'river': False,
-    'up': True
+    'up': True,
+    'won_message': ''
 
 }
 
@@ -145,6 +146,7 @@ def on_event(flop):
     game_info['board'][0] = temp[1] + " " + temp[3]
     game_info['board'][1] = temp[5] + " " + temp[7]
     game_info['board'][2] = temp[9] + " " + temp[11]
+    game_info_set('won_message', '')
     game_info_set('up', True)
 
 
@@ -180,6 +182,9 @@ def on_event(message):
     print(message)
     if message == "game starting":
         player_dict_set('running', True)
+
+    if 'has won the pot' in message:
+        game_info_set('won_message', message)
 
     if game_info_get('flop'):
         temp = message.split()
@@ -477,7 +482,8 @@ class Game(tk.Frame):
         self.round_num_text = tk.StringVar()
         self.round_num_label = 0
 
-
+        self.won_the_pot_text = tk.StringVar()
+        self.won_the_pot_label = 0
 
         self.board_card_x = [220, 298, 375, 453, 530]
         self.board_card_y = [260, 260, 260, 260, 260]
@@ -641,7 +647,9 @@ class Game(tk.Frame):
         self.round_num_label = tk.Label(self, textvariable=self.round_num_text)
         self.round_num_label.place(x=700, y=0, width=100, height=20)
 
-
+        self.won_the_pot_text.set(game_info_get('won_message'))
+        self.round_num_label = tk.Label(self, textvariable=self.won_the_pot_text)
+        self.round_num_label.place(x=0, y=560, height=20)
 
         card2_path = ""
         if player_dict_get("card2") != "":
