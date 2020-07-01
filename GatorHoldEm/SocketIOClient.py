@@ -63,37 +63,37 @@ sio = socketio.Client()
 
 @sio.event
 def connect():
-    #print("Welcome", player_dict_get('name') + "!")
-    #print("You have successfully connected to the Gator Hold \'em server!")
-    #print("Good Luck!")
+    print("Welcome", player_dict_get('name') + "!")
+    print("You have successfully connected to the Gator Hold \'em server!")
+    print("Good Luck!")
     game_info_set('up', True)
 
 
 @sio.event
 def connect_error(data):
-    # if str(data) == "Unauthorized":
-    #     print("The game has started or has reached maximum player limit")
-    # else:
-    #     print("The connection failed!")
+    if str(data) == "Unauthorized":
+        print("The game has started or has reached maximum player limit")
+    else:
+        print("The connection failed!")
     game_info_set('up', True)
 
 
 @sio.event
 def disconnect():
-    # print("You have left the game. Come back soon!")
+    print("You have left the game. Come back soon!")
     game_info_set('up', True)
 
 
 @sio.on('user_connection')
 def on_event(message):
-    # print(message)
+    print(message)
     update_room_list()
     game_info_set('up', True)
 
 
 @sio.on('user_disconnect')
 def on_event(message):
-    # print(message)
+    print(message)
     update_room_list()
     game_info_set('up', True)
 
@@ -101,7 +101,7 @@ def on_event(message):
 @sio.on('joined_room')
 def on_event(message, room):
     sio.emit('my_name', (player_dict_get('name'), player_dict_get('room_name')))
-    # print(message)
+    print(message)
     game_info_set('up', True)
 
 
@@ -122,15 +122,13 @@ def on_event(balance, investment, minimumBet, checkOrCall):
 
     player_dict_set('my_turn', True)
 
-    while (player_dict_get('my_turn')):
+    while player_dict_get('my_turn'):
         if player_dict_get('choice') != '':
             choice = player_dict_get('choice')
             player_dict_set('my_turn', False)
             player_dict_set('choice', '')
 
     game_info_set('up', True)
-    # choice = input(str(
-    #    "Your balance: " + balance + " \nYour Investment: " + investment + " \nMinimum Bet to Play: " + minimumBet + " \n1.) " + checkOrCall + " 2.) Fold 3.) Raise\n"))
 
     return choice
 
@@ -172,20 +170,22 @@ def on_event(board_info):
     game_info_set('big_blind', board_info[2])
     player_dict_set('minimumBet', board_info[3])
     game_info_set('round_num', board_info[4])
+    game_info_set('up', True)
+
+    print("Called the new board_init_info function")
 
 
 @sio.on('message')
 def on_event(message):
-    # print(message)
+    print(message)
     if message == "game starting":
-        player_dict_set('game_starting', True)
         player_dict_set('running', True)
 
     if game_info_get('flop'):
         temp = message.split()
-        # print(temp)
-        # print(temp[0] + " " + temp[0])
-        # print(game_info['board'][0])
+        print(temp)
+        print(temp[0] + " " + temp[0])
+        print(game_info['board'][0])
         game_info['board'][0] = temp[1] + " " + temp[3]
         game_info['board'][1] = temp[5] + " " + temp[7]
         game_info['board'][2] = temp[9] + " " + temp[11]
@@ -195,7 +195,7 @@ def on_event(message):
 
     if game_info_get('turn'):
         temp = message.split()
-        # print(temp)
+        print(temp)
         game_info['board'][3] = temp[13] + " " + temp[15]
         game_info_set('turn', False)
     # if message == "---------THE TURN----------\n":
@@ -203,7 +203,7 @@ def on_event(message):
 
     if game_info_get('river'):
         temp = message.split()
-        # print(temp)
+        print(temp)
         game_info['board'][4] = temp[17] + " " + temp[19]
         game_info_set('river', False)
     # if message == "---------THE RIVER----------\n":
@@ -213,7 +213,7 @@ def on_event(message):
 
 @sio.on('emit_hand')
 def on_event(card1, card2):
-    # print("Your hand:", card1, card2)
+    print("Your hand:", card1, card2)
     player_dict_set("card1", card1)
     player_dict_set("card2", card2)
     game_info_set('up', True)
@@ -221,9 +221,9 @@ def on_event(card1, card2):
 
 @sio.on('connection_error')
 def on_event(error):
-    # print("The game has started or has reached maximum player limit")
-    # if error == "Unauthorized":
-    #     print(error)
+    print("The game has started or has reached maximum player limit")
+    if error == "Unauthorized":
+        print(error)
 
     game_info_set('up', True)
 
@@ -239,14 +239,15 @@ def on_event(ask):
 def on_event(data):
     game_info_set('curr_turn', data[0])
     player_dict_set('minimumBet', data[1])
-    # print(data[0], 'has to go')
+    print(data[0], 'has to go')
     game_info_set('up', True)
 
 
 @sio.on('player_action')
 def on_event(player, option):
-    # print(player, 'chose option', option)
-    tempvar = True
+    print(player, 'chose option', option)
+    print(player)
+    print(option)
 
 
 # General global functions
@@ -332,7 +333,7 @@ class MainMenu(tk.Frame):
     def handle_click(self):
         # Error check for proper name and room inputs
         if self.name_entry.get() == '' or self.room_entry.get() == '':
-            # print("Invalid entry. Try again!")
+            print("Invalid entry. Try again!")
             return
 
         # Set up local name and room values
@@ -345,7 +346,7 @@ class MainMenu(tk.Frame):
         sio.emit('goto_room', player_dict_get('room_name'))
         room_members = sio.call(event='active_player_list', data=player_dict_get('room_name'))
         in_room = sio.call(event='in_room', data=[player_dict_get('name'), player_dict_get('room_name')])
-        # print(in_room)
+        print(in_room)
         # If successful, update room members and display lobby page
         if in_room:
             update_room_list()
@@ -527,8 +528,7 @@ class Game(tk.Frame):
         self.running = True
         while self.running:
             # self.update_players()
-            # if game_info_get('up'):
-            if True:
+            if game_info_get('up'):
                 self.update_players()
                 game_info_set('up', False)
             else:
@@ -619,23 +619,23 @@ class Game(tk.Frame):
             p += pl['_investment']
         game_info_set('pot', p)
         self.pot_label = tk.Label(self, text="Pot: " + str(game_info_get('pot')))
-        self.pot_label.place(x=350, y=360, width=100, height=20)
+        self.pot_label.place(x=300, y=360, width=200, height=20)
 
         self.min_bet_text.set('Minimum bet: ' + str(player_dict_get('minimumBet')))
         self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text)
-        self.min_bet_label.place(x=350, y=380, width=100, height=20)
+        self.min_bet_label.place(x=300, y=380, width=200, height=20)
 
         self.dealer_text.set('Dealer: ' + str(game_info_get('dealer')))
         self.dealer_label = tk.Label(self, textvariable=self.dealer_text)
-        self.dealer_label.place(x=350, y=400, width=100, height=20)
+        self.dealer_label.place(x=300, y=400, width=200, height=20)
 
         self.small_blind_text.set('Small blind: ' + str(game_info_get('small_blind')))
         self.small_blind_label = tk.Label(self, textvariable=self.small_blind_text)
-        self.small_blind_label.place(x=350, y=420, width=100, height=20)
+        self.small_blind_label.place(x=300, y=420, width=200, height=20)
 
         self.big_blind_text.set('Big blind: ' + str(game_info_get('big_blind')))
         self.big_blind_label = tk.Label(self, textvariable=self.big_blind_text)
-        self.big_blind_label.place(x=350, y=440, width=100, height=20)
+        self.big_blind_label.place(x=300, y=440, width=200, height=20)
 
         self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
         self.round_num_label = tk.Label(self, textvariable=self.round_num_text)
