@@ -1,8 +1,13 @@
-from setuptools import setup
+from setuptools import setup, find_packages
+import pathlib
+
+here = pathlib.Path(__file__).parent.resolve()
+
+long_description = (here / 'README.md').read_text(encoding='utf-8')
 
 setup(
     name='GatorHoldEm',
-    packages=['GatorHoldEm'],
+    packages=find_packages(),
     version='0.2',
     license='MIT',
     description='Poker game made for CIS4390',
