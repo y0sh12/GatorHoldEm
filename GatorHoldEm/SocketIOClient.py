@@ -414,7 +414,7 @@ class Game(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.con = controller
-        self.background_image = tk.PhotoImage(file="./res/felt.png")
+        self.background_image = tk.PhotoImage(file="res/felt.png")
         self.background_label = tk.Label(self, image=self.background_image)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -446,7 +446,7 @@ class Game(tk.Frame):
         self.bal_label[4] = tk.Label(self, textvariable=self.bal_text[4])
         self.bal_label[5] = tk.Label(self, textvariable=self.bal_text[5])
 
-        self.card_back_image = Image.open("./res/back.png")
+        self.card_back_image = Image.open("res/back.png")
         self.card_back_image = self.card_back_image.resize((40, 70), Image.ANTIALIAS)
         self.card_back_image = ImageTk.PhotoImage(self.card_back_image)
         self.card_back_label = tk.Label(self, image=self.card_back_image, bg="black")
@@ -603,7 +603,7 @@ class Game(tk.Frame):
                 temp[3] = "king"
             if temp[3] == "14":
                 temp[3] = "ace"
-            card1_path = "./res/" + temp[3] + "_of_" + temp[1].lower() + "s.png"
+            card1_path = "res/" + temp[3] + "_of_" + temp[1].lower() + "s.png"
             self.card1_image = Image.open(card1_path)
             self.card1_image = self.card1_image.resize((50, 50), Image.ANTIALIAS)
             self.card1_image = ImageTk.PhotoImage(self.card1_image)
@@ -654,7 +654,7 @@ class Game(tk.Frame):
                 temp[3] = "king"
             if temp[3] == "14":
                 temp[3] = "ace"
-            card2_path = "./res/" + temp[3] + "_of_" + temp[1].lower() + "s.png"
+            card2_path = "res/" + temp[3] + "_of_" + temp[1].lower() + "s.png"
             self.card2_image = Image.open(card2_path)
             self.card2_image = self.card2_image.resize((50, 50), Image.ANTIALIAS)
             self.card2_image = ImageTk.PhotoImage(self.card2_image)
@@ -686,7 +686,7 @@ class Game(tk.Frame):
                     temp[1] = "king"
                 if temp[1] == "14":
                     temp[1] = "ace"
-                path = "./res/" + temp[1] + "_of_" + temp[0].lower() + "s.png"
+                path = "res/" + temp[1] + "_of_" + temp[0].lower() + "s.png"
 
                 self.board_card_image[counter] = Image.open(path)
                 self.board_card_image[counter] = self.board_card_image[counter].resize((40, 70), Image.ANTIALIAS)

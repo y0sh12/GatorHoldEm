@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name='GatorHoldEm',
@@ -30,5 +30,5 @@ setup(
         'Programming Language :: Python :: 3.8',
     ],
     include_package_data=True,
-    package_data={'':['res/*.png']},
+    package_data={'res':['*.png']},
 )
