@@ -4,7 +4,9 @@ Github repo: https://github.com/y0sh12/GatorHoldEm
 
 Installation: 
 1. Use `pip install GatorHoldEm` to install the library
-2. Run the command `gatorholdem` to run the client.
+2. Run the command `gatorholdem` to run the client*.
+
+    *If using WSL, you will need an X server to support graphical display
 
 After joining a room and having at least 2 clients in the same room, click the "Start the Game!" button from one of the clients. 
 Then click the 'I am ready' button for the game GUI to show.
