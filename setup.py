@@ -8,7 +8,7 @@ long_description = (here / 'README.md').read_text(encoding='utf-8')
 setup(
     name='GatorHoldEm',
     packages=find_packages(),
-    version='1.0.1',
+    version='1.0.2',
     license='MIT',
     description='Poker game made for CIS4390',
     long_description=long_description,
@@ -16,7 +16,7 @@ setup(
     author="Sean O'Reilly, Yaswanth Potluri, Adriel Mohammed, Bharat Samineni, Azharullah Baig",
     author_email='a.baig@ufl.edu',
     url='https://github.com/y0sh12/GatorHoldEm',
-    download_url='https://github.com/y0sh12/GatorHoldEm/archive/v1.0.1.tar.gz',
+    download_url='https://github.com/y0sh12/GatorHoldEm/archive/v1.0.2.tar.gz',
     keywords=['poker', 'gatorholdem', 'texas'],
     install_requires=[
         'python-socketio[client]',
