@@ -348,7 +348,7 @@ class MainMenu(tk.Frame):
         player_dict_set("room_name", self.room_entry.get())
 
         # Server call to create new player and join/create room, error handling
-        sio.connect('http://45.33.96.41:5000')
+        sio.connect('http://172.105.159.124:5000')
         # sio.connect('http://localhost:5000')
         sio.emit('goto_room', player_dict_get('room_name'))
         room_members = sio.call(event='active_player_list', data=player_dict_get('room_name'))
