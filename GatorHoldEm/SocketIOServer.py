@@ -64,7 +64,12 @@ def disconnect(sid):
 @sio.on('my_name')
 def on_event(sid, name, room_id):
     room = next((room for room in roomList if room.room_id == room_id), None)
-    room.add_player(Player(sid, name, False))
+    if len(room.get_player_list()) == 0:
+        print("vip")
+        room.add_player(Player(sid, True, name))
+        sio.emit('vip', room=sid)
+    else:
+        room.add_player(Player(sid, False, name))
     print("Current Players in room are: ", end='')
     for p in room.get_player_list():
         print(p, end=' ')
@@ -79,8 +84,7 @@ def goto_room(sid, room_id):
         find_room = roomList[-1]
     print(find_room.room_id)
     print(find_room.get_player_list())
-    # temporary code to only have a max of 3 ppl per room
-    if len(find_room.get_player_list()) < 6:
+    if len(find_room.get_player_list()) < 6 and find_room.game_in_progress is False:
         sio.enter_room(sid, room_id)
         print(sid, "joined room", room_id)
         sio.emit('joined_room', ("You have successfully joined the room " + room_id, room_id), room=sid)

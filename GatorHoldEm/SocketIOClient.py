@@ -1,8 +1,9 @@
-import tkinter as tk
+import pathlib
 import sys
+import tkinter as tk
+
 import socketio
 from PIL import Image, ImageTk
-import pathlib
 
 # Dictionary that holds general player info. Variables are type of info to store & value
 player_dict = {
@@ -106,6 +107,11 @@ def on_event(message, room):
     sio.emit('my_name', (player_dict_get('name'), player_dict_get('room_name')))
     print(message)
     game_info_set('up', True)
+
+
+@sio.on('vip')
+def on_event():
+    print("Ayyyy you da vip")
 
 
 @sio.on('your_turn')
@@ -720,16 +726,6 @@ def main():
     # Start main loop
     app = GatorHoldEm()
     app.mainloop()
-
-    # Example client code
-    # global name
-    # name = input("What is your name?\n")
-    # sio.connect('http://localhost:5000')
-    # # sio.connect('http://172.105.150.126:5000')
-    # print('Your sid is', sio.sid)
-    # print("You are now in the lobby")
-    # room = input("What room would you like to join?\n")
-    # sio.emit('goto_room', room)
 
 
 if __name__ == '__main__':

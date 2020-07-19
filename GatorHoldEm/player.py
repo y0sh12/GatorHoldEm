@@ -1,8 +1,5 @@
-import json
-
-
 class Player:
-    def __init__(self, client_number, name="Gator", ai_bot_bool=False):
+    def __init__(self, client_number, is_vip, name, ai_bot_bool=False):
         self._balance = 500
         self._client_number = client_number
         self._name = name
@@ -14,6 +11,7 @@ class Player:
         self._best_sum = 0
         self._bankrupt = False
         self._best_hand_sum = None
+        self.is_vip = is_vip
 
     @property
     def bankrupt(self):
