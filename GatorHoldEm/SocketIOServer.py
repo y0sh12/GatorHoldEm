@@ -1,10 +1,11 @@
-import sys
-import socketio
-import eventlet
-from room import Room
-from player import Player
-from table import Table
 import copy
+import sys
+
+import eventlet
+import socketio
+from player import Player
+from room import Room
+from table import Table
 
 roomList = []
 sio = socketio.Server()
@@ -246,8 +247,12 @@ def game_loop(room, num_raises=0):
         sio.emit('which_players_turn', [player.get_name(), str(table.minimum_bet)], room=room.room_id)
         try:
             option = sio.call(event='your_turn', data=info, sid=player.get_client_number())
-        except e as TimeoutError:
-            pass
+        except:
+            print("timed out")
+            if is_check:
+                option = 1
+            else:
+                option = 2
         sio.emit('player_action', (player.get_name(), option), room=room.room_id)
         if int(option) == 1:
             # Going all in because cannot match table bet
