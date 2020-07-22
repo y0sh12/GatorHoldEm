@@ -1,5 +1,7 @@
-import tkinter as tk
+import pathlib
 import sys
+import tkinter as tk
+
 import socketio
 from PIL import Image, ImageTk
 
@@ -32,6 +34,7 @@ def player_dict_get(specifier):
 
 
 game_info = {
+    'cwd': str(pathlib.Path(__file__).parent.resolve()),
     'curr_turn': '',
     'curr_action': '',
     'pot': 0,
@@ -44,7 +47,8 @@ game_info = {
     'flop': False,
     'turn': False,
     'river': False,
-    'up': True
+    'up': True,
+    'won_message': ''
 
 }
 
@@ -105,6 +109,11 @@ def on_event(message, room):
     game_info_set('up', True)
 
 
+@sio.on('vip')
+def on_event():
+    print("Ayyyy you da vip")
+
+
 @sio.on('your_turn')
 def on_event(balance, investment, minimumBet, checkOrCall):
     game_info_set('up', True)
@@ -145,6 +154,7 @@ def on_event(flop):
     game_info['board'][0] = temp[1] + " " + temp[3]
     game_info['board'][1] = temp[5] + " " + temp[7]
     game_info['board'][2] = temp[9] + " " + temp[11]
+    game_info_set('won_message', '')
     game_info_set('up', True)
 
 
@@ -180,6 +190,9 @@ def on_event(message):
     print(message)
     if message == "game starting":
         player_dict_set('running', True)
+
+    if 'has won the pot' in message:
+        game_info_set('won_message', message)
 
     if game_info_get('flop'):
         temp = message.split()
@@ -341,7 +354,7 @@ class MainMenu(tk.Frame):
         player_dict_set("room_name", self.room_entry.get())
 
         # Server call to create new player and join/create room, error handling
-        sio.connect('http://45.33.96.41:5000')
+        sio.connect('http://172.105.159.124:5000')
         # sio.connect('http://localhost:5000')
         sio.emit('goto_room', player_dict_get('room_name'))
         room_members = sio.call(event='active_player_list', data=player_dict_get('room_name'))
@@ -415,7 +428,7 @@ class Game(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.con = controller
-        self.background_image = tk.PhotoImage(file="./res/felt.png")
+        self.background_image = tk.PhotoImage(file=game_info_get('cwd') + "/res/felt.png")
         self.background_label = tk.Label(self, image=self.background_image)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -447,7 +460,7 @@ class Game(tk.Frame):
         self.bal_label[4] = tk.Label(self, textvariable=self.bal_text[4])
         self.bal_label[5] = tk.Label(self, textvariable=self.bal_text[5])
 
-        self.card_back_image = Image.open("./res/back.png")
+        self.card_back_image = Image.open(game_info_get('cwd') + "/res/back.png")
         self.card_back_image = self.card_back_image.resize((40, 70), Image.ANTIALIAS)
         self.card_back_image = ImageTk.PhotoImage(self.card_back_image)
         self.card_back_label = tk.Label(self, image=self.card_back_image, bg="black")
@@ -477,7 +490,8 @@ class Game(tk.Frame):
         self.round_num_text = tk.StringVar()
         self.round_num_label = 0
 
-
+        self.won_the_pot_text = tk.StringVar()
+        self.won_the_pot_label = 0
 
         self.board_card_x = [220, 298, 375, 453, 530]
         self.board_card_y = [260, 260, 260, 260, 260]
@@ -603,7 +617,7 @@ class Game(tk.Frame):
                 temp[3] = "king"
             if temp[3] == "14":
                 temp[3] = "ace"
-            card1_path = "./res/" + temp[3] + "_of_" + temp[1].lower() + "s.png"
+            card1_path = game_info_get('cwd') + "/res/" + temp[3] + "_of_" + temp[1].lower() + "s.png"
             self.card1_image = Image.open(card1_path)
             self.card1_image = self.card1_image.resize((50, 50), Image.ANTIALIAS)
             self.card1_image = ImageTk.PhotoImage(self.card1_image)
@@ -641,7 +655,9 @@ class Game(tk.Frame):
         self.round_num_label = tk.Label(self, textvariable=self.round_num_text)
         self.round_num_label.place(x=700, y=0, width=100, height=20)
 
-
+        self.won_the_pot_text.set(game_info_get('won_message'))
+        self.round_num_label = tk.Label(self, textvariable=self.won_the_pot_text)
+        self.round_num_label.place(x=0, y=560, height=20)
 
         card2_path = ""
         if player_dict_get("card2") != "":
@@ -654,7 +670,7 @@ class Game(tk.Frame):
                 temp[3] = "king"
             if temp[3] == "14":
                 temp[3] = "ace"
-            card2_path = "./res/" + temp[3] + "_of_" + temp[1].lower() + "s.png"
+            card2_path = game_info_get('cwd') + "/res/" + temp[3] + "_of_" + temp[1].lower() + "s.png"
             self.card2_image = Image.open(card2_path)
             self.card2_image = self.card2_image.resize((50, 50), Image.ANTIALIAS)
             self.card2_image = ImageTk.PhotoImage(self.card2_image)
@@ -686,7 +702,7 @@ class Game(tk.Frame):
                     temp[1] = "king"
                 if temp[1] == "14":
                     temp[1] = "ace"
-                path = "./res/" + temp[1] + "_of_" + temp[0].lower() + "s.png"
+                path = game_info_get('cwd') + "/res/" + temp[1] + "_of_" + temp[0].lower() + "s.png"
 
                 self.board_card_image[counter] = Image.open(path)
                 self.board_card_image[counter] = self.board_card_image[counter].resize((40, 70), Image.ANTIALIAS)
@@ -710,16 +726,6 @@ def main():
     # Start main loop
     app = GatorHoldEm()
     app.mainloop()
-
-    # Example client code
-    # global name
-    # name = input("What is your name?\n")
-    # sio.connect('http://localhost:5000')
-    # # sio.connect('http://172.105.150.126:5000')
-    # print('Your sid is', sio.sid)
-    # print("You are now in the lobby")
-    # room = input("What room would you like to join?\n")
-    # sio.emit('goto_room', room)
 
 
 if __name__ == '__main__':
