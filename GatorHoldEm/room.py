@@ -14,6 +14,7 @@ class Room:
         self._players.append(player)
 
     def remove_player(self, player):
+        # TODO set player balance to zero and fold instead of removing to prevent program from breaking.
         self._players.remove(player)
 
     def get_player_list(self):

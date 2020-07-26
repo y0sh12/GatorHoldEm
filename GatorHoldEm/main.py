@@ -118,7 +118,7 @@ def main():
     # Round 1
     while(True):
         room1._table.new_round()  # New Round Starts
-        print("Round:", Table.theRound)
+        print("Round:", Table.round_number)
         room1._table.distribute_cards()
         print("Current Dealer: ", room1._table._dealer)
         print("Current sb", room1._table._small_blind)
