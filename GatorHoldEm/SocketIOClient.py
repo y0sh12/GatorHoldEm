@@ -282,7 +282,7 @@ class GatorHoldEm(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         self.title("GatorHoldEm")
-        self.geometry('800x600')
+        self.geometry('1267x781')
         self.resizable(False, False)
 
         container = tk.Frame(self)
@@ -318,29 +318,25 @@ class MainMenu(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         # Widget declarations
-        # Title
-        self.title = tk.Label(self, font=(None, 24), text="GatorHoldEm", height=3, width=20, fg="black")
-        self.title.grid(row=0, column=1, padx=100, pady=50, sticky='S')
 
-        # Name label
-        self.name_label = tk.Label(self, text="Enter your name here:", foreground="black")
-        self.name_label.grid(row=1, column=0)
+        #Importing main menu background
+        self.background_image = tk.PhotoImage(file=game_info_get('cwd') + "/res/main_menu.png")
+        self.background_label = tk.Label(self, image=self.background_image)
+        self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
         # Name input
-        self.name_entry = tk.Entry(self, fg="black", bg="white", width=50)
-        self.name_entry.grid(row=1, column=1)
-
-        # Room label
-        self.room_label = tk.Label(self, text="Enter name of room to join:", foreground="black")
-        self.room_label.grid(row=2, column=0)
+        self.name_entry = tk.Entry(self, fg="black", bg="white", width=15, font=("Helvetica", "18"))
+        self.name_entry.place(x=710, y=400)
 
         # Room input
-        self.room_entry = tk.Entry(self, fg="black", bg="white", width=50)
-        self.room_entry.grid(row=2, column=1)
+        self.room_entry = tk.Entry(self, fg="black", bg="white", width=15, font=("Helvetica", "18"))
+        self.room_entry.place(x=710, y=575)
 
         # Submit button
-        self.submit = tk.Button(self, text="Submit", bg="blue", width=25, command=self.handle_click)
-        self.submit.grid(row=3, column=1, padx=0, pady=25)
+        self.submit = tk.Button(self, activebackground='#003fa3', text="Submit", bg="#004ecc", width=10, height=2,
+                                font=("Helvetica", "18"), command=self.handle_click)
+
+        self.submit.place(x=735, y=660)
 
     # Event handle for submit and connecting to server
     def handle_click(self):
