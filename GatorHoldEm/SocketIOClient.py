@@ -284,7 +284,11 @@ def update_room_list():
     else:
         return
 
-
+"""
+GatorHoldEm is the main tkinter container that hold different frames.
+Initialize the container and create frames objects.
+Show the main menu (initial frame) at the end.
+"""
 class GatorHoldEm(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -393,9 +397,11 @@ class Lobby(tk.Frame):
         self.controller = controller
 
         # Lobby title
+        self.config(bg="#c9efd3")
         self.lobby_title_text = tk.StringVar()
         self.changed_title = False
-        self.lobby_title = tk.Label(self, textvariable=self.lobby_title_text)
+        self.lobby_title = tk.Label(self, textvariable=self.lobby_title_text, bg="#c9efd3",
+                                    font=("Helvetica", "60", "bold"))
         self.lobby_title.pack(padx=10, pady=10)
 
         # List of players in lobby
@@ -403,15 +409,19 @@ class Lobby(tk.Frame):
         player_list = player_dict_get('room_list')
 
         for index, label in enumerate(self.label_list):
-            self.label_list[index] = tk.Label(self, textvariable=player_list[index]).pack(pady=5)
+            self.label_list[index] = tk.Label(self, textvariable=player_list[index], bg="#c9efd3",
+                                              font=("Helvetica", "20")).pack(pady=15)
 
+        # self.submit = tk.Button(self, activebackground='#003fa3', text="Submit", bg="#004ecc", width=10, height=2,
+        #                        font=("Helvetica", "18"), command=self.handle_click)
         # Back to home button
-        self.back_to_home = tk.Button(self, text="Back to Home",
+        self.back_to_home = tk.Button(self, activebackground="#d84b1b", text="Back to Home", bg="#f0541e",
                                       command=self.leaving_lobby)
-        self.back_to_home.pack(pady=10)
+        self.back_to_home.place(x=0,y=0)
 
         # Start the game button
-        self.start_the_game = tk.Button(self, text="Start the Game!",
+        self.start_the_game = tk.Button(self, activebackground="#00893d", text="Start the Game!",bg="#009944",
+                                        width=15, height=3, font=("Helvetica", "18"), borderwidth=4,
                                         command=self.handle_submit)
         self.start_the_game.pack(pady=10)
 
@@ -441,7 +451,7 @@ class Lobby(tk.Frame):
             update_room_list()
 
         # Call this function again in three seconds
-        self.after(6000, self.update)
+        self.after(2000, self.update)
 
     def leaving_lobby(self):
         sio.disconnect()
