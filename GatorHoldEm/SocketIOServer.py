@@ -45,6 +45,12 @@ def in_room(sid, data):
     else:
         return True
 
+# gui should make sure that only vip players can do this action
+# pass the room object not the room_id
+@sio.on('add_bot')
+def add_bot(sid, room):
+    room.add_player(Player(None, False, "Gator AI", True))
+    sio.emit('ai_joined', room=room.room_id)
 
 @sio.event
 def disconnect(sid):
@@ -249,14 +255,18 @@ def game_loop(room, num_raises=0):
         checkOrCall = "Check" if is_check else "Call"
         info = str(player.balance), str(player.investment), str(table.minimum_bet), str(checkOrCall)
         sio.emit('which_players_turn', [player.get_name(), str(table.minimum_bet)], room=room.room_id)
-        try:
-            option = sio.call(event='your_turn', data=info, sid=player.get_client_number())
-        except:
-            print("timed out")
-            if is_check:
-                option = 1
-            else:
-                option = 2
+        if player.AI:
+            # option = whatever_method_you_need_to_call()
+            pass
+        else:
+            try:
+                option = sio.call(event='your_turn', data=info, sid=player.get_client_number())
+            except:
+                print("timed out")
+                if is_check:
+                    option = 1
+                else:
+                    option = 2
         sio.emit('player_action', (player.get_name(), option), room=room.room_id)
         if int(option) == 1:
             # Going all in because cannot match table bet

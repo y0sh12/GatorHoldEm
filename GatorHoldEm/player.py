@@ -1,9 +1,9 @@
 class Player:
     def __init__(self, client_number, is_vip, name, ai_bot_bool=False):
         self._balance = 500
-        self._client_number = client_number
+        self._client_number = client_number  # None = AI
         self._name = name
-        self._AI = ai_bot_bool
+        self.AI = ai_bot_bool
         self._hand = []
         self._isFolded = False
         self._investment = 0

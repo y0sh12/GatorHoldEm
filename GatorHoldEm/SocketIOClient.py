@@ -1,6 +1,7 @@
 import pathlib
 import sys
 import tkinter as tk
+from tkinter import messagebox
 
 import socketio
 from PIL import Image, ImageTk
@@ -10,6 +11,7 @@ player_dict = {
     'name': '',
     'room_name': '',
     'in_a_room': False,
+    'vip': False,
     'room_list': [None] * 6,
     'room_list_len': 0,
     'card1': '',
@@ -111,6 +113,7 @@ def on_event(message, room):
 
 @sio.on('vip')
 def on_event():
+    player_dict_set('vip', True)
     print("Ayyyy you da vip")
 
 
@@ -231,6 +234,10 @@ def on_event(card1, card2):
     player_dict_set("card2", card2)
     game_info_set('up', True)
 
+@sio.on('ai_joined')
+def on_event():
+    print('ai joined room lol')
+
 
 @sio.on('connection_error')
 def on_event(error):
@@ -284,6 +291,7 @@ class GatorHoldEm(tk.Tk):
         self.title("GatorHoldEm")
         self.geometry('1267x781')
         self.resizable(False, False)
+        # self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
@@ -310,7 +318,15 @@ class GatorHoldEm(tk.Tk):
 
     def show_frame(self, cont):
         frame = self.frames[cont]
+        frame.init_update()
         frame.tkraise()
+
+    # def on_closing(self):
+    #     if messagebox.askokcancel("Quit", "Do you want to quit?"):
+    #         if sio.connected:
+    #             sio.disconnect()
+    #         self.destroy()
+    #         quit()
 
 
 class MainMenu(tk.Frame):
@@ -338,6 +354,9 @@ class MainMenu(tk.Frame):
 
         self.submit.place(x=735, y=660)
 
+    def init_update(self):
+        print("Hi you're in the main menu right now!")
+
     # Event handle for submit and connecting to server
     def handle_click(self):
         # Error check for proper name and room inputs
@@ -350,18 +369,21 @@ class MainMenu(tk.Frame):
         player_dict_set("room_name", self.room_entry.get())
 
         # Server call to create new player and join/create room, error handling
-        sio.connect('http://172.105.159.124:5000')
-        # sio.connect('http://localhost:5000')
+        # sio.connect('http://172.105.159.124:5000')
+        sio.connect('http://localhost:5000')
         sio.emit('goto_room', player_dict_get('room_name'))
         room_members = sio.call(event='active_player_list', data=player_dict_get('room_name'))
         in_room = sio.call(event='in_room', data=[player_dict_get('name'), player_dict_get('room_name')])
         print(in_room)
         # If successful, update room members and display lobby page
+        # If failed, display error message
         if in_room:
             update_room_list()
             self.controller.show_frame(Lobby)
         else:
             sio.disconnect()
+            messagebox.showerror("Error: unable to connect to lobby",
+                                 "The game has started or has reached maximum player limit. Please try again.")
 
 
 class Lobby(tk.Frame):
@@ -398,6 +420,12 @@ class Lobby(tk.Frame):
         sio.emit('start_game', player_dict_get('room_name'))
         player_dict_set('running', True)
         self.controller.show_frame(Game)
+
+    def init_update(self):
+        print("Hi you're in lobby right now!")
+        if not player_dict_get('vip'):
+            self.start_the_game.pack_forget()
+            print("Hohoho you're actually not a vip")
 
     def update(self):
         if sio.connected:
@@ -529,6 +557,9 @@ class Game(tk.Frame):
         self.fold_button.place(x=550, y=550, height=40, width=70)
         self.call_check_button.place(x=630, y=550, height=40, width=70)
         self.raise_button.place(x=710, y=550, height=40, width=70)
+
+    def init_update(self):
+        print("HI!!!")
 
     def set_raise_val(self, val):
         player_dict_set('raise_amount', val)
@@ -719,8 +750,17 @@ def update():
 
 
 def main():
+    def on_closing():
+        if messagebox.askokcancel("Close GatorHoldEm", "Do you want to quit GatorHoldEm?"):
+            if sio.connected:
+                sio.disconnect()
+            app.quit()
+            app.destroy()
+            quit()
+
     # Start main loop
     app = GatorHoldEm()
+    app.protocol("WM_DELETE_WINDOW", on_closing)
     app.mainloop()
 
 
