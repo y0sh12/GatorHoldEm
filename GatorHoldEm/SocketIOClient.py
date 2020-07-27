@@ -340,13 +340,14 @@ class MainMenu(tk.Frame):
         self.background_label = tk.Label(self, image=self.background_image)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-        # Name input
-        self.name_entry = tk.Entry(self, fg="black", bg="white", width=15, font=("Helvetica", "18"))
-        self.name_entry.place(x=710, y=400)
-
         # Room input
         self.room_entry = tk.Entry(self, fg="black", bg="white", width=15, font=("Helvetica", "18"))
-        self.room_entry.place(x=710, y=575)
+        self.room_entry.place(x=710, y=400)
+
+        # Name input
+        self.name_entry = tk.Entry(self, fg="black", bg="white", width=15, font=("Helvetica", "18"))
+        self.name_entry.place(x=710, y=575)
+
 
         # Submit button
         self.submit = tk.Button(self, activebackground='#003fa3', text="Submit", bg="#004ecc", width=10, height=2,
