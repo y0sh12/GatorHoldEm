@@ -1,6 +1,7 @@
 import pathlib
 import sys
 import tkinter as tk
+import time
 from tkinter import messagebox
 
 import socketio
@@ -392,6 +393,7 @@ class MainMenu(tk.Frame):
 
 
 class Lobby(tk.Frame):
+
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -400,7 +402,7 @@ class Lobby(tk.Frame):
         self.config(bg="#c9efd3")
         self.lobby_title_text = tk.StringVar()
         self.changed_title = False
-        self.lobby_title = tk.Label(self, textvariable=self.lobby_title_text, bg="#c9efd3",
+        self.lobby_title = tk.Label(self, textvariable=self.lobby_title_text, bg="#c9efd3", fg="#029D8A",
                                     font=("Helvetica", "60", "bold"))
         self.lobby_title.pack(padx=10, pady=10)
 
@@ -409,23 +411,51 @@ class Lobby(tk.Frame):
         player_list = player_dict_get('room_list')
 
         for index, label in enumerate(self.label_list):
-            self.label_list[index] = tk.Label(self, textvariable=player_list[index], bg="#c9efd3",
-                                              font=("Helvetica", "20")).pack(pady=15)
+            # TEST REMOVE BELOW
+            self.label_list[index] = tk.Label(self, textvariable=player_list[index],
+                                             font=("Helvetica", "20")).pack(pady=15)
+            # self.label_list[index] = tk.Label(self, textvariable=player_list[index], bg="#c9efd3",
+            #                                  font=("Helvetica", "20")).pack(pady=15)
 
-        # self.submit = tk.Button(self, activebackground='#003fa3', text="Submit", bg="#004ecc", width=10, height=2,
-        #                        font=("Helvetica", "18"), command=self.handle_click)
         # Back to home button
         self.back_to_home = tk.Button(self, activebackground="#d84b1b", text="Back to Home", bg="#f0541e",
                                       command=self.leaving_lobby)
         self.back_to_home.place(x=0,y=0)
 
-        # Start the game button
+         # Start the game button
         self.start_the_game = tk.Button(self, activebackground="#00893d", text="Start the Game!",bg="#009944",
                                         width=15, height=3, font=("Helvetica", "18"), borderwidth=4,
                                         command=self.handle_submit)
         self.start_the_game.pack(pady=10)
 
+        # Waiting animation
+        self.wait_text = tk.StringVar()
+        self.wait_tracker = 0
+        self.wait = tk.Label(self, textvariable=self.wait_text, bg = "#c9efd3", font=("Helvetica", "16"),
+                             fg="#029D8A")
+        self.wait.place(x=420, y=530)
+
+        # Information for vip
+        #self.help_text = ""
+
+        #TEST REMOVE BELOW
+        self.help_text = "Since you are the first player to join, you are the VIP player. " \
+                         "Press the Start Game button \nonce all the players have joined."
+
+        if player_dict_get('vip'):
+            self.help_text = "Since you are the first player to join, you are the VIP player. " \
+                             "Press the Start Game button \nonce all the players have joined."
+        else:
+            self.help_text = "The VIP player has the ability to start the game."
+
+        # Render help info
+        self.help = tk.Label(self, text=self.help_text, bg="#c9efd3", font=("Helvetica", "16"),
+                             fg="#029D8A")
+        self.help.place(x=150, y=720)
+
         self.update()
+
+
 
     def handle_submit(self):
         sio.emit('start_game', player_dict_get('room_name'))
@@ -434,11 +464,18 @@ class Lobby(tk.Frame):
 
     def init_update(self):
         print("Hi you're in lobby right now!")
+
+        # If player is not vip hide start game button
         if not player_dict_get('vip'):
             self.start_the_game.pack_forget()
-            print("Hohoho you're actually not a vip")
+
+        # If player is vip hide the wait animation
+        else:
+            self.wait.place_forget()
 
     def update(self):
+
+#        while True:
         if sio.connected:
             # Change title of lobby once
             if player_dict_get('running'):
@@ -449,6 +486,20 @@ class Lobby(tk.Frame):
                 self.changed_title = True
             # Update list of room members
             update_room_list()
+
+            if self.wait_tracker % 4 == 0:
+                self.wait_tracker = 0
+                self.wait_text.set("Waiting on the first player to start the game")
+            elif self.wait_tracker % 4 == 1:
+                self.wait_text.set("Waiting on the first player to start the game.")
+            elif self.wait_tracker % 4 == 2:
+                self.wait_text.set("Waiting on the first player to start the game..")
+            elif self.wait_tracker % 4 == 3:
+                self.wait_text.set("Waiting on the first player to start the game...")
+            self.wait_tracker +=1
+#            time.sleep(0.5)
+
+
 
         # Call this function again in three seconds
         self.after(2000, self.update)
