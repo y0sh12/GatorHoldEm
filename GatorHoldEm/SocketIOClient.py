@@ -235,6 +235,7 @@ def on_event(card1, card2):
     player_dict_set("card2", card2)
     game_info_set('up', True)
 
+
 @sio.on('ai_joined')
 def on_event():
     print('ai joined room lol')
@@ -285,11 +286,14 @@ def update_room_list():
     else:
         return
 
+
 """
 GatorHoldEm is the main tkinter container that hold different frames.
 Initialize the container and create frames objects.
 Show the main menu (initial frame) at the end.
 """
+
+
 class GatorHoldEm(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -340,7 +344,7 @@ class MainMenu(tk.Frame):
         self.controller = controller
         # Widget declarations
 
-        #Importing main menu background
+        # Importing main menu background
         self.background_image = tk.PhotoImage(file=game_info_get('cwd') + "/res/main_menu.png")
         self.background_label = tk.Label(self, image=self.background_image)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
@@ -353,7 +357,6 @@ class MainMenu(tk.Frame):
         self.name_entry = tk.Entry(self, fg="black", bg="white", width=15, font=("Helvetica", "18"))
         self.name_entry.place(x=710, y=575)
 
-
         # Submit button
         self.submit = tk.Button(self, activebackground='#003fa3', text="Submit", bg="#004ecc", width=10, height=2,
                                 font=("Helvetica", "18"), command=self.handle_click)
@@ -362,21 +365,38 @@ class MainMenu(tk.Frame):
 
     def init_update(self):
         print("Hi you're in the main menu right now!")
+        player_dict_set('vip', False)
 
     # Event handle for submit and connecting to server
     def handle_click(self):
         # Error check for proper name and room inputs
-        if self.name_entry.get() == '' or self.room_entry.get() == '':
+        if self.name_entry.get() == '':
             print("Invalid entry. Try again!")
+            messagebox.showerror("Error: Invalid name",
+                                 "Please type a new name!")
+            return
+
+        if self.room_entry.get() == '':
+            messagebox.showerror("Error: Invalid room name",
+                                 "Please type a new room name!")
             return
 
         # Set up local name and room values
         player_dict_set("name", self.name_entry.get())
         player_dict_set("room_name", self.room_entry.get())
 
-        # Server call to create new player and join/create room, error handling
+        # Server connect call and error handling
         # sio.connect('http://172.105.159.124:5000')
-        sio.connect('http://localhost:5000')
+        try:
+            sio.connect('http://localhost:5000')
+        except socketio.exceptions.ConnectionError as err:
+            if not sio.connected:
+                messagebox.showerror("Error: GatorHoldEm connection failure",
+                                     "Unable to connect to GatorHoldEm servers. Please check your connection and try "
+                                     "again.")
+                return
+
+        # Server call to create new player and join/create room, error handling
         sio.emit('goto_room', player_dict_get('room_name'))
         room_members = sio.call(event='active_player_list', data=player_dict_get('room_name'))
         in_room = sio.call(event='in_room', data=[player_dict_get('name'), player_dict_get('room_name')])
@@ -420,7 +440,7 @@ class Lobby(tk.Frame):
         # Back to home button
         self.back_to_home = tk.Button(self, activebackground="#d84b1b", text="Back to Home", bg="#f0541e",
                                       command=self.leaving_lobby)
-        self.back_to_home.place(x=0,y=0)
+        self.back_to_home.place(x=0, y=0)
 
          # Start the game button
         self.start_the_game = tk.Button(self, activebackground="#00893d", text="Start the Game!",bg="#009944",
@@ -833,7 +853,6 @@ def main():
         if messagebox.askokcancel("Close GatorHoldEm", "Do you want to quit GatorHoldEm?"):
             if sio.connected:
                 sio.disconnect()
-            app.quit()
             app.destroy()
             quit()
 
