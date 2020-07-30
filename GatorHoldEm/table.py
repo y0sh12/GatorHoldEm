@@ -322,7 +322,6 @@ class Table:
             ties_with_max[0].change_balance(self.pot)
             print(ties_with_max[0].name, "has won the pot:", self.pot)
         else:
-            # TODO BE MODIFIED TO CHECK FOR TIE BREAKERS
             split = self.pot / len(ties_with_max)
             for p in ties_with_max:
                 p.change_balance(split)

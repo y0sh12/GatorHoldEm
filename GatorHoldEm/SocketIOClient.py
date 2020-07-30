@@ -525,6 +525,7 @@ class Game(tk.Frame):
         self.back_to_home.place(x=0,y=0)
 
         # Player and Balance declarations
+        # OUR PLAYER IS AT INDEX 0
         self.pl_list = []
         self.pl_text = [tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar()]
         self.bal_text = [tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar()]
@@ -592,11 +593,11 @@ class Game(tk.Frame):
         self.board_card_x = [220, 352, 484, 616, 748]
         self.board_card_y = [260, 260, 260, 260, 260]
 
-        # TODO Player name positions?
-        self.pl_x = [0, 300, 300, 0, -300, -300]
-        self.pl_y = [540, 440, 240, 140, 240, 440]
+        # TODO player positions. OUR PLAYER IS AT INDEX 0
+        self.pl_x = [820, 20, 220, 420, 620, 820]
+        self.pl_y = [600, 100, 100, 100, 100, 100]
 
-        # TODO client card postions, make into 2
+        # TODO client card postions, make into 2                            TO BE DELETED??
         self.card1_x = [350, 50, 50, 350, 650, 650]
         self.card1_y = [490, 390, 190, 90, 190, 390]
         self.card2_x = [400, 100, 100, 400, 700, 700]
@@ -635,6 +636,17 @@ class Game(tk.Frame):
         self.call_check_button.place(x=1106, y=730, height=40, width=70)
         self.raise_button.place(x=1186, y=730, height=40, width=70)
 
+        #Initialize all the labels
+        for i in range(6):
+            self.pl_label[i].place(x=self.pl_x[i], y=self.pl_y[i],
+                                    width=self.pl_label_width, height=20)
+            # TODO Adjust balance position
+            self.bal_label[i].place(x=self.pl_x[i], y=self.pl_y[i] + 20,
+                                    width=self.bal_label_width, height=20)
+            self.pl_label[i].config(bg="gray")
+            self.bal_label[i].config(bg="gray")
+
+
     def init_update(self):
         print("HI!!!")
 
@@ -659,6 +671,23 @@ class Game(tk.Frame):
     def exit(self):
 
         self.running = False
+
+    def _set_player_name_balance(self, absolute_position, relative_position):
+        if self.pl_list[absolute_position]['_balance'] == 0 or self.pl_list[absolute_position]['_isFolded']:
+            self.pl_label[relative_position].config(bg="gray")
+            self.bal_label[relative_position].config(bg="gray")
+        else:
+            self.pl_label[relative_position].config(bg="white")
+            self.bal_label[relative_position].config(bg="white")
+
+        print("Called for absolute: ", absolute_position, "Relative: ", relative_position)
+        self.pl_text[relative_position].set(self.pl_list[absolute_position]['_name'])
+        self.bal_text[relative_position].set(self.pl_list[absolute_position]['_balance'])
+        self.pl_label[relative_position].place(x=self.pl_x[relative_position], y=self.pl_y[relative_position],
+                                               width=self.pl_label_width, height=20)
+        # TODO Adjust balance position
+        self.bal_label[relative_position].place(x=self.pl_x[relative_position], y=self.pl_y[relative_position] + 20,
+                                                width=self.bal_label_width, height=20)
 
     """
         Function that renders a players screen
@@ -692,47 +721,59 @@ class Game(tk.Frame):
             self.call_check_button["state"] = 'disabled'
 
         # TODO set the display names and balances depending on the player
-
+        # pl_list is absolute, every client receives exact copy.
         if self.pl_list is not None:
 
-            # Find out the index our client is at
+            # Find out the index our client player is at in the pl_list
             my_index = 0
             for ind, p in enumerate(self.pl_list):
                 if p['_client_number'] == sio.sid:
                     my_index = ind
+            # placing our player at the main spot, bottom of the screen.
+            self._set_player_name_balance(my_index, 0)
 
-            # for i in range(my_index+1, len(self.pl_list)):
-            #     self.pl_text[i].set(pl['_name'])
-            #     self.bal_text[i].set(pl['_balance'])
+            # Positioning other players based on their relative position to us
+            # pl_text is positioned relatively
+            # placement_index is for relative positioning
+            placement_index = 1
+            # Loop to position people to the left of us (after us in the main list)
+            # i is the index in the main list
+            for i in range(my_index +1, len(self.pl_list)):
+                self._set_player_name_balance(i, placement_index)
+                placement_index += 1
 
-            for counter, pl in enumerate(self.pl_list):
-                self.pl_text[counter].set(pl['_name'])
-                self.bal_text[counter].set(pl['_balance'])
+            # Loop to position people up to the right of us (before us in the main list
+            placement_index = 6 - my_index
+            for i in range(0, my_index):
+                self._set_player_name_balance(i, placement_index)
+                placement_index += 1
+
+
+            # for counter, pl in enumerate(self.pl_list):
+            #     self.pl_text[counter].set(pl['_name'])
+            #     self.bal_text[counter].set(pl['_balance'])
                 # print(pl['_name'])
 
-        # TODO place the players
-        for counter, t in enumerate(self.pl_text):
-            x_player = 400 - self.pl_label_width / 2 - self.pl_x[counter]
-            x_balance = 400 - self.bal_label_width / 2 - self.pl_x[counter]
-            y_player = self.pl_y[counter]
-            y_balance = self.pl_y[counter] + 20
-            self.pl_label[counter].place(x=x_player, y=y_player, width=self.pl_label_width, height=20)
-            self.bal_label[counter].place(x=x_balance, y=y_balance, width=self.bal_label_width, height=20)
-            if t.get() == '':
-                self.pl_label[counter].config(bg="gray")
-                self.bal_label[counter].config(bg="gray")
-            else:
-                self.pl_label[counter].config(bg="white")
-                self.bal_label[counter].config(bg="white")
+        # Gray out empty positions
+        # print("Graying out irrelevant spots")
+        # for counter, t in enumerate(self.pl_text):
+        #     print("Relative position: ", counter, "Text: ", t.get())
+        #     if t.get() == '':
+        #         self.pl_label[counter].config(bg="gray")
+        #         self.bal_label[counter].config(bg="gray")
+        #     else:
+        #         print(" Text is not null, making it white")
+        #         self.pl_label[counter].config(bg="white")
+        #         self.bal_label[counter].config(bg="white")
 
         # Grey out folded players
-        for counter, pl in enumerate(self.pl_list):
-            if pl['_isFolded']:
-                self.pl_label[counter].config(bg="gray")
-                self.bal_label[counter].config(bg="gray")
-            else:
-                self.pl_label[counter].config(bg="white")
-                self.bal_label[counter].config(bg="white")
+        # for counter, pl in enumerate(self.pl_list):
+        #     if pl['_isFolded']:
+        #         self.pl_label[counter].config(bg="gray")
+        #         self.bal_label[counter].config(bg="gray")
+        #     else:
+        #         self.pl_label[counter].config(bg="white")
+        #         self.bal_label[counter].config(bg="white")
 
         card1_path = ""
         # TODO Card 1 display
