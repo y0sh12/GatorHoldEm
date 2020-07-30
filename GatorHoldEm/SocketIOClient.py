@@ -1,7 +1,6 @@
 import pathlib
 import sys
 import tkinter as tk
-import time
 from tkinter import messagebox
 
 import socketio
@@ -357,10 +356,10 @@ class MainMenu(tk.Frame):
         self.name_entry = tk.Entry(self, fg="black", bg="white", width=15, font=("Helvetica", "18"))
         self.name_entry.place(x=710, y=575)
 
+
         # Submit button
         self.submit = tk.Button(self, activebackground='#003fa3', text="Submit", bg="#004ecc", width=10, height=2,
                                 font=("Helvetica", "18"), command=self.handle_click)
-
         self.submit.place(x=735, y=660)
 
     def init_update(self):
@@ -413,7 +412,6 @@ class MainMenu(tk.Frame):
 
 
 class Lobby(tk.Frame):
-
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -443,7 +441,7 @@ class Lobby(tk.Frame):
         self.back_to_home.place(x=0, y=0)
 
          # Start the game button
-        self.start_the_game = tk.Button(self, activebackground="#00893d", text="Start the Game!",bg="#009944",
+        self.start_the_game = tk.Button(self, activebackground="#00893d", text="Start the Game!", bg="#009944",
                                         width=15, height=3, font=("Helvetica", "18"), borderwidth=4,
                                         command=self.handle_submit)
         self.start_the_game.pack(pady=10)
@@ -456,26 +454,14 @@ class Lobby(tk.Frame):
         self.wait.place(x=420, y=530)
 
         # Information for vip
-        #self.help_text = ""
-
-        #TEST REMOVE BELOW
-        self.help_text = "Since you are the first player to join, you are the VIP player. " \
-                         "Press the Start Game button \nonce all the players have joined."
-
-        if player_dict_get('vip'):
-            self.help_text = "Since you are the first player to join, you are the VIP player. " \
-                             "Press the Start Game button \nonce all the players have joined."
-        else:
-            self.help_text = "The VIP player has the ability to start the game."
+        self.help_text = tk.StringVar()
 
         # Render help info
-        self.help = tk.Label(self, text=self.help_text, bg="#c9efd3", font=("Helvetica", "16"),
+        self.help = tk.Label(self, textvariable=self.help_text, bg="#c9efd3", font=("Helvetica", "16"),
                              fg="#029D8A")
         self.help.place(x=150, y=720)
 
         self.update()
-
-
 
     def handle_submit(self):
         sio.emit('start_game', player_dict_get('room_name'))
@@ -484,18 +470,18 @@ class Lobby(tk.Frame):
 
     def init_update(self):
         print("Hi you're in lobby right now!")
-
         # If player is not vip hide start game button
         if not player_dict_get('vip'):
             self.start_the_game.pack_forget()
-
-        # If player is vip hide the wait animation
+            self.help_text.set("The first player to join has the ability to start the game.")
         else:
             self.wait.place_forget()
+            self.help_text.set("Since you are the first player to join, you are the VIP player. " \
+                            "Press the Start Game button \nonce all the players have joined.")
+
+
 
     def update(self):
-
-#        while True:
         if sio.connected:
             # Change title of lobby once
             if player_dict_get('running'):
@@ -516,8 +502,7 @@ class Lobby(tk.Frame):
                 self.wait_text.set("Waiting on the first player to start the game..")
             elif self.wait_tracker % 4 == 3:
                 self.wait_text.set("Waiting on the first player to start the game...")
-            self.wait_tracker +=1
-#            time.sleep(0.5)
+            self.wait_tracker += 1
 
 
 
@@ -534,13 +519,13 @@ class Game(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.con = controller
-        self.config(bg="#008040")
+        self.background_image = tk.PhotoImage(file=game_info_get('cwd') + "/res/felt.png")
+        self.background_label = tk.Label(self, image=self.background_image)
+        self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
         self.back_to_home = tk.Button(self, text="Back to Lobby",
                                       command=lambda: [self.exit(), controller.show_frame(Lobby)])
-        self.back_to_home.place(x=0,y=0)
-
-        # Player and Balance declarations
+        self.back_to_home.pack()
         self.pl_list = []
         self.pl_text = [tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar()]
         self.bal_text = [tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar()]
@@ -549,13 +534,9 @@ class Game(tk.Frame):
             t.set('')
 
         self.running = True
-
-
-        self.pl_name = ["", "", "", "", "", ""]                                     # UNUSED??????
-        # player name labels, and balance labels list
         self.pl_label = [0, 0, 0, 0, 0, 0]
         self.bal_label = [0, 0, 0, 0, 0, 0]
-
+        self.pl_name = ["", "", "", "", "", ""]
         self.pl_label[0] = tk.Label(self, textvariable=self.pl_text[0])
         self.pl_label[1] = tk.Label(self, textvariable=self.pl_text[1])
         self.pl_label[2] = tk.Label(self, textvariable=self.pl_text[2])
@@ -571,10 +552,10 @@ class Game(tk.Frame):
         self.bal_label[5] = tk.Label(self, textvariable=self.bal_text[5])
 
         self.card_back_image = Image.open(game_info_get('cwd') + "/res/back.png")
+        self.card_back_image = self.card_back_image.resize((40, 70), Image.ANTIALIAS)
         self.card_back_image = ImageTk.PhotoImage(self.card_back_image)
-        self.card_back_label = tk.Label(self, image=self.card_back_image, bg="black",fg="black")
+        self.card_back_label = tk.Label(self, image=self.card_back_image, bg="black")
 
-        # List of cards to be displayed on the board
         self.board_card_image = [self.card_back_image, self.card_back_image, self.card_back_image, self.card_back_image,
                                  self.card_back_image]
         self.board_card_label = [0, 0, 0, 0, 0]
@@ -603,21 +584,16 @@ class Game(tk.Frame):
         self.won_the_pot_text = tk.StringVar()
         self.won_the_pot_label = 0
 
-        # TODO Board card positions
         self.board_card_x = [220, 298, 375, 453, 530]
         self.board_card_y = [260, 260, 260, 260, 260]
 
-        # TODO Player name positions?
         self.pl_x = [0, 300, 300, 0, -300, -300]
         self.pl_y = [540, 440, 240, 140, 240, 440]
-
-        # TODO client card postions, make into 2
         self.card1_x = [350, 50, 50, 350, 650, 650]
         self.card1_y = [490, 390, 190, 90, 190, 390]
         self.card2_x = [400, 100, 100, 400, 700, 700]
         self.card2_y = [490, 390, 190, 90, 190, 390]
 
-        # Button that starts the game on the client side.
         self.button = tk.Button(self, text="I'm ready", bg="blue", width=25, command=self.start_up)
         self.button.pack()
 
@@ -626,12 +602,12 @@ class Game(tk.Frame):
 
         # raise amount slider
         self.raise_slider = tk.Scale(self, from_=0, to=200, orient='horizontal', command=self.set_raise_val)
-        self.raise_slider.place(x=1026, y=680, width=230, height=40)
+        self.raise_slider.place(x=550, y=500, width=230, height=40)
         # self.raise_slider.pack()
 
         # Label for current turn
-        # self.curr_player_text = tk.StringVar()
-        # self.curr_player_label = tk.Label(self, textvar=self.curr_player_text).place(x=0, y=575, height=25)
+        self.curr_player_text = tk.StringVar()
+        self.curr_player_label = tk.Label(self, textvar=self.curr_player_text).place(x=0, y=575, height=25)
 
         # Buttons for call/check, fold, and raise
         self.fold_button = tk.Button(self, text='Fold',
@@ -645,9 +621,9 @@ class Game(tk.Frame):
         self.raise_button = tk.Button(self, text='Raise',
                                       command=lambda: [player_dict_set('choice', '3'), game_info_set('up', True)])
 
-        self.fold_button.place(x=1026, y=730, height=40, width=70)
-        self.call_check_button.place(x=1106, y=730, height=40, width=70)
-        self.raise_button.place(x=1186, y=730, height=40, width=70)
+        self.fold_button.place(x=550, y=550, height=40, width=70)
+        self.call_check_button.place(x=630, y=550, height=40, width=70)
+        self.raise_button.place(x=710, y=550, height=40, width=70)
 
     def init_update(self):
         print("HI!!!")
@@ -656,9 +632,6 @@ class Game(tk.Frame):
         player_dict_set('raise_amount', val)
         game_info_set('up', True)
 
-    """
-    Function that runs the game and checks if it's the player's turn ?
-    """
     def start_up(self):
         self.running = True
         while self.running:
@@ -682,7 +655,6 @@ class Game(tk.Frame):
         bal = int(player_dict_get('balance'))
         inv = int(player_dict_get('investment'))
 
-        #Adjusting the raise slide based on certain factors
         if bal + inv <= min_bet:
             self.raise_slider.config(from_=int(0))
             self.raise_slider.config(to=int(0))
@@ -691,7 +663,6 @@ class Game(tk.Frame):
             self.raise_slider.config(from_=int(0))
             self.raise_slider.config(to=int(bal - (min_bet - inv)))
 
-        # If it's our turn allow the
         if player_dict_get('my_turn'):
             self.raise_button["state"] = 'normal'
             self.fold_button["state"] = 'normal'
@@ -701,15 +672,12 @@ class Game(tk.Frame):
             self.fold_button["state"] = 'disabled'
             self.call_check_button["state"] = 'disabled'
 
-        # TODO set the display names and balances depending on the player
         if self.pl_list is not None:
             for counter, pl in enumerate(self.pl_list):
                 self.pl_text[counter].set(pl['_name'])
                 self.bal_text[counter].set(pl['_balance'])
                 # print(pl['_name'])
 
-        # TODO DELETE
-        print("calling update")
         for counter, t in enumerate(self.pl_text):
             x_player = 400 - self.pl_label_width / 2 - self.pl_x[counter]
             x_balance = 400 - self.bal_label_width / 2 - self.pl_x[counter]

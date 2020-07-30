@@ -9,6 +9,7 @@ from itertools import combinations
 
 class Table:
 
+    theRound = 0
     hand_dict = {10: "royal-flush", 9:"straight-flush", 8:"four-of-a-kind", 7:"full-house", 6:"flush", 5:"straight", 4:"three-of-a-kind", 3:"two-pairs", 2:"one-pair", 1:"highest-card"}
 
 
@@ -25,7 +26,7 @@ class Table:
         self._current_player = None
         self._skip_to_show = False
         self._last_action = None
-        self.round_number = 0
+        Table.theRound = 0
 
     def new_round(self):
 
@@ -37,7 +38,7 @@ class Table:
         self._visible_cards.clear()
         self._pot = 0
         self._minimumBet = 50
-        self.round_number += 1
+        Table.theRound += 1
 
 
         #New round initialization phase    

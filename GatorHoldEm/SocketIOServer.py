@@ -131,7 +131,7 @@ def start_game(sid, room_id):
         else:
             table.new_round()
             sio.emit('new_hand')
-            sio.emit('message', "Round: " + str(Table.round_number), room=room.room_id)
+            sio.emit('message', "Round: " + str(Table.theRound), room=room.room_id)
             table.distribute_cards()
             """
                 SHOW TEST
@@ -146,7 +146,7 @@ def start_game(sid, room_id):
             big_blind = str(table.big_blind)
             dealer = str(table.dealer)
             min_bet = str(table.minimum_bet)
-            round_num = str(Table.round_number)
+            round_num = str(Table.theRound)
 
             for player in room.get_player_list():
                 card_string = str(player.hand[0]), str(player.hand[1])
