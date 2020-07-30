@@ -419,7 +419,6 @@ def show(room):
         ties_with_max[0].change_balance(table.pot)
         sio.emit('message', str(ties_with_max[0]) + " has won the pot: " + str(table.pot), room=room.room_id)
     else:
-        # TODO BE MODIFIED TO CHECK FOR TIE BREAKERS
         split = table.pot / len(ties_with_max)
         for p in ties_with_max:
             p.change_balance(split)
