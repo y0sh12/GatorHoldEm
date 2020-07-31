@@ -52,8 +52,8 @@ game_info = {
     'river': False,
     'up': True,
     'won_message': '',
-    'reset_round' : False
-
+    'reset_round' : False,
+    'update_tokens': False
 }
 
 
@@ -194,6 +194,7 @@ def on_event(board_info):
     game_info_set('big_blind', board_info[2])
     player_dict_set('minimumBet', board_info[3])
     game_info_set('round_num', board_info[4])
+    game_info_set('update_tokens', True)
     game_info_set('up', True)
 
     print("Called the new board_init_info function")
@@ -590,11 +591,25 @@ class Game(tk.Frame):
 
         # player positions. OUR PLAYER IS AT INDEX 0
         self.pl_x = [880, 120, 350, 630, 916, 1147]
-        self.pl_y = [680, 130, 50, 20, 50, 130]
+        self.pl_y = [670, 130, 50, 20, 50, 130]
 
         # Blinds positions
-        self.blind_x = [810]
-        self.blind_y = [680]
+        self.blind_x = [810, 50, 280, 560, 846, 1077]
+        self.blind_y = [670, 130, 50, 20, 50, 130]
+
+        # TODO Dealer position
+        self.d_x = [900, 140, 370, 650, 936, 1167]
+        self.d_y = [760, 190, 110, 80, 110, 190]
+
+        # Import blind and dealer tokens
+        self.bb_token_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/bb_token.png"))
+        self.bb_token = tk.Label(self, image=self.bb_token_image, bg="#008040")
+
+        self.sb_token_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/sb_token.png"))
+        self.sb_token = tk.Label(self, image=self.sb_token_image, bg="#008040")
+
+        self.dealer_token_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/d_token.png"))
+        self.dealer_token = tk.Label(self, image=self.dealer_token_image, bg="#008040")
 
         # Button that starts the game on the client side.
         self.button = tk.Button(self, text="Start Game", bg="blue", width=25, command=self.start_up)
@@ -647,6 +662,34 @@ class Game(tk.Frame):
 
         # self.reset_round()
 
+    def _relative_position(self, my_position, absolute_position):
+        if absolute_position >= my_position:
+            return absolute_position - my_position
+        else:
+            return 6 - my_position + absolute_position
+
+    def _place_tokens(self):
+        indices = {'my_index':None, 'd_rel_index':None, 'bb_rel_index':None, 'sb_rel_index':None}
+        for i, p in enumerate(self.pl_list):
+            if p['_client_number'] == sio.sid:
+                indices['my_index'] = i
+
+        for i, p in enumerate(self.pl_list):
+            if p['_client_number'] == game_info_get('dealer'):
+                indices['d_rel_ind'] = self._relative_position(indices['my_index'], i)
+
+            if p['_client_number'] == game_info_get('big_blind'):
+                indices['bb_rel_ind'] = self._relative_position(indices['my_index'], i)
+
+            if p['_client_number'] == game_info_get('small_blind'):
+                indices['sb_rel_ind'] = self._relative_position(indices['my_index'], i)
+
+
+        self.bb_token.place(x=self.blind_x[indices['bb_rel_ind']], y=self.blind_y[indices['bb_rel_ind']])
+        self.sb_token.place(x=self.blind_x[indices['sb_rel_ind']], y=self.blind_y[indices['sb_rel_ind']])
+        self.dealer_token.place(x=self.d_x[indices['d_rel_ind']], y=self.d_y[indices['d_rel_ind']])
+
+
     def reset_round(self):
         print("the round is reset")
         self.card1_displayed = False
@@ -684,6 +727,9 @@ class Game(tk.Frame):
         if game_info_get('reset_round'):
             self.reset_round()
             game_info_set('reset_round', False)
+        if game_info_get('update_tokens'):
+            self._place_tokens()
+            game_info_set('update_tokens', False)
 
     def set_raise_val(self, val):
         player_dict_set('raise_amount', val)
