@@ -17,7 +17,6 @@ def connect(sid, environ):
     print(sid, "in lobby")
 
 
-# sio.call(event='active_player_list', data=room.room_id)
 @sio.on('active_player_list')
 def on_event(sid, room_id):
     room = next((room for room in roomList if room.room_id == room_id), None)
@@ -58,10 +57,17 @@ def disconnect(sid):
     if room is not None:
         player_list = room.get_player_list()
         player = next((player for player in player_list if player.get_client_number() == sid), None)
+        player_vip = False
         if player is not None:
+            player_vip = player.is_vip
             room.remove_player(player)
+            player_list.remove(player)
             sio.emit('user_disconnect', (player.get_name() + " has left the room!"), room=room.room_id, skip_sid=sid)
-        player_list = room.get_player_list()
+        if player_vip and len(player_list) > 0:
+            player_list[0].is_vip = True
+            sio.emit('vip', room=player_list[0].get_client_number())
+            print(player.__dict__)
+        room.set_player_list(player_list)
         if len(player_list) == 0:
             roomList.remove(room)
         print('disconnect', sid)
@@ -220,7 +226,7 @@ def start_game(sid, room_id):
                     continue
 
             show(room)
-
+            sio.emit('round_ended')
             # At the end of the round, declare players bankrupt if they are out of money
             for p in room.get_player_list():
                 if p.balance <= 0:
@@ -267,6 +273,7 @@ def game_loop(room, num_raises=0):
                     option = 1
                 else:
                     option = 2
+                sio.emit('you_timed_out')
         sio.emit('player_action', (player.get_name(), option), room=room.room_id)
         if int(option) == 1:
             # Going all in because cannot match table bet
