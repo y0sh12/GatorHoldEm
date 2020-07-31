@@ -594,12 +594,12 @@ class Game(tk.Frame):
         self.pl_y = [670, 130, 50, 20, 50, 130]
 
         # Blinds positions
-        self.blind_x = [810, 50, 280, 560, 846, 1077]
-        self.blind_y = [670, 130, 50, 20, 50, 130]
+        self.blind_x = [820, 60, 290, 570, 856, 1087]
+        self.blind_y = [675, 135, 55, 25, 55, 135]
 
-        # TODO Dealer position
-        self.d_x = [900, 140, 370, 650, 936, 1167]
-        self.d_y = [760, 190, 110, 80, 110, 190]
+        # Dealer position
+        self.d_x = [905, 145, 375, 655, 941, 1171]
+        self.d_y = [732, 195, 115, 85, 115, 195]
 
         # Import blind and dealer tokens
         self.bb_token_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/bb_token.png"))
@@ -662,6 +662,7 @@ class Game(tk.Frame):
 
         # self.reset_round()
 
+    # Calculates the relative position from our player based on their absolute position
     def _relative_position(self, my_position, absolute_position):
         if absolute_position >= my_position:
             return absolute_position - my_position
@@ -669,7 +670,9 @@ class Game(tk.Frame):
             return 6 - my_position + absolute_position
 
     def _place_tokens(self):
+        self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
         indices = {'my_index':None, 'd_rel_index':None, 'bb_rel_index':None, 'sb_rel_index':None}
+
         for i, p in enumerate(self.pl_list):
             if p['_client_number'] == sio.sid:
                 indices['my_index'] = i
@@ -884,18 +887,7 @@ class Game(tk.Frame):
         self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text)
         self.min_bet_label.place(x=0, y=620, width=200, height=20)
 
-        self.dealer_text.set('Dealer: ' + str(game_info_get('dealer')))
-        self.dealer_label = tk.Label(self, textvariable=self.dealer_text)
-        self.dealer_label.place(x=0, y=640, width=200, height=20)
-
-        self.small_blind_text.set('Small blind: ' + str(game_info_get('small_blind')))
-        self.small_blind_label = tk.Label(self, textvariable=self.small_blind_text)
-        self.small_blind_label.place(x=0, y=660, width=200, height=20)
-
-        self.big_blind_text.set('Big blind: ' + str(game_info_get('big_blind')))
-        self.big_blind_label = tk.Label(self, textvariable=self.big_blind_text)
-        self.big_blind_label.place(x=0, y=680, width=200, height=20)
-
+ 
         self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
         self.round_num_label = tk.Label(self, textvariable=self.round_num_text)
         self.round_num_label.place(x=1167, y=0, width=100, height=20)
