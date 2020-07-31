@@ -149,9 +149,9 @@ def start_game(sid, room_id):
                 table.distribute_cards()
 
             """
-            small_blind = str(table.small_blind)
-            big_blind = str(table.big_blind)
-            dealer = str(table.dealer)
+            small_blind = str(table.small_blind.get_client_number())
+            big_blind = str(table.big_blind.get_client_number())
+            dealer = str(table.dealer.get_client_number())
             min_bet = str(table.minimum_bet)
             round_num = str(Table.theRound)
 

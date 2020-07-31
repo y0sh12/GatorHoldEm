@@ -522,6 +522,7 @@ class Game(tk.Frame):
         self.pl_list = []
         self.pl_text = [tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar()]
         self.bal_text = [tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar()]
+        self.inv_text = [tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar()]
 
         for t in self.pl_text:
             t.set('')
@@ -531,6 +532,7 @@ class Game(tk.Frame):
         self.pl_name = ["", "", "", "", "", ""]                         #UNUSED ?????
         self.pl_label = [0, 0, 0, 0, 0, 0]
         self.bal_label = [0, 0, 0, 0, 0, 0]
+        self.inv_label = [tk.Label(self, textvariable=self.inv_text[i]) for i in range(6)]
 
         self.pl_label[0] = tk.Label(self, textvariable=self.pl_text[0])
         self.pl_label[1] = tk.Label(self, textvariable=self.pl_text[1])
@@ -546,10 +548,10 @@ class Game(tk.Frame):
         self.bal_label[4] = tk.Label(self, textvariable=self.bal_text[4])
         self.bal_label[5] = tk.Label(self, textvariable=self.bal_text[5])
 
-        # TODO ASSIGN POSITION
+       # Card Back
         self.card_back_image = Image.open(game_info_get('cwd') + "/res/back.png")
         self.card_back_image = ImageTk.PhotoImage(self.card_back_image)
-        self.card_back_label = tk.Label(self, image=self.card_back_image, bg="black", fg="black")
+        self.card_back_label = tk.Label(self, image=self.card_back_image)
 
         # List of cards to be displayed on the board
         self.board_card_image = [self.card_back_image, self.card_back_image, self.card_back_image, self.card_back_image,
@@ -582,19 +584,23 @@ class Game(tk.Frame):
         self.won_the_pot_text = tk.StringVar()
         self.won_the_pot_label = 0
 
-        # TODO Board card positions
+        # Board card positions
         self.board_card_x = [210, 410, 610, 810, 1010]
         self.board_card_y = [280] * 5
-        # TODO player positions. OUR PLAYER IS AT INDEX 0
+
+        # player positions. OUR PLAYER IS AT INDEX 0
         self.pl_x = [880, 120, 350, 630, 916, 1147]
         self.pl_y = [680, 130, 50, 20, 50, 130]
 
+        # Blinds positions
+        self.blind_x = [810]
+        self.blind_y = [680]
 
         # Button that starts the game on the client side.
         self.button = tk.Button(self, text="Start Game", bg="blue", width=25, command=self.start_up)
         self.button.place(x=1026, y=640)
 
-        self.pl_label_width = 100
+        self.pl_label_width = 110
         self.bal_label_width = 50
 
         # raise amount slider
@@ -611,7 +617,7 @@ class Game(tk.Frame):
         self.fold_button = tk.Button(self, text='Fold', state = 'disabled',
                                      command=lambda: [player_dict_set('choice', '2'), game_info_set('up', True)])
 
-        # TODO Make buttons initially disabled
+        # Make buttons initially disabled
         self.call_check_text = tk.StringVar()
         self.call_check_text.set(player_dict_get('checkOrCall'))
         self.call_check_button = tk.Button(self, textvar=self.call_check_text, state = 'disabled',
@@ -624,17 +630,20 @@ class Game(tk.Frame):
         self.call_check_button.place(x=1106, y=730, height=40, width=70)
         self.raise_button.place(x=1186, y=730, height=40, width=70)
 
-        self.your_hand_label = tk.Label(self, text="Your hand", bg="#c9efd3").place(x=510,y=740)
+        self.your_hand_label = tk.Label(self, text="Your hand", bg="#c9efd3", height=2, width=15).place(x=510,y=740)
 
         #Initialize all the labels
         for i in range(6):
             self.pl_label[i].place(x=self.pl_x[i], y=self.pl_y[i],
                                     width=self.pl_label_width, height=20)
-            # TODO Adjust balance position
+            # Adjust balance position
             self.bal_label[i].place(x=self.pl_x[i], y=self.pl_y[i] + 20,
-                                    width=self.bal_label_width, height=20)
+                                    width=self.pl_label_width, height=20)
+            self.inv_label[i].place(x=self.pl_x[i], y=self.pl_y[i] + 40,
+                                    width=self.pl_label_width, height=20)
             self.pl_label[i].config(bg="gray")
             self.bal_label[i].config(bg="gray")
+            self.inv_label[i].config(bg="gray")
 
         # self.reset_round()
 
@@ -648,7 +657,7 @@ class Game(tk.Frame):
             self.card_back_label = tk.Label(self, image=self.card_back_image,
                                             bg="black", fg="black").place(x=self.board_card_x[i],
                                                                           y=self.board_card_y[i])
-        # TODO Card 1 display
+        # Card 1 display
         if player_dict_get("card1") != "" and not self.card1_displayed:
             temp = player_dict_get("card1").split()
             temp_s = temp[1] + " " + temp[3].lower()
@@ -659,7 +668,7 @@ class Game(tk.Frame):
             self.card1_label.place(x=445, y=550)
             self.card1_displayed = True
 
-        # TODO Card 2 Displayed
+        # Card 2 Displayed
         if player_dict_get("card2") != "" and not self.card2_displayed:
             temp = player_dict_get("card2").split()
             temp_s = temp[1] + " " + temp[3].lower()
@@ -705,17 +714,22 @@ class Game(tk.Frame):
         if self.pl_list[absolute_position]['_balance'] == 0 or self.pl_list[absolute_position]['_isFolded']:
             self.pl_label[relative_position].config(bg="gray")
             self.bal_label[relative_position].config(bg="gray")
+            self.inv_label[relative_position].config(bg="gray")
         else:
             self.pl_label[relative_position].config(bg="white")
             self.bal_label[relative_position].config(bg="white")
+            self.inv_label[relative_position].config(bg="white")
 
         self.pl_text[relative_position].set(self.pl_list[absolute_position]['_name'])
-        self.bal_text[relative_position].set(self.pl_list[absolute_position]['_balance'])
-        self.pl_label[relative_position].place(x=self.pl_x[relative_position], y=self.pl_y[relative_position],
-                                               width=self.pl_label_width, height=20)
-        # TODO Adjust balance position
-        self.bal_label[relative_position].place(x=self.pl_x[relative_position], y=self.pl_y[relative_position] + 20,
-                                                width=self.bal_label_width, height=20)
+        self.bal_text[relative_position].set("Balance: " + str(self.pl_list[absolute_position]['_balance']))
+        _inv = "Investment: " + str(self.pl_list[absolute_position]['_investment'])
+        self.inv_text[relative_position].set(_inv)
+
+        # self.pl_label[relative_position].place(x=self.pl_x[relative_position], y=self.pl_y[relative_position],
+        #                                        width=self.pl_label_width, height=20)
+        #
+        # self.bal_label[relative_position].place(x=self.pl_x[relative_position], y=self.pl_y[relative_position] + 20,
+        #                                         width=self.bal_label_width, height=20)
 
 
     """
@@ -751,10 +765,8 @@ class Game(tk.Frame):
     """
         Function that renders a players screen
     """
-    # TODO reset cards at the end of the round
+    # reset cards at the end of the round
     def update_players(self):
-
-
 
         # self.pl_list = sio.emit('active_player_list', '1')
         self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
@@ -785,7 +797,7 @@ class Game(tk.Frame):
             self.call_check_button["state"] = 'disabled'
             self.raise_slider["state"] = 'disabled'
 
-        # TODO set the display names and balances depending on the player
+        # set the display names and balances depending on the player
         # pl_list is absolute, every client receives exact copy.
         if self.pl_list is not None:
 
