@@ -273,6 +273,7 @@ def game_loop(room, num_raises=0):
                     option = 1
                 else:
                     option = 2
+                sio.emit('you_timed_out')
         sio.emit('player_action', (player.get_name(), option), room=room.room_id)
         if int(option) == 1:
             # Going all in because cannot match table bet

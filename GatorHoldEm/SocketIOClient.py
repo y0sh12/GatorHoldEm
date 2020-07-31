@@ -110,6 +110,10 @@ def on_event(message, room):
     print(message)
     game_info_set('up', True)
 
+@sio.on('you_timed_out')
+def on_event():
+    print('you timed out pal')
+
 
 @sio.on('vip')
 def on_event():
