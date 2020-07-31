@@ -50,7 +50,8 @@ game_info = {
     'turn': False,
     'river': False,
     'up': True,
-    'won_message': ''
+    'won_message': '',
+    'reset_round' : False
 
 }
 
@@ -155,7 +156,6 @@ def on_event():
     game_info['board'] = ['', '', '', '', '']
     game_info_set('won_message', '')
 
-
 @sio.on('flop')
 def on_event(flop):
     temp = flop.split()
@@ -216,7 +216,8 @@ def on_event(card1, card2):
 
 @sio.on('round_ended')
 def on_event():
-    print('round ended')
+    game_info_set('reset_round', True)
+    # print('round ended')
 
 @sio.on('ai_joined')
 def on_event():
@@ -579,11 +580,6 @@ class Game(tk.Frame):
         self.pl_x = [880, 120, 350, 630, 916, 1147]
         self.pl_y = [680, 130, 50, 20, 50, 130]
 
-        # TODO client card postions, make into 2                            TO BE DELETED??
-        self.card1_x = [350, 50, 50, 350, 650, 650]
-        self.card1_y = [490, 390, 190, 90, 190, 390]
-        self.card2_x = [400, 100, 100, 400, 700, 700]
-        self.card2_y = [490, 390, 190, 90, 190, 390]
 
         # Button that starts the game on the client side.
         self.button = tk.Button(self, text="I'm ready", bg="blue", width=25, command=self.start_up)
@@ -631,6 +627,17 @@ class Game(tk.Frame):
             self.pl_label[i].config(bg="gray")
             self.bal_label[i].config(bg="gray")
 
+        self.reset_round()
+
+    def reset_round(self):
+        self.card1_displayed = False
+        self.card2_displayed = False
+
+        for i in range(5):
+            # self.board_card_image[i]
+            self.card_back_label = tk.Label(self, image=self.card_back_image,
+                                            bg="black", fg="black").place(x=self.board_card_x[i],
+                                                                          y=self.board_card_y[i])
 
     def init_update(self):
         print("HI!!!")
@@ -657,6 +664,9 @@ class Game(tk.Frame):
 
         self.running = False
 
+    """
+    Function that sets the name and balance for different players.
+    """
     def _set_player_name_balance(self, absolute_position, relative_position):
         if self.pl_list[absolute_position]['_balance'] == 0 or self.pl_list[absolute_position]['_isFolded']:
             self.pl_label[relative_position].config(bg="gray")
@@ -709,6 +719,10 @@ class Game(tk.Frame):
     """
     # TODO reset cards at the end of the round
     def update_players(self):
+
+        if game_info_get('reset_round'):
+            self.reset_round()
+            game_info_set('reset_round', False)
         # self.pl_list = sio.emit('active_player_list', '1')
         self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
         min_bet = int(player_dict_get('minimumBet'))

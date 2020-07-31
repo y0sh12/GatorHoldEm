@@ -226,7 +226,7 @@ def start_game(sid, room_id):
                     continue
 
             show(room)
-            sio.emit('round_ended')
+
             # At the end of the round, declare players bankrupt if they are out of money
             for p in room.get_player_list():
                 if p.balance <= 0:
@@ -398,7 +398,9 @@ def game_loop(room, num_raises=0):
 
 
 def show(room):
+    sio.emit('round_ended')
     sio.emit('message', 'THE FINAL SHOWDOWN', room=room.room_id)
+
     table = room.get_Table()
     for player in room.get_player_list():
         if player.isFolded or player.bankrupt:
