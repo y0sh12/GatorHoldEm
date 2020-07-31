@@ -21,6 +21,9 @@ class Room:
     def get_player_list(self):
         return self._players
 
+    def set_player_list(self, players):
+        self._players = players
+
     def get_Table(self):
         return self._table
 
