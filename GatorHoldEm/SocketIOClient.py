@@ -2,6 +2,7 @@ import pathlib
 import sys
 import tkinter as tk
 from tkinter import messagebox
+from threading import Thread
 
 import socketio
 from PIL import Image, ImageTk
@@ -51,7 +52,7 @@ game_info = {
     'river': False,
     'up': True,
     'won_message': '',
-    'reset_round' : True
+    'reset_round' : False
 
 }
 
@@ -140,6 +141,7 @@ def on_event(balance, investment, minimumBet, checkOrCall):
 
     player_dict_set('my_turn', True)
 
+
     while player_dict_get('my_turn'):
         if player_dict_get('choice') != '':
             choice = player_dict_get('choice')
@@ -208,6 +210,7 @@ def on_event(message):
 
 
 
+
     game_info_set('up', True)
 
 
@@ -217,11 +220,13 @@ def on_event(card1, card2):
 
     player_dict_set("card1", card1)
     player_dict_set("card2", card2)
+    game_info_set('reset_round', True)
     game_info_set('up', True)
 
 @sio.on('round_ended')
 def on_event():
-    print('round ended')
+    game_info_set('up', True)
+    # print('round ended')
 
 @sio.on('ai_joined')
 def on_event():
@@ -586,7 +591,7 @@ class Game(tk.Frame):
 
 
         # Button that starts the game on the client side.
-        self.button = tk.Button(self, text="I'm ready", bg="blue", width=25, command=self.start_up)
+        self.button = tk.Button(self, text="Start Game", bg="blue", width=25, command=self.start_up)
         self.button.place(x=1026, y=640)
 
         self.pl_label_width = 100
@@ -634,6 +639,7 @@ class Game(tk.Frame):
         # self.reset_round()
 
     def reset_round(self):
+        print("the round is reset")
         self.card1_displayed = False
         self.card2_displayed = False
 
@@ -661,9 +667,14 @@ class Game(tk.Frame):
             self.card2_label = tk.Label(self, image=self.card2_image)
             self.card2_label.place(x=580, y=550)
             self.card2_displayed = True
+        self.update()
+
 
     def init_update(self):
         print("HI!!!")
+        if game_info_get('reset_round'):
+            self.reset_round()
+            game_info_set('reset_round', False)
 
     def set_raise_val(self, val):
         player_dict_set('raise_amount', val)
@@ -743,9 +754,8 @@ class Game(tk.Frame):
     # TODO reset cards at the end of the round
     def update_players(self):
 
-        if game_info_get('reset_round'):
-            self.reset_round()
-            game_info_set('reset_round', False)
+
+
         # self.pl_list = sio.emit('active_player_list', '1')
         self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
         min_bet = int(player_dict_get('minimumBet'))
