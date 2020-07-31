@@ -51,7 +51,7 @@ game_info = {
     'river': False,
     'up': True,
     'won_message': '',
-    'reset_round' : False
+    'reset_round' : True
 
 }
 
@@ -137,6 +137,7 @@ def on_event(balance, investment, minimumBet, checkOrCall):
     player_dict_set('minimumBet', new_minimumBet)
     player_dict_set('checkOrCall', new_checkOrCall)
 
+
     player_dict_set('my_turn', True)
 
     while player_dict_get('my_turn'):
@@ -154,10 +155,11 @@ def on_event(balance, investment, minimumBet, checkOrCall):
 def on_event():
     game_info_set('up', True)
     game_info['board'] = ['', '', '', '', '']
-    game_info_set('won_message', '')
+
 
 @sio.on('flop')
 def on_event(flop):
+    game_info_set('won_message', '')
     temp = flop.split()
     game_info['board'][0] = temp[1] + " " + temp[3]
     game_info['board'][1] = temp[5] + " " + temp[7]
@@ -204,20 +206,22 @@ def on_event(message):
     if 'has won the pot' in message:
         game_info_set('won_message', message)
 
+
+
     game_info_set('up', True)
 
 
 @sio.on('emit_hand')
 def on_event(card1, card2):
     print("Your hand:", card1, card2)
+
     player_dict_set("card1", card1)
     player_dict_set("card2", card2)
     game_info_set('up', True)
 
 @sio.on('round_ended')
 def on_event():
-    game_info_set('reset_round', True)
-    # print('round ended')
+    print('round ended')
 
 @sio.on('ai_joined')
 def on_event():
@@ -627,7 +631,7 @@ class Game(tk.Frame):
             self.pl_label[i].config(bg="gray")
             self.bal_label[i].config(bg="gray")
 
-        self.reset_round()
+        # self.reset_round()
 
     def reset_round(self):
         self.card1_displayed = False
@@ -638,6 +642,25 @@ class Game(tk.Frame):
             self.card_back_label = tk.Label(self, image=self.card_back_image,
                                             bg="black", fg="black").place(x=self.board_card_x[i],
                                                                           y=self.board_card_y[i])
+        # TODO Card 1 display
+        if player_dict_get("card1") != "" and not self.card1_displayed:
+            temp = player_dict_get("card1").split()
+            temp_s = temp[1] + " " + temp[3].lower()
+
+            self.card1_image = self._load_card_image(temp_s)
+            self.card1_label = tk.Label(self, image=self.card1_image)
+
+            self.card1_label.place(x=445, y=550)
+            self.card1_displayed = True
+
+        # TODO Card 2 Displayed
+        if player_dict_get("card2") != "" and not self.card2_displayed:
+            temp = player_dict_get("card2").split()
+            temp_s = temp[1] + " " + temp[3].lower()
+            self.card2_image = self._load_card_image(temp_s)
+            self.card2_label = tk.Label(self, image=self.card2_image)
+            self.card2_label.place(x=580, y=550)
+            self.card2_displayed = True
 
     def init_update(self):
         print("HI!!!")
@@ -741,6 +764,7 @@ class Game(tk.Frame):
 
         # Enable the buttons only if it is our turn
         if player_dict_get('my_turn'):
+
             self.raise_button["state"] = 'normal'
             self.fold_button["state"] = 'normal'
             self.call_check_button["state"] = 'normal'
@@ -779,26 +803,6 @@ class Game(tk.Frame):
                 self._set_player_name_balance(i, placement_index)
                 placement_index += 1
 
-
-        # TODO Card 1 display
-        if player_dict_get("card1") != "" and not self.card1_displayed:
-            temp = player_dict_get("card1").split()
-            temp_s = temp[1] + " " + temp[3].lower()
-
-            self.card1_image = self._load_card_image(temp_s)
-            self.card1_label = tk.Label(self, image=self.card1_image)
-
-            self.card1_label.place(x=445, y=550)
-            self.card1_displayed = True
-
-        # TODO Card 2 Displayed
-        if player_dict_get("card2") != "" and not self.card2_displayed:
-            temp = player_dict_get("card2").split()
-            temp_s = temp[1] + " " + temp[3].lower()
-            self.card2_image = self._load_card_image(temp_s)
-            self.card2_label = tk.Label(self, image=self.card2_image)
-            self.card2_label.place(x=580, y=550)
-            self.card2_displayed = True
 
         # pot total
         p = 0
