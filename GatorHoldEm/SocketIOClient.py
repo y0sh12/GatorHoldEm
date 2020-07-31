@@ -274,7 +274,7 @@ def on_event(player, option):
 # General global functions
 def update_room_list():
     room_members = sio.call(event='active_player_list', data=player_dict_get('room_name'))
-    curr_room_members = player_dict['room_list']
+    curr_room_members = player_dict_get('room_list')
     if room_members:
         player_dict_set('room_list_len', len(room_members))
         for index, player in enumerate(curr_room_members):
@@ -356,7 +356,6 @@ class MainMenu(tk.Frame):
         self.name_entry = tk.Entry(self, fg="black", bg="white", width=15, font=("Helvetica", "18"))
         self.name_entry.place(x=710, y=575)
 
-
         # Submit button
         self.submit = tk.Button(self, activebackground='#003fa3', text="Submit", bg="#004ecc", width=10, height=2,
                                 font=("Helvetica", "18"), command=self.handle_click)
@@ -420,38 +419,62 @@ class Lobby(tk.Frame):
         self.config(bg="#c9efd3")
         self.lobby_title_text = tk.StringVar()
         self.changed_title = False
-        self.lobby_title = tk.Label(self, textvariable=self.lobby_title_text, bg="#c9efd3", fg="#029D8A",
-                                    font=("Helvetica", "60", "bold"))
-        self.lobby_title.pack(padx=10, pady=10)
-
-        # List of players in lobby
-        self.label_list = [0] * 6
-        player_list = player_dict_get('room_list')
-
-        for index, label in enumerate(self.label_list):
-            # TEST REMOVE BELOW
-            self.label_list[index] = tk.Label(self, textvariable=player_list[index],
-                                             font=("Helvetica", "20")).pack(pady=15)
-            # self.label_list[index] = tk.Label(self, textvariable=player_list[index], bg="#c9efd3",
-            #                                  font=("Helvetica", "20")).pack(pady=15)
 
         # Back to home button
         self.back_to_home = tk.Button(self, activebackground="#d84b1b", text="Back to Home", bg="#f0541e",
                                       command=self.leaving_lobby)
-        self.back_to_home.place(x=0, y=0)
+        # self.back_to_home.place(x=0, y=0)
+        self.back_to_home.grid(column=0, row=0, sticky='NW')
 
-         # Start the game button
+        self.lobby_title = tk.Label(self, textvariable=self.lobby_title_text, bg="#c9efd3", fg="#029D8A",
+                                    font=("Helvetica", "60", "bold"))
+        # self.lobby_title.pack(padx=10, pady=10)
+        self.lobby_title.grid(column=2, row=0)
+        # self.grid_columnconfigure(2, weight=1)
+        # self.grid_rowconfigure(0, weight=1)
+
+        # Creation of player list in lobby and remove buttons
+        self.player_list_frame = [0] * 6
+        self.current_lobby_list = [0] * 6
+        self.remove_player_list = [0] * 6
+        player_list = player_dict_get('room_list')
+
+        for index, label in enumerate(self.current_lobby_list):
+            self.player_list_frame[index] = tk.Frame(self)
+            self.player_list_frame[index].config(bg="#c9efd3")
+
+            self.current_lobby_list[index] = tk.Label(self.player_list_frame[index], background="#c9efd3",
+                                                      textvariable=player_list[index], font=("Helvetica", "20"))
+            self.current_lobby_list[index].grid(column=2, row=0)
+
+            self.remove_player_list[index] = tk.Button(self.player_list_frame[index], background="#c9efd3",
+                                                       height=1, text="Remove", bg='#32cd32', font=("Helvetica", "12"),
+                                                       command=lambda i=index: self.remove_player(i))
+            self.remove_player_list[index].grid(column=0, row=0)
+
+            self.player_list_frame[index].grid(column=2, row=index + 1, pady=15)
+            self.player_list_frame[index].grid_columnconfigure(0, weight=5)
+            self.player_list_frame[index].grid_columnconfigure(1, minsize=100)
+            self.player_list_frame[index].grid_columnconfigure(0, minsize=100)
+            # self.label_list[index] = tk.Label(self, textvariable=player_list[index],
+            #                                   font=("Helvetica", "20")).pack(pady=15)
+            # self.label_list[index] = tk.Label(self, textvariable=player_list[index], bg="#c9efd3",
+            #                                  font=("Helvetica", "20")).pack(pady=15)
+
+        # Start the game button
         self.start_the_game = tk.Button(self, activebackground="#00893d", text="Start the Game!", bg="#009944",
                                         width=15, height=3, font=("Helvetica", "18"), borderwidth=4,
                                         command=self.handle_submit)
-        self.start_the_game.pack(pady=10)
+        # self.start_the_game.pack(pady=10)
+        self.start_the_game.grid(column=2, row=11, pady=25)
 
         # Waiting animation
         self.wait_text = tk.StringVar()
         self.wait_tracker = 0
-        self.wait = tk.Label(self, textvariable=self.wait_text, bg = "#c9efd3", font=("Helvetica", "16"),
+        self.wait = tk.Label(self, textvariable=self.wait_text, bg="#c9efd3", font=("Helvetica", "16"),
                              fg="#029D8A")
-        self.wait.place(x=420, y=530)
+        # self.wait.place(x=420, y=530)
+        self.wait.grid(column=2, row=9)
 
         # Information for vip
         self.help_text = tk.StringVar()
@@ -459,27 +482,49 @@ class Lobby(tk.Frame):
         # Render help info
         self.help = tk.Label(self, textvariable=self.help_text, bg="#c9efd3", font=("Helvetica", "16"),
                              fg="#029D8A")
-        self.help.place(x=150, y=720)
+        # self.help.place(x=150, y=720)
+        self.help.grid(column=2, row=10)
+
+        self.ai_button = tk.Button(self, text="Add AI bot", command=self.add_ai_player)
+
+        self.ai_button.grid(column=2, row=8, pady=5)
+
+        for index in range(5):
+            self.grid_columnconfigure(index, minsize=100)
 
         self.update()
 
+    def add_ai_player(self):
+        sio.call(event='add_bot', data=player_dict_get('room_name'))
+
+    def remove_player(self, index):
+        sio.call(event='remove_player', data=[player_dict_get('room_name'), index])
+
     def handle_submit(self):
+        if player_dict_get('room_list_len') < 2:
+            print("Too few players")
+            messagebox.showerror("Error: Not enough players",
+                                 "Please have two players in the lobby, then try again!")
+            return
+
         sio.emit('start_game', player_dict_get('room_name'))
         player_dict_set('running', True)
         self.controller.show_frame(Game)
 
     def init_update(self):
         print("Hi you're in lobby right now!")
+        # Update room name title
+        self.lobby_title_text.set('Room: ' + player_dict_get('room_name'))
+
         # If player is not vip hide start game button
         if not player_dict_get('vip'):
-            self.start_the_game.pack_forget()
+            self.start_the_game.grid_remove()
+            self.ai_button.grid_remove()
             self.help_text.set("The first player to join has the ability to start the game.")
         else:
-            self.wait.place_forget()
+            self.wait.grid_remove()
             self.help_text.set("Since you are the first player to join, you are the VIP player. " \
-                            "Press the Start Game button \nonce all the players have joined.")
-
-
+                               "Press the Start Game button \nonce all the players have joined.")
 
     def update(self):
         if sio.connected:
@@ -490,9 +535,19 @@ class Lobby(tk.Frame):
             elif not self.changed_title:
                 self.lobby_title_text.set('Room: ' + player_dict_get('room_name'))
                 self.changed_title = True
-            # Update list of room members
+
+            # Update list of room members and room list widgets
             update_room_list()
 
+            # Hide room list buttons and labels based on amount of players in lobby
+            for index in range(6):
+                if index > player_dict_get('room_list_len') - 1:
+                    self.remove_player_list[index].grid_remove()
+                else:
+                    self.remove_player_list[index].grid()
+
+
+            # Start game wait animation loop
             if self.wait_tracker % 4 == 0:
                 self.wait_tracker = 0
                 self.wait_text.set("Waiting on the first player to start the game")
@@ -504,12 +559,20 @@ class Lobby(tk.Frame):
                 self.wait_text.set("Waiting on the first player to start the game...")
             self.wait_tracker += 1
 
-
-
         # Call this function again in three seconds
         self.after(2000, self.update)
 
     def leaving_lobby(self):
+        player_dict_set('running', False)
+        player_dict_set('vip', False)
+        player_dict_set("room_name", '')
+        player_dict_set("name", '')
+
+        # Grid everything that could've been forgotten
+        self.start_the_game.grid()
+        self.ai_button.grid()
+        self.wait.grid()
+
         sio.disconnect()
         sio.wait()
         self.controller.show_frame(MainMenu)
@@ -626,7 +689,7 @@ class Game(tk.Frame):
         self.raise_button.place(x=710, y=550, height=40, width=70)
 
     def init_update(self):
-        print("HI!!!")
+        print("Hello, you are in the game frame!")
 
     def set_raise_val(self, val):
         player_dict_set('raise_amount', val)
@@ -644,7 +707,7 @@ class Game(tk.Frame):
             # print(player_dict_get("card1"))
 
     def exit(self):
-
+        player_dict_set('running', False)
         self.running = False
 
     def update_players(self):

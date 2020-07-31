@@ -48,7 +48,8 @@ def in_room(sid, data):
 # gui should make sure that only vip players can do this action
 # pass the room object not the room_id
 @sio.on('add_bot')
-def add_bot(sid, room):
+def add_bot(sid, room_id):
+    room = next((room for room in roomList if room.room_id == room_id), None)
     room.add_player(Player(None, False, "Gator AI", True))
     sio.emit('ai_joined', room=room.room_id)
 
@@ -65,6 +66,21 @@ def disconnect(sid):
         if len(player_list) == 0:
             roomList.remove(room)
         print('disconnect', sid)
+
+@sio.on('remove_player')
+def remove_player(sid, data):
+    room_id = data[0]
+    index = data[1]
+    room = next((room for room in roomList if room.room_id == room_id), None)
+    if room is not None:
+        player_list = room.get_player_list()
+        player = player_list[index]
+        if player is not None:
+            room.remove_player(player)
+            sio.emit('user_disconnect', (player.get_name() + " has left the room!"), room=room.room_id, skip_sid=sid)
+        player_list = room.get_player_list()
+        if len(player_list) == 0:
+            roomList.remove(room)
 
 
 @sio.on('my_name')
