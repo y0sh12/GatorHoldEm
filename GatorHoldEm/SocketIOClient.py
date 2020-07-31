@@ -234,6 +234,9 @@ def on_event(card1, card2):
     player_dict_set("card2", card2)
     game_info_set('up', True)
 
+@sio.on('round_ended')
+def on_event():
+    print('round ended')
 
 @sio.on('ai_joined')
 def on_event():

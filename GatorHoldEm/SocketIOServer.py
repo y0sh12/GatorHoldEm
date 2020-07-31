@@ -17,7 +17,6 @@ def connect(sid, environ):
     print(sid, "in lobby")
 
 
-# sio.call(event='active_player_list', data=room.room_id)
 @sio.on('active_player_list')
 def on_event(sid, room_id):
     room = next((room for room in roomList if room.room_id == room_id), None)
@@ -220,7 +219,7 @@ def start_game(sid, room_id):
                     continue
 
             show(room)
-
+            sio.emit('round_ended')
             # At the end of the round, declare players bankrupt if they are out of money
             for p in room.get_player_list():
                 if p.balance <= 0:
