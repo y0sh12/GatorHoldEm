@@ -153,6 +153,7 @@ def on_event(balance, investment, minimumBet, checkOrCall):
 def on_event():
     game_info_set('up', True)
     game_info['board'] = ['', '', '', '', '']
+    game_info_set('won_message', '')
 
 
 @sio.on('flop')
@@ -161,7 +162,7 @@ def on_event(flop):
     game_info['board'][0] = temp[1] + " " + temp[3]
     game_info['board'][1] = temp[5] + " " + temp[7]
     game_info['board'][2] = temp[9] + " " + temp[11]
-    game_info_set('won_message', '')
+    game_info_set('flop', True)
     game_info_set('up', True)
 
 
@@ -169,6 +170,7 @@ def on_event(flop):
 def on_event(turn):
     temp = turn.split()
     game_info['board'][3] = temp[13] + " " + temp[15]
+    game_info_set('turn', True)
     game_info_set('up', True)
 
 
@@ -176,6 +178,7 @@ def on_event(turn):
 def on_event(river):
     temp = river.split()
     game_info['board'][4] = temp[17] + " " + temp[19]
+    game_info_set('river', True)
     game_info_set('up', True)
 
 
@@ -201,33 +204,33 @@ def on_event(message):
     if 'has won the pot' in message:
         game_info_set('won_message', message)
 
-    if game_info_get('flop'):
-        temp = message.split()
-        print(temp)
-        print(temp[0] + " " + temp[0])
-        print(game_info['board'][0])
-        game_info['board'][0] = temp[1] + " " + temp[3]
-        game_info['board'][1] = temp[5] + " " + temp[7]
-        game_info['board'][2] = temp[9] + " " + temp[11]
-        game_info_set('flop', False)
-    # if message == "---------THE FLOP----------\n":
-    # game_info_set('flop', True)
-
-    if game_info_get('turn'):
-        temp = message.split()
-        print(temp)
-        game_info['board'][3] = temp[13] + " " + temp[15]
-        game_info_set('turn', False)
-    # if message == "---------THE TURN----------\n":
-    # game_info_set('turn', True)
-
-    if game_info_get('river'):
-        temp = message.split()
-        print(temp)
-        game_info['board'][4] = temp[17] + " " + temp[19]
-        game_info_set('river', False)
-    # if message == "---------THE RIVER----------\n":
-    # game_info_set('river', True)
+    # if game_info_get('flop'):
+    #     temp = message.split()
+    #     print(temp)
+    #     print(temp[0] + " " + temp[0])
+    #     print(game_info['board'][0])
+    #     game_info['board'][0] = temp[1] + " " + temp[3]
+    #     game_info['board'][1] = temp[5] + " " + temp[7]
+    #     game_info['board'][2] = temp[9] + " " + temp[11]
+    #     game_info_set('flop', False)
+    # # if message == "---------THE FLOP----------\n":
+    # # game_info_set('flop', True)
+    #
+    # if game_info_get('turn'):
+    #     temp = message.split()
+    #     print(temp)
+    #     game_info['board'][3] = temp[13] + " " + temp[15]
+    #     game_info_set('turn', False)
+    # # if message == "---------THE TURN----------\n":
+    # # game_info_set('turn', True)
+    #
+    # if game_info_get('river'):
+    #     temp = message.split()
+    #     print(temp)
+    #     game_info['board'][4] = temp[17] + " " + temp[19]
+    #     game_info_set('river', False)
+    # # if message == "---------THE RIVER----------\n":
+    # # game_info_set('river', True)
     game_info_set('up', True)
 
 
@@ -696,6 +699,37 @@ class Game(tk.Frame):
         self.bal_label[relative_position].place(x=self.pl_x[relative_position], y=self.pl_y[relative_position] + 20,
                                                 width=self.bal_label_width, height=20)
 
+
+    """
+    Function that loads card images and returns image object
+    Parameters: Card Suit, Ex: 10 Hearts
+    """
+
+    def _load_card_image(self, temp):
+        temp = temp.split()
+        if temp[1] == "11":
+            temp[1] = "jack"
+        if temp[1] == "12":
+            temp[1] = "queen"
+        if temp[1] == "13":
+            temp[1] = "king"
+        if temp[1] == "14":
+            temp[1] = "ace"
+        path = game_info_get('cwd') + "/res/" + temp[1] + "_of_" + temp[0].lower() + "s.png"
+        return ImageTk.PhotoImage(Image.open(path))
+
+
+    """
+    Function that places a card on the board
+    parameters: position (0-4)
+    """
+
+    def _place_card(self, position):
+        # Display cards on the board
+        self.board_card_image[position] = self._load_card_image(game_info['board'][position])
+        c = tk.Label(self, image=self.board_card_image[position], bg="white")
+        c.place(x=self.board_card_x[position], y=self.board_card_y[position])
+
     """
         Function that renders a players screen
     """
@@ -755,32 +789,6 @@ class Game(tk.Frame):
                 self._set_player_name_balance(i, placement_index)
                 placement_index += 1
 
-
-            # for counter, pl in enumerate(self.pl_list):
-            #     self.pl_text[counter].set(pl['_name'])
-            #     self.bal_text[counter].set(pl['_balance'])
-                # print(pl['_name'])
-
-        # Gray out empty positions
-        # print("Graying out irrelevant spots")
-        # for counter, t in enumerate(self.pl_text):
-        #     print("Relative position: ", counter, "Text: ", t.get())
-        #     if t.get() == '':
-        #         self.pl_label[counter].config(bg="gray")
-        #         self.bal_label[counter].config(bg="gray")
-        #     else:
-        #         print(" Text is not null, making it white")
-        #         self.pl_label[counter].config(bg="white")
-        #         self.bal_label[counter].config(bg="white")
-
-        # Grey out folded players
-        # for counter, pl in enumerate(self.pl_list):
-        #     if pl['_isFolded']:
-        #         self.pl_label[counter].config(bg="gray")
-        #         self.bal_label[counter].config(bg="gray")
-        #     else:
-        #         self.pl_label[counter].config(bg="white")
-        #         self.bal_label[counter].config(bg="white")
 
         card1_path = ""
         # TODO Card 1 display
@@ -872,35 +880,18 @@ class Game(tk.Frame):
         if self.call_check_text.get() == "Call":
             self.call_check_text.set("Call " + str(player_dict_get("minimumBet")))
 
-        # Display cards on the board
-        for counter, c in enumerate(self.board_card_label):
-            if game_info['board'][counter] == '':
-                c = tk.Label(self, image=self.card_back_image, bg="black")
-                c.place(x=self.board_card_x[counter], y=self.board_card_y[counter], width=50, height=80)
-            else:
-                temp = game_info['board'][counter].split()
-                if temp[1] == "11":
-                    temp[1] = "jack"
-                if temp[1] == "12":
-                    temp[1] = "queen"
-                if temp[1] == "13":
-                    temp[1] = "king"
-                if temp[1] == "14":
-                    temp[1] = "ace"
-                path = game_info_get('cwd') + "/res/" + temp[1] + "_of_" + temp[0].lower() + "s.png"
+        if game_info_get('flop'):
+            game_info_set('flop', False)
+            for i in range(3):
+                self._place_card(i)
 
-                self.board_card_image[counter] = Image.open(path)
-                # self.board_card_image[counter] = self.board_card_image[counter].resize((40, 70), Image.ANTIALIAS)
-                self.board_card_image[counter] = ImageTk.PhotoImage(self.board_card_image[counter])
-                c = tk.Label(self, image=self.board_card_image[counter], bg="white")
-                c.place(x=self.board_card_x[counter], y=self.board_card_y[counter], width=50, height=80)
+        if game_info_get('turn'):
+            game_info_set('turn', False)
+            self._place_card(3)
 
-        # self.card1_image = tk.PhotoImage(file=card1_path)
-        # self.card2_image = tk.PhotoImage(file=card2_path)
-
-        # self.update()
-
-        # self.after(2000, self.update_players)
+        if game_info_get('river'):
+            game_info_set('river', False)
+            self._place_card(4)
 
 
 def update():
