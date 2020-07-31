@@ -587,7 +587,7 @@ class Game(tk.Frame):
 
         # Board card positions
         self.board_card_x = [210, 410, 610, 810, 1010]
-        self.board_card_y = [280] * 5
+        self.board_card_y = [290] * 5
 
         # player positions. OUR PLAYER IS AT INDEX 0
         self.pl_x = [880, 120, 350, 630, 916, 1147]
@@ -610,6 +610,14 @@ class Game(tk.Frame):
 
         self.dealer_token_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/d_token.png"))
         self.dealer_token = tk.Label(self, image=self.dealer_token_image, bg="#008040")
+
+        # Import table bet
+        self.table_bet_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/table_bet.png"))
+        self.table_bet_label = tk.Label(self, image=self.table_bet_image, bg="#008040").place(x=0,y=650)
+
+        # Import pot
+        self.pot_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/poker_chips.png"))
+        self.pot_label = tk.Label(self, image=self.pot_image, bg="#008040").place(x=700,y=120)
 
         # Button that starts the game on the client side.
         self.button = tk.Button(self, text="Start Game", bg="blue", width=25, command=self.start_up)
@@ -880,21 +888,26 @@ class Game(tk.Frame):
         for pl in self.pl_list:
             p += pl['_investment']
         game_info_set('pot', p)
-        self.pot_label = tk.Label(self, text="Pot: " + str(game_info_get('pot')))
-        self.pot_label.place(x=0, y=600, width=200, height=20)
+        pot_string = "Total Pot amount: " + str(game_info_get('pot'))
 
-        self.min_bet_text.set('Minimum bet: ' + str(player_dict_get('minimumBet')))
-        self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text)
-        self.min_bet_label.place(x=0, y=620, width=200, height=20)
+        self.pot_label = tk.Label(self, text=pot_string,
+                                        bg="#c9efd3", font=("Helvetica", "11"))
+        # self.pot_label.place(x=740, y=260, width=180, height=20)
+        self.pot_label.place(x=700, y=250)
 
- 
+        self.min_bet_text.set('Current Table bet: ' + str(player_dict_get('minimumBet')))
+        self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text, bg="#c9efd3", font=("Helvetica", "13"))
+        self.min_bet_label.place(x=0, y=755, width=220, height=25)
+
+
         self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
-        self.round_num_label = tk.Label(self, textvariable=self.round_num_text)
+        self.round_num_label = tk.Label(self, textvariable=self.round_num_text, bg="#c9efd3",
+                                        font=("Helvetica", "15"))
         self.round_num_label.place(x=1167, y=0, width=100, height=20)
 
-        # TO DO WON THE GAME LABEL
+        # TODO WON THE GAME LABEL
         self.won_the_pot_text.set(game_info_get('won_message'))
-        self.won_the_pot_label = tk.Label(self, textvariable=self.won_the_pot_text)
+        self.won_the_pot_label = tk.Label(self, textvariable=self.won_the_pot_text, )
         self.won_the_pot_label.place(x=0, y=560, height=20)
 
 
