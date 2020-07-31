@@ -6,6 +6,7 @@ import socketio
 from player import Player
 from room import Room
 from table import Table
+import time
 
 roomList = []
 sio = socketio.Server()
@@ -17,7 +18,6 @@ def connect(sid, environ):
     print(sid, "in lobby")
 
 
-# sio.call(event='active_player_list', data=room.room_id)
 @sio.on('active_player_list')
 def on_event(sid, room_id):
     room = next((room for room in roomList if room.room_id == room_id), None)
@@ -59,10 +59,17 @@ def disconnect(sid):
     if room is not None:
         player_list = room.get_player_list()
         player = next((player for player in player_list if player.get_client_number() == sid), None)
+        player_vip = False
         if player is not None:
+            player_vip = player.is_vip
             room.remove_player(player)
+            player_list.remove(player)
             sio.emit('user_disconnect', (player.get_name() + " has left the room!"), room=room.room_id, skip_sid=sid)
-        player_list = room.get_player_list()
+        if player_vip and len(player_list) > 0:
+            player_list[0].is_vip = True
+            sio.emit('vip', room=player_list[0].get_client_number())
+            print(player.__dict__)
+        room.set_player_list(player_list)
         if len(player_list) == 0:
             roomList.remove(room)
         print('disconnect', sid)
@@ -158,9 +165,9 @@ def start_game(sid, room_id):
                 table.distribute_cards()
 
             """
-            small_blind = str(table.small_blind)
-            big_blind = str(table.big_blind)
-            dealer = str(table.dealer)
+            small_blind = str(table.small_blind.get_client_number())
+            big_blind = str(table.big_blind.get_client_number())
+            dealer = str(table.dealer.get_client_number())
             min_bet = str(table.minimum_bet)
             round_num = str(Table.theRound)
 
@@ -283,6 +290,7 @@ def game_loop(room, num_raises=0):
                     option = 1
                 else:
                     option = 2
+                sio.emit('you_timed_out')
         sio.emit('player_action', (player.get_name(), option), room=room.room_id)
         if int(option) == 1:
             # Going all in because cannot match table bet
@@ -407,7 +415,9 @@ def game_loop(room, num_raises=0):
 
 
 def show(room):
+    sio.emit('round_ended')
     sio.emit('message', 'THE FINAL SHOWDOWN', room=room.room_id)
+
     table = room.get_Table()
     for player in room.get_player_list():
         if player.isFolded or player.bankrupt:
@@ -435,7 +445,6 @@ def show(room):
         ties_with_max[0].change_balance(table.pot)
         sio.emit('message', str(ties_with_max[0]) + " has won the pot: " + str(table.pot), room=room.room_id)
     else:
-        # TODO BE MODIFIED TO CHECK FOR TIE BREAKERS
         split = table.pot / len(ties_with_max)
         for p in ties_with_max:
             p.change_balance(split)

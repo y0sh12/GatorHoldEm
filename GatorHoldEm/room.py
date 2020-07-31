@@ -14,11 +14,15 @@ class Room:
         self._players.append(player)
 
     def remove_player(self, player):
-        # TODO set player balance to zero and fold instead of removing to prevent program from breaking.
-        self._players.remove(player)
+        # set player balance to zero and fold instead of removing to prevent program from breaking.
+        player.fold()
+        player._balance = 0
 
     def get_player_list(self):
         return self._players
+
+    def set_player_list(self, players):
+        self._players = players
 
     def get_Table(self):
         return self._table
@@ -28,5 +32,6 @@ class Room:
             if player.get_client_number() == sid:
                 return True
         return False
+
 # This import the table.py and should have the list of players
 # Adding of player should be implemented here, initialize Player()
