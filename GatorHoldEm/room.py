@@ -20,12 +20,11 @@ class Room:
             player._balance = 0
             player.is_vip = False
             if len(self._players) > 1:
-                self._players[1] = True
+                self._players[1].is_vip = True
         else:
             self._players.remove(player)
             if len(self._players) > 0:
-                self._players[0] = True
-
+                self._players[0].is_vip = True
 
     def get_player_list(self):
         return self._players

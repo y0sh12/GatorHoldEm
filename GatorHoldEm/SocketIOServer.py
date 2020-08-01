@@ -81,7 +81,7 @@ def disconnect(sid):
         print('disconnect', sid)
 
 def non_ai_fellow_present(player_list):
-    present = True;
+    present = True
     first_dude = None
     for player in player_list:
         if player.AI is False:
@@ -101,13 +101,13 @@ def remove_player(sid, data):
         player_list = room.get_player_list()
         player = player_list[index]
         if player is not None:
-            client_id = player.get_client_number()
-            if client_id is not None:
+            if player.AI is False:
+                client_id = player.get_client_number()
                 sio.disconnect(client_id)
             else:
                 room.remove_player(player)
-                player_list.remove(player)
-                room.set_player_list(player_list)
+                # player_list.remove(player)
+                # room.set_player_list(player_list)
 
 
 @sio.on('my_name')
