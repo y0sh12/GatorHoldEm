@@ -15,8 +15,17 @@ class Room:
 
     def remove_player(self, player):
         # set player balance to zero and fold instead of removing to prevent program from breaking.
-        player.fold()
-        player._balance = 0
+        if self.game_in_progress:
+            player.fold()
+            player._balance = 0
+            player.is_vip = False
+            if len(self._players) > 1:
+                self._players[1] = True
+        else:
+            self._players.remove(player)
+            if len(self._players) > 0:
+                self._players[0] = True
+
 
     def get_player_list(self):
         return self._players
