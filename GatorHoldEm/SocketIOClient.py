@@ -123,6 +123,10 @@ def on_event():
     player_dict_set('vip', True)
     print("Ayyyy you da vip")
 
+@sio.on('game_end')
+def on_event():
+    print("Game ended")
+
 
 @sio.on('your_turn')
 def on_event(balance, investment, minimumBet, checkOrCall):
