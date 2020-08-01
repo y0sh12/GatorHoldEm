@@ -123,7 +123,7 @@ def on_event():
     player_dict_set('vip', True)
     print("Ayyyy you da vip")
 
-@sio.on('game_end')
+@sio.on('game_ended')
 def on_event():
     print("Game ended")
 
