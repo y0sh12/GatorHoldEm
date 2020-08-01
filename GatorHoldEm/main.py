@@ -112,7 +112,7 @@ def main():
     room1.add_player(Player(14, "Yosh"))
     room1.add_player(Player(15, "Azhar"))
 
-    print(room1._table._deck.num_cards)
+    print(room1._table.deck.num_cards)
     print(room1._table._players)
 
     # Round 1
@@ -131,12 +131,12 @@ def main():
 
         # player.next()
 
-        print("Number of cards before flopping is ", room1._table._deck.num_cards)
+        print("Number of cards before flopping is ", room1._table.deck.num_cards)
         print("************************THE FLOP*********************")
-        room1._table._deck.pick_card() #the burn card
-        room1._table.add_to_visible_cards(room1._table._deck.pick_card()) 
-        room1._table.add_to_visible_cards(room1._table._deck.pick_card())   #The FLOP - three cards
-        room1._table.add_to_visible_cards(room1._table._deck.pick_card())
+        room1._table.deck.pick_card() #the burn card
+        room1._table.add_to_visible_cards(room1._table.deck.pick_card())
+        room1._table.add_to_visible_cards(room1._table.deck.pick_card())   #The FLOP - three cards
+        room1._table.add_to_visible_cards(room1._table.deck.pick_card())
         
         print("Cards on the table: ", end=" ")
         for a in room1._table._visible_cards:
@@ -148,8 +148,8 @@ def main():
         game_loop(room1) #pre-turn
         
         print("************************THE TURN*********************")
-        room1._table._deck.pick_card() #the burn card
-        room1._table.add_to_visible_cards(room1._table._deck.pick_card()) # The Turn - one card   
+        room1._table.deck.pick_card() #the burn card
+        room1._table.add_to_visible_cards(room1._table.deck.pick_card()) # The Turn - one card
         print("Cards on the table: ", end=" ")
         for a in room1._table._visible_cards:
             print(a, end=" ")
@@ -158,8 +158,8 @@ def main():
         game_loop(room1) #pre-river
 
         print("************************THE RIVER*********************")
-        room1._table._deck.pick_card() #the burn card
-        room1._table.add_to_visible_cards(room1._table._deck.pick_card()) # The River - one card
+        room1._table.deck.pick_card() #the burn card
+        room1._table.add_to_visible_cards(room1._table.deck.pick_card()) # The River - one card
         print("Cards on the table: ", end=" ")
         for a in room1._table._visible_cards:
             print(a, end=" ")
