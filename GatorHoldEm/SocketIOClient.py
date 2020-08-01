@@ -652,7 +652,7 @@ class Game(tk.Frame):
 
         # Board card positions
         self.board_card_x = [210, 410, 610, 810, 1010]
-        self.board_card_y = [290] * 5
+        self.board_card_y = [335] * 5
 
         # player positions. OUR PLAYER IS AT INDEX 0
         self.pl_x = [870, 65, 330, 600, 870, 1137]
@@ -678,11 +678,16 @@ class Game(tk.Frame):
 
         # Import table bet
         self.table_bet_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/table_bet.png"))
-        self.table_bet_label = tk.Label(self, image=self.table_bet_image, bg="#008040").place(x=0,y=650)
+        self.table_bet_label = tk.Label(self, image=self.table_bet_image, bg="#008040").place(x=240,y=135)
+        self.table_bet_name = tk.StringVar()
+        self.table_bet_name.set('Current Table Bet')
+        self.table_bet_name_label = tk.Label(self, textvariable=self.table_bet_name, bg="#008040", font=("Helvetica", "10"))
+        self.table_bet_name_label.place(x=260, y=305)
 
         # Import pot
         self.pot_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/poker_chips.png"))
-        self.pot_label = tk.Label(self, image=self.pot_image, bg="#008040").place(x=855,y=120)
+        self.pot_label = tk.Label(self, image=self.pot_image, bg="#008040").place(x=900,y=160)
+        # self.pot_label = tk.Label(self, image=self.pot_image, bg="#008040").place(x=855,y=120)
 
         # Button that starts the game on the client side.
         self.button = tk.Button(self, text="Start Game", bg="blue", width=25, command=self.start_up)
@@ -785,7 +790,7 @@ class Game(tk.Frame):
             temp_s = temp[1] + " " + temp[3].lower()
 
             self.card1_image = self._load_card_image(temp_s)
-            self.card1_label = tk.Label(self, image=self.card1_image)
+            self.card1_label = tk.Label(self, image=self.card1_image, bg="white")
 
             self.card1_label.place(x=445, y=550)
             self.card1_displayed = True
@@ -795,7 +800,7 @@ class Game(tk.Frame):
             temp = player_dict_get("card2").split()
             temp_s = temp[1] + " " + temp[3].lower()
             self.card2_image = self._load_card_image(temp_s)
-            self.card2_label = tk.Label(self, image=self.card2_image)
+            self.card2_label = tk.Label(self, image=self.card2_image, bg="white")
             self.card2_label.place(x=580, y=550)
             self.card2_displayed = True
         self.update()
@@ -959,13 +964,13 @@ class Game(tk.Frame):
         pot_string = "Total Pot amount: " + str(game_info_get('pot'))
 
         self.pot_label = tk.Label(self, text=pot_string,
-                                        bg="#008040", font=("Helvetica", "9"))
+                                        bg="#008040", font=("Helvetica", "10"))
         # self.pot_label.place(x=740, y=260, width=180, height=20)
-        self.pot_label.place(x=857, y=250)
+        self.pot_label.place(x=902, y=305)
 
-        self.min_bet_text.set('Current Table bet: ' + str(player_dict_get('minimumBet')))
-        self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text, bg="#c9efd3", font=("Helvetica", "13"))
-        self.min_bet_label.place(x=0, y=755, width=220, height=25)
+        self.min_bet_text.set(str(player_dict_get('minimumBet')))
+        self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text, bg="#FFFFFF", font=("Helvetica", "35"))
+        self.min_bet_label.place(x=280, y=190)
 
 
         self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
