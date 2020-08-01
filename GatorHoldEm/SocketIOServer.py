@@ -60,35 +60,87 @@ def add_bot(sid, room_id):
 
 @sio.event
 def disconnect(sid):
+    # TODO If everyone disconnects empty the room of players and delete room for roomList
+    """
+    On a disconnect
+    Condition room.game_in_progress = False, delete from list of players,
+        check if len(list_of_players) == 0 , then delete room
+    Condition room.game_in_progress = True,
+        Find out which client id disconnected then find the player in the list
+        set player._bankrupt = True, balance = 0 and self._isFolded = True
+
+        Go through the player list and count how many players are self._bankrupt
+    """
     room = find_room(sid)
     if room is not None:
         player_list = room.get_player_list()
         player = next((player for player in player_list if player.get_client_number() == sid), None)
-        player_vip = False
-        if player is not None:
-            player_vip = player.is_vip
-            room.remove_player(player)
-            player_list.remove(player)
-            sio.emit('user_disconnect', (player.get_name() + " has left the room!"), room=room.room_id, skip_sid=sid)
-        present, first_dude = non_ai_fellow_present(player_list)
-        if player_vip and present:
-            first_dude.is_vip = True
-            sio.emit('vip', room=first_dude.get_client_number())
-            print(player.__dict__)
-            room.set_player_list(player_list)
+
+        # Inactive player has balance = 0 and investment = 0
+        # If game in progress, just make sure that there are at least two active players
+        if room.game_in_progress:
+            # Make the player who disconnected inactive
+            player._balance = 0
+            player._investment = 0
+            # Count inactive players
+            count = 0
+            for p in room.get_player_list():
+                if p._balance == 0 and player._investment == 0:
+                    count += 1
+            # If number of active players in the room is less than or equal to 1, delete room
+            if len(room.get_player_list()) - count <=1:
+                roomList.remove(room)
         else:
-            roomList.remove(room)
+            # We are in lobby
+
+            # If player disconnecting is vip
+            if player.is_vip:
+                # count ai players in room
+                ai_players = sum([1 for p in room.get_player_list() if p.AI == True])
+                # Remove diconnecting player
+                room.remove_player(player)
+
+                # If the number of human players in lobby is less than 1 delete room
+                if len(room.get_player_list()) - ai_players <= 1:
+                    roomList.remove(room)
+                    return
+                else:
+                    pass
+            # Player diconnecting is not vip
+            else:
+                room.remove_player(player)
+
+            # Last player in the room has diconnected
+            if len(room.get_player_list()) == 0:
+                roomList.remove(room)
+
+
+
         print('disconnect', sid)
 
-def non_ai_fellow_present(player_list):
-    present = True
-    first_dude = None
-    for player in player_list:
-        if player.AI is False:
-            present = True
-            if first_dude is None:
-                first_dude = player
-    return present, first_dude
+        # player_vip = False
+        # if player is not None:
+        #     player_vip = player.is_vip
+        #     player_list.remove(player)
+        #     sio.emit('user_disconnect', (player.get_name() + " has left the room!"), room=room.room_id, skip_sid=sid)
+        # present, first_dude = non_ai_fellow_present(player_list)
+        # if player_vip and present:
+        #     first_dude.is_vip = True
+        #     sio.emit('vip', room=first_dude.get_client_number())
+        #     print(player.__dict__)
+        #     room.set_player_list(player_list)
+        # else:
+
+
+# def non_ai_fellow_present(player_list):
+#     present = True;
+#     first_dude = None
+#     for player in player_list:
+#         if player.AI is False:
+#             present = True
+#             if first_dude is None:
+#                 first_dude = player
+#     return present, first_dude
 
 
 
@@ -278,21 +330,10 @@ def start_game(sid, room_id):
     sio.emit('message', str(winner) + " has won the game with $" + str(winner.balance) + "!",
              room=room.room_id)
 
-    # Create an event for the end of the game
+    # TODO Is the next line needed
     room.game_in_progress = False
     sio.emit('game_ended', "The game has ended.", room=room.room_id)
 
-    # TODO If everyone disconnects empty the room of players and delete room for roomList
-    """
-    On a disconnect
-    Condition room.game_in_progress = False, delete from list of players, 
-        check if len(list_of_players) == 0 , then delete room
-    Condition room.game_in_progress = True,
-        Find out which client id disconnected then find the player in the list 
-        set player._bankrupt = True, balance = 0 and self._isFolded = True
-        
-        Go through the player list and count how many players are self._bankrupt
-    """
 
 
 def find_room(sid):
