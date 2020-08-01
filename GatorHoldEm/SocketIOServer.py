@@ -156,13 +156,13 @@ def remove_player(sid, data):
         player_list = room.get_player_list()
         player = player_list[index]
         if player is not None:
-            client_id = player.get_client_number()
-            if client_id is not None:
+            if player.AI is False:
+                client_id = player.get_client_number()
                 sio.disconnect(client_id)
             else:
                 room.remove_player(player)
-                player_list.remove(player)
-                room.set_player_list(player_list)
+                # player_list.remove(player)
+                # room.set_player_list(player_list)
 
 
 @sio.on('my_name')
@@ -330,12 +330,17 @@ def start_game(sid, room_id):
     for player in room.get_player_list():
         if player.balance != 0:
             winner = player
-    sio.emit('message', str(winner) + " has won the game with $" + str(winner.balance) + "!",
+    sio.emit('message', str(winner) + " has won the game with!",
              room=room.room_id)
 
     # TODO Is the next line needed
     room.game_in_progress = False
     sio.emit('game_ended', "The game has ended.", room=room.room_id)
+
+    #Disconnect all clients
+    for player in room.get_player_list():
+        if not player.AI:
+            sio.disconnect(player.get_client_number)
 
 
 
