@@ -70,7 +70,27 @@ class Table:
         
         #Pre - flop point to player left of big blind
         self._current_player = next(self._current_player_gen_obj)
-    
+
+    # TODO TEST NOT BEING CALLED YET, Called a new game
+    def new_game(self):
+        # TODO Add function that creates a new list of players based on who's still in the room
+        # TODO Reset self._dealer_gen_obj and self._current_player_gen_obj
+        # TODO Set everyone's balance to $500
+        # TODO Set self._bankrupt = False
+
+        self._visible_cards = []
+        self._minimumBet = 50
+        self._pot = 0
+        self._dealer_gen_obj = self._dealer_gen()
+        self._small_blind = None
+        self._big_blind = None
+        self._dealer = None
+        self._current_player = None
+        self._skip_to_show = False
+        self._last_action = None
+        Table.theRound = 0
+
+
     @property
     def current_player(self):
         return self._current_player

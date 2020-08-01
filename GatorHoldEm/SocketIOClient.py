@@ -114,6 +114,7 @@ def on_event(message, room):
 
 @sio.on('you_timed_out')
 def on_event():
+    # TODO Add boolean dict variable, if timed out disable buttons, set 'your_turn' to False
     print('you timed out pal')
 
 
@@ -696,7 +697,7 @@ class Game(tk.Frame):
         self.raise_slider.place(x=1026, y=680, width=230, height=40)
         # self.raise_slider.pack()
 
-        # TODO Label for current turn
+        # TODO Color for current turn
         self.curr_player_text = tk.StringVar()
         self.curr_player_label = tk.Label(self, textvar=self.curr_player_text).place(x=0, y=575, height=25)
 
@@ -717,7 +718,10 @@ class Game(tk.Frame):
         self.call_check_button.place(x=1106, y=730, height=40, width=70)
         self.raise_button.place(x=1186, y=730, height=40, width=70)
 
+        # Label under the cards that signify your hand
         self.your_hand_label = tk.Label(self, text="Your hand", bg="#c9efd3", height=2, width=15).place(x=510,y=740)
+
+        # TODO Add message bar
 
         #Initialize all the labels
         for i in range(6):
@@ -969,7 +973,7 @@ class Game(tk.Frame):
                                         font=("Helvetica", "15"))
         self.round_num_label.place(x=1167, y=0, width=100, height=20)
 
-        # TODO WON THE GAME LABEL
+        # TODO WIN THE GAME LABEL
         self.won_the_pot_text.set(game_info_get('won_message'))
         self.won_the_pot_label = tk.Label(self, textvariable=self.won_the_pot_text, )
         self.won_the_pot_label.place(x=0, y=560, height=20)

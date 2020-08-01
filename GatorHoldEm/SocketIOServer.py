@@ -256,7 +256,22 @@ def start_game(sid, room_id):
     sio.emit('message', str(winner) + " HAS WON THE GAME AND HAS EARNED $" + str(winner.balance) + "!",
              room=room.room_id)
 
+    # TODO BELOW CODE CAN BE UNCOMMENTED WHEN GUI HANDLES THE END OF THE GAME
+    # Create an event for the end of the game
+    # room.game_in_progress = False
+    # sio.emit('game_ended', "The game has ended.", room=room.room_id)
 
+    # TODO If everyone disconnects empty the room of players and delete room for roomList
+    """
+    On a disconnect
+    Condition room.game_in_progress = False, delete from list of players, 
+        check if len(list_of_players) == 0 , then delete room
+    Condition room.game_in_progress = True,
+        Find out which client id disconnected then find the player in the list 
+        set player._bankrupt = True, balance = 0 and self._isFolded = True
+        
+        Go through the player list and count how many players are self._bankrupt
+    """
 def find_room(sid):
     for room in roomList:
         if room.player_present_sid(sid):
