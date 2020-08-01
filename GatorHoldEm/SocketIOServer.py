@@ -63,12 +63,12 @@ def disconnect(sid):
         if player is not None:
             player_vip = player.is_vip
             room.remove_player(player)
-            player_list.remove(player)
+            player_list = room.get_player_list()
             sio.emit('user_disconnect', (player.get_name() + " has left the room!"), room=room.room_id, skip_sid=sid)
         if player_vip and len(player_list) > 0:
             player_list[0].is_vip = True
             sio.emit('vip', room=player_list[0].get_client_number())
-            print(player.__dict__)
+            # print(player.__dict__)
         room.set_player_list(player_list)
         if len(player_list) == 0:
             roomList.remove(room)
