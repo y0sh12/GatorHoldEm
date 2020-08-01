@@ -6,6 +6,7 @@ import socketio
 from player import Player
 from room import Room
 from table import Table
+from ai import AI
 import time
 
 roomList = []
