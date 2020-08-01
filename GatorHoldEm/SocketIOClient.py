@@ -52,7 +52,7 @@ game_info = {
     'river': False,
     'up': True,
     'won_message': '',
-    'reset_round' : False,
+    'reset_round': False,
     'update_tokens': False,
     'message': False,
     'game_ended': False
@@ -114,6 +114,7 @@ def on_event(message, room):
     print(message)
     game_info_set('up', True)
 
+
 @sio.on('you_timed_out')
 def on_event():
     player_dict_set('your_turn', False)
@@ -124,6 +125,7 @@ def on_event():
 def on_event():
     player_dict_set('vip', True)
     print("Ayyyy you da vip")
+
 
 @sio.on('game_ended')
 def on_event():
@@ -146,9 +148,7 @@ def on_event(balance, investment, minimumBet, checkOrCall):
     player_dict_set('minimumBet', new_minimumBet)
     player_dict_set('checkOrCall', new_checkOrCall)
 
-
     player_dict_set('my_turn', True)
-
 
     while player_dict_get('my_turn'):
         if player_dict_get('choice') != '':
@@ -217,9 +217,6 @@ def on_event(message):
     if 'has won the pot' in message:
         game_info_set('won_message', message)
 
-
-
-
     game_info_set('up', True)
 
 
@@ -232,10 +229,12 @@ def on_event(card1, card2):
     game_info_set('reset_round', True)
     game_info_set('up', True)
 
+
 @sio.on('round_ended')
 def on_event():
     game_info_set('up', True)
     # print('round ended')
+
 
 @sio.on('ai_joined')
 def on_event():
@@ -417,7 +416,7 @@ class Lobby(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
 
-        #Class variables
+        # Class variables
         self.in_lobby = False
 
         # Lobby title
@@ -549,10 +548,11 @@ class Lobby(tk.Frame):
 
                 # Hide room list buttons and labels based on amount of players in lobby
                 for index in range(6):
-                    if index > player_dict_get('room_list_len') - 1:
+                    if player_dict_get('vip') is False or index > player_dict_get('room_list_len') - 1:
                         self.remove_player_list[index].grid_remove()
                     else:
                         self.remove_player_list[index].grid()
+
 
 
                 # Start game wait animation loop
@@ -596,8 +596,8 @@ class Game(tk.Frame):
         self.config(bg="#008040")
 
         self.back_to_home = tk.Button(self, text="Back to Lobby",
-                                      command=lambda: [self.exit(), controller.show_frame(Lobby)])
-        self.back_to_home.place(x=0,y=0)
+                                      command=self.exit)
+        self.back_to_home.place(x=0, y=0)
 
         # Player and Balance declarations
         # OUR PLAYER IS AT INDEX 0
@@ -611,7 +611,7 @@ class Game(tk.Frame):
 
         self.running = True
 
-        self.pl_name = ["", "", "", "", "", ""]                         #UNUSED ?????
+        self.pl_name = ["", "", "", "", "", ""]  # UNUSED ?????
         self.pl_label = [0, 0, 0, 0, 0, 0]
         self.bal_label = [0, 0, 0, 0, 0, 0]
         self.inv_label = [tk.Label(self, textvariable=self.inv_text[i], font=("Helvetica", "11")) for i in range(6)]
@@ -630,7 +630,7 @@ class Game(tk.Frame):
         self.bal_label[4] = tk.Label(self, textvariable=self.bal_text[4], font=("Helvetica", "11"))
         self.bal_label[5] = tk.Label(self, textvariable=self.bal_text[5], font=("Helvetica", "11"))
 
-       # Card Back
+        # Card Back
         self.card_back_image = Image.open(game_info_get('cwd') + "/res/back.png")
         self.card_back_image = ImageTk.PhotoImage(self.card_back_image)
         self.card_back_label = tk.Label(self, image=self.card_back_image)
@@ -642,7 +642,7 @@ class Game(tk.Frame):
 
         self.card1_image = 0
         self.card1_label = 0
-        self.card1_displayed  = False
+        self.card1_displayed = False
         self.card2_label = 0
         self.card2_image = 0
         self.card2_displayed = False
@@ -694,15 +694,16 @@ class Game(tk.Frame):
 
         # Import table bet
         self.table_bet_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/table_bet.png"))
-        self.table_bet_label = tk.Label(self, image=self.table_bet_image, bg="#008040").place(x=240,y=135)
+        self.table_bet_label = tk.Label(self, image=self.table_bet_image, bg="#008040").place(x=240, y=135)
         self.table_bet_name = tk.StringVar()
         self.table_bet_name.set('Current Table Bet')
-        self.table_bet_name_label = tk.Label(self, textvariable=self.table_bet_name, bg="#008040", font=("Helvetica", "10"))
+        self.table_bet_name_label = tk.Label(self, textvariable=self.table_bet_name, bg="#008040",
+                                             font=("Helvetica", "10"))
         self.table_bet_name_label.place(x=260, y=305)
 
         # Import pot
         self.pot_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/poker_chips.png"))
-        self.pot_label = tk.Label(self, image=self.pot_image, bg="#008040").place(x=900,y=160)
+        self.pot_label = tk.Label(self, image=self.pot_image, bg="#008040").place(x=900, y=160)
         # self.pot_label = tk.Label(self, image=self.pot_image, bg="#008040").place(x=855,y=120)
 
         # Button that starts the game on the client side.
@@ -710,11 +711,16 @@ class Game(tk.Frame):
                                 highlightbackground="black", width=25, command=self.start_up)
         self.button.place(x=1026, y=640)
 
+        # Button that displays on winning screen to take back to menu
+        self.winning_button = tk.Button(self, text="Exit to Main Menu", bg="#72f122", activebackground="#55c90d",
+                                        highlightbackground="black", width=25,
+                                        command=self.exit)
+
         self.pl_label_width = 122
         self.bal_label_width = 50
 
         # raise amount slider
-        self.raise_slider = tk.Scale(self, from_=0, to=200, orient='horizontal', state = 'disabled',
+        self.raise_slider = tk.Scale(self, from_=0, to=200, orient='horizontal', state='disabled',
                                      command=self.set_raise_val)
         self.raise_slider.place(x=1026, y=680, width=230, height=40)
         # self.raise_slider.pack()
@@ -724,16 +730,16 @@ class Game(tk.Frame):
         self.curr_player_label = tk.Label(self, textvar=self.curr_player_text).place(x=0, y=575, height=25)
 
         # Buttons for call/check, fold, and raise
-        self.fold_button = tk.Button(self, text='Fold', state = 'disabled',
+        self.fold_button = tk.Button(self, text='Fold', state='disabled',
                                      command=lambda: [player_dict_set('choice', '2'), game_info_set('up', True)])
 
         # Make buttons initially disabled
         self.call_check_text = tk.StringVar()
         self.call_check_text.set(player_dict_get('checkOrCall'))
-        self.call_check_button = tk.Button(self, textvar=self.call_check_text, state = 'disabled',
+        self.call_check_button = tk.Button(self, textvar=self.call_check_text, state='disabled',
                                            command=lambda: [player_dict_set('choice', '1'), game_info_set('up', True)])
 
-        self.raise_button = tk.Button(self, text='Raise', state = 'disabled',
+        self.raise_button = tk.Button(self, text='Raise', state='disabled',
                                       command=lambda: [player_dict_set('choice', '3'), game_info_set('up', True)])
 
         self.fold_button.place(x=1026, y=730, height=40, width=70)
@@ -741,14 +747,14 @@ class Game(tk.Frame):
         self.raise_button.place(x=1186, y=730, height=40, width=70)
 
         # Label under the cards that signify your hand
-        self.your_hand_label = tk.Label(self, text="Your hand", bg="#c9efd3", height=2, width=15).place(x=510,y=740)
+        self.your_hand_label = tk.Label(self, text="Your hand", bg="#c9efd3", height=2, width=15).place(x=510, y=740)
 
         # TODO Add message bar
 
-        #Initialize all the labels
+        # Initialize all the labels
         for i in range(6):
             self.pl_label[i].place(x=self.pl_x[i], y=self.pl_y[i],
-                                    width=self.pl_label_width, height=20)
+                                   width=self.pl_label_width, height=20)
             # Adjust balance position
             self.bal_label[i].place(x=self.pl_x[i], y=self.pl_y[i] + 20,
                                     width=self.pl_label_width, height=20)
@@ -769,7 +775,7 @@ class Game(tk.Frame):
 
     def _place_tokens(self):
         self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
-        indices = {'my_index':None, 'd_rel_index':None, 'bb_rel_index':None, 'sb_rel_index':None}
+        indices = {'my_index': None, 'd_rel_index': None, 'bb_rel_index': None, 'sb_rel_index': None}
 
         for i, p in enumerate(self.pl_list):
             if p['_client_number'] == sio.sid:
@@ -785,11 +791,9 @@ class Game(tk.Frame):
             if p['_client_number'] == game_info_get('small_blind'):
                 indices['sb_rel_ind'] = self._relative_position(indices['my_index'], i)
 
-
         self.bb_token.place(x=self.blind_x[indices['bb_rel_ind']], y=self.blind_y[indices['bb_rel_ind']])
         self.sb_token.place(x=self.blind_x[indices['sb_rel_ind']], y=self.blind_y[indices['sb_rel_ind']])
         self.dealer_token.place(x=self.d_x[indices['d_rel_ind']], y=self.d_y[indices['d_rel_ind']])
-
 
     def reset_round(self):
         print("the round is reset")
@@ -822,9 +826,7 @@ class Game(tk.Frame):
             self.card2_displayed = True
         self.update()
 
-
     def init_update(self):
-        print("HI!!!")
         if game_info_get('reset_round'):
             self.reset_round()
             game_info_set('reset_round', False)
@@ -833,7 +835,7 @@ class Game(tk.Frame):
             game_info_set('update_tokens', False)
         if game_info_get('game_ended'):
             pass
-            #TODO Display button to go back to main menu
+            # TODO Display button to go back to main menu
 
     def set_raise_val(self, val):
         player_dict_set('raise_amount', val)
@@ -842,6 +844,7 @@ class Game(tk.Frame):
     """
         Function that runs the game and checks if it's the player's turn ?
     """
+
     def start_up(self):
         self.running = True
         while self.running:
@@ -856,10 +859,13 @@ class Game(tk.Frame):
     def exit(self):
         player_dict_set('running', False)
         self.running = False
+        self.winning_button.place_forget()
+        self.con.show_frame(MainMenu)
 
     """
     Function that sets the name and balance for different players.
     """
+
     def _set_player_name_balance(self, absolute_position, relative_position):
         if self.pl_list[absolute_position]['_balance'] == 0 or self.pl_list[absolute_position]['_isFolded']:
             self.pl_label[relative_position].config(bg="gray")
@@ -881,7 +887,6 @@ class Game(tk.Frame):
         # self.bal_label[relative_position].place(x=self.pl_x[relative_position], y=self.pl_y[relative_position] + 20,
         #                                         width=self.bal_label_width, height=20)
 
-
     """
     Function that loads card images and returns image object
     Parameters: Card Suit, Ex: Heart 10
@@ -900,7 +905,6 @@ class Game(tk.Frame):
         path = game_info_get('cwd') + "/res/" + temp[1] + "_of_" + temp[0].lower() + "s.png"
         return ImageTk.PhotoImage(Image.open(path))
 
-
     """
     Function that places a card on the board
     parameters: position (0-4)
@@ -915,10 +919,15 @@ class Game(tk.Frame):
     """
         Function that renders a players screen
     """
+
     # reset cards at the end of the round
     def update_players(self):
         # Disable start
         self.button.config(state='disabled')
+
+        # Check to display winning button
+        if game_info_get('game_ended') is True:
+            self.winning_button.place(x=550, y=250)
 
         # self.pl_list = sio.emit('active_player_list', '1')
         self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
@@ -967,7 +976,7 @@ class Game(tk.Frame):
             placement_index = 1
             # Loop to position people to the left of us (after us in the main list)
             # i is the index in the main list
-            for i in range(my_index +1, len(self.pl_list)):
+            for i in range(my_index + 1, len(self.pl_list)):
                 self._set_player_name_balance(i, placement_index)
                 placement_index += 1
 
@@ -977,7 +986,6 @@ class Game(tk.Frame):
                 self._set_player_name_balance(i, placement_index)
                 placement_index += 1
 
-
         # pot total
         p = 0
         for pl in self.pl_list:
@@ -986,14 +994,13 @@ class Game(tk.Frame):
         pot_string = "Total Pot amount: " + str(game_info_get('pot'))
 
         self.pot_label = tk.Label(self, text=pot_string,
-                                        bg="#008040", font=("Helvetica", "10"))
+                                  bg="#008040", font=("Helvetica", "10"))
         # self.pot_label.place(x=740, y=260, width=180, height=20)
         self.pot_label.place(x=902, y=305)
 
         self.min_bet_text.set(str(player_dict_get('minimumBet')))
         self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text, bg="#FFFFFF", font=("Helvetica", "35"))
         self.min_bet_label.place(x=280, y=190)
-
 
         self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
         self.round_num_label = tk.Label(self, textvariable=self.round_num_text, bg="#c9efd3",
@@ -1004,8 +1011,6 @@ class Game(tk.Frame):
         self.won_the_pot_text.set(game_info_get('won_message'))
         self.won_the_pot_label = tk.Label(self, textvariable=self.won_the_pot_text, )
         self.won_the_pot_label.place(x=0, y=560, height=20)
-
-
 
         # Update player turn
         self.curr_player_text.set("Waiting on: " + game_info_get('curr_turn'))
