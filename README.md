@@ -31,10 +31,12 @@ CONTRIBUTIONS:
     Therefore, most of the commits of Bharat's git is a reflection of both Bharat AND Sean's work. Please consider this when evaluating the contributions. 
 
 CITED SOURCES:
->https://github.com/chenosaurus/poker-evaluator/blob/master/lib/PokerEvaluator.js (For the AI)
+> https://github.com/chenosaurus/poker-evaluator/blob/master/lib/PokerEvaluator.js (For the AI)
 
->https://github.com/christophschmalhofer/poker/blob/master/XPokerEval/XPokerEval.TwoPlusTwo/HandRanks.dat (For the AI)
+> https://github.com/christophschmalhofer/poker/blob/master/XPokerEval/XPokerEval.TwoPlusTwo/HandRanks.dat (For the AI)
 
->https://en.wikipedia.org/wiki/Poker_Effective_Hand_Strength_(EHS)_algorithm (For the AI)
+> https://en.wikipedia.org/wiki/Poker_Effective_Hand_Strength_(EHS)_algorithm (For the AI)
+
+> https://www.codingthewheel.com/archives/poker-hand-evaluator-roundup/#2p2 (For the AI)
 
 
