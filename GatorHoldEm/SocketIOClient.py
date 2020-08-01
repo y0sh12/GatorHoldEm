@@ -53,7 +53,9 @@ game_info = {
     'up': True,
     'won_message': '',
     'reset_round' : False,
-    'update_tokens': False
+    'update_tokens': False,
+    'message': False,
+    'game_ended': False
 }
 
 
@@ -114,7 +116,7 @@ def on_event(message, room):
 
 @sio.on('you_timed_out')
 def on_event():
-    # TODO Add boolean dict variable, if timed out disable buttons, set 'your_turn' to False
+    player_dict_set('your_turn', False)
     print('you timed out pal')
 
 
@@ -122,6 +124,11 @@ def on_event():
 def on_event():
     player_dict_set('vip', True)
     print("Ayyyy you da vip")
+
+@sio.on('game_ended')
+def on_event():
+    game_info_set("game_ended", True)
+    print("Game ended")
 
 
 @sio.on('your_turn')
@@ -699,7 +706,8 @@ class Game(tk.Frame):
         # self.pot_label = tk.Label(self, image=self.pot_image, bg="#008040").place(x=855,y=120)
 
         # Button that starts the game on the client side.
-        self.button = tk.Button(self, text="Start Game", bg="blue", width=25, command=self.start_up)
+        self.button = tk.Button(self, text="Start Game", bg="#72f122", activebackground="#55c90d",
+                                highlightbackground="black", width=25, command=self.start_up)
         self.button.place(x=1026, y=640)
 
         self.pl_label_width = 122
@@ -823,6 +831,9 @@ class Game(tk.Frame):
         if game_info_get('update_tokens'):
             self._place_tokens()
             game_info_set('update_tokens', False)
+        if game_info_get('game_ended'):
+            pass
+            #TODO Display button to go back to main menu
 
     def set_raise_val(self, val):
         player_dict_set('raise_amount', val)
@@ -906,6 +917,8 @@ class Game(tk.Frame):
     """
     # reset cards at the end of the round
     def update_players(self):
+        # Disable start
+        self.button.config(state='disabled')
 
         # self.pl_list = sio.emit('active_player_list', '1')
         self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
@@ -1000,7 +1013,8 @@ class Game(tk.Frame):
         # Update call/check text
         self.call_check_text.set(player_dict_get('checkOrCall'))
         if self.call_check_text.get() == "Call":
-            self.call_check_text.set("Call " + str(player_dict_get("minimumBet")))
+            call_amount = str(int(player_dict_get("minimumBet")) - int(player_dict_get("investment")))
+            self.call_check_text.set("Call " + call_amount)
 
         if game_info_get('flop'):
             game_info_set('flop', False)
