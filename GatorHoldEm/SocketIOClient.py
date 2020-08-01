@@ -598,6 +598,7 @@ class Game(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.con = controller
         self.config(bg="#008040")
+        self.message_label_color = "#ebd300"
 
         self.back_to_home = tk.Button(self, text="Back to Lobby",
                                       command=lambda: [self.exit(), controller.show_frame(Lobby)])
@@ -748,8 +749,10 @@ class Game(tk.Frame):
         self.your_hand_label = tk.Label(self, text="Your hand", bg="#c9efd3", height=2, width=15).place(x=510,y=740)
 
         # TODO Add message bar
+        self.game_actions_label = tk.Label(self, text="Game Actions", fg="black", bg="#008040",
+                                           font=("Helvetica", "18")).place(x=555,y=105)
         self.message_text = tk.StringVar()
-        self.message_label = tk.Label(self, textvar=self.message_text, fg="black", bg="#00f0f0", width=27, height=4,
+        self.message_label = tk.Label(self, textvar=self.message_text, fg="black", bg=self.message_label_color, width=27, height=2,
                                       font=("Helvetica", "18"))
         self.message_label.place(x=440, y=155)
         #Initialize all the labels
