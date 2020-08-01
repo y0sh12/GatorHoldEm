@@ -99,6 +99,7 @@ def on_event(sid, name, room_id):
         sio.emit('vip', room=sid)
     else:
         room.add_player(Player(sid, False, name))
+    # TODO COMMENT OUT NEXT 3 LINES
     print("Current Players in room are: ", end='')
     for p in room.get_player_list():
         print(p, end=' ')
@@ -111,6 +112,7 @@ def goto_room(sid, room_id):
     if find_room is None:
         roomList.append(Room(room_id))
         find_room = roomList[-1]
+    # TODO COMMENT OUT NEXT 2 LINES
     print(find_room.room_id)
     print(find_room.get_player_list())
     if len(find_room.get_player_list()) < 6 and find_room.game_in_progress is False:

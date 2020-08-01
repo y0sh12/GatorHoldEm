@@ -71,6 +71,7 @@ class Table:
         #Pre - flop point to player left of big blind
         self._current_player = next(self._current_player_gen_obj)
 
+    # Alternative create a new table every time we have a new game.
     # TODO TEST NOT BEING CALLED YET, Called a new game
     def new_game(self):
         # TODO Add function that creates a new list of players based on who's still in the room

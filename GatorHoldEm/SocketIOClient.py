@@ -598,21 +598,21 @@ class Game(tk.Frame):
         self.pl_name = ["", "", "", "", "", ""]                         #UNUSED ?????
         self.pl_label = [0, 0, 0, 0, 0, 0]
         self.bal_label = [0, 0, 0, 0, 0, 0]
-        self.inv_label = [tk.Label(self, textvariable=self.inv_text[i]) for i in range(6)]
+        self.inv_label = [tk.Label(self, textvariable=self.inv_text[i], font=("Helvetica", "11")) for i in range(6)]
 
-        self.pl_label[0] = tk.Label(self, textvariable=self.pl_text[0])
-        self.pl_label[1] = tk.Label(self, textvariable=self.pl_text[1])
-        self.pl_label[2] = tk.Label(self, textvariable=self.pl_text[2])
-        self.pl_label[3] = tk.Label(self, textvariable=self.pl_text[3])
-        self.pl_label[4] = tk.Label(self, textvariable=self.pl_text[4])
-        self.pl_label[5] = tk.Label(self, textvariable=self.pl_text[5])
+        self.pl_label[0] = tk.Label(self, textvariable=self.pl_text[0], font=("Helvetica", "11"))
+        self.pl_label[1] = tk.Label(self, textvariable=self.pl_text[1], font=("Helvetica", "11"))
+        self.pl_label[2] = tk.Label(self, textvariable=self.pl_text[2], font=("Helvetica", "11"))
+        self.pl_label[3] = tk.Label(self, textvariable=self.pl_text[3], font=("Helvetica", "11"))
+        self.pl_label[4] = tk.Label(self, textvariable=self.pl_text[4], font=("Helvetica", "11"))
+        self.pl_label[5] = tk.Label(self, textvariable=self.pl_text[5], font=("Helvetica", "11"))
 
-        self.bal_label[0] = tk.Label(self, textvariable=self.bal_text[0])
-        self.bal_label[1] = tk.Label(self, textvariable=self.bal_text[1])
-        self.bal_label[2] = tk.Label(self, textvariable=self.bal_text[2])
-        self.bal_label[3] = tk.Label(self, textvariable=self.bal_text[3])
-        self.bal_label[4] = tk.Label(self, textvariable=self.bal_text[4])
-        self.bal_label[5] = tk.Label(self, textvariable=self.bal_text[5])
+        self.bal_label[0] = tk.Label(self, textvariable=self.bal_text[0], font=("Helvetica", "11"))
+        self.bal_label[1] = tk.Label(self, textvariable=self.bal_text[1], font=("Helvetica", "11"))
+        self.bal_label[2] = tk.Label(self, textvariable=self.bal_text[2], font=("Helvetica", "11"))
+        self.bal_label[3] = tk.Label(self, textvariable=self.bal_text[3], font=("Helvetica", "11"))
+        self.bal_label[4] = tk.Label(self, textvariable=self.bal_text[4], font=("Helvetica", "11"))
+        self.bal_label[5] = tk.Label(self, textvariable=self.bal_text[5], font=("Helvetica", "11"))
 
        # Card Back
         self.card_back_image = Image.open(game_info_get('cwd') + "/res/back.png")
@@ -655,16 +655,16 @@ class Game(tk.Frame):
         self.board_card_y = [290] * 5
 
         # player positions. OUR PLAYER IS AT INDEX 0
-        self.pl_x = [880, 120, 350, 630, 916, 1147]
+        self.pl_x = [870, 65, 330, 600, 870, 1137]
         self.pl_y = [670, 130, 50, 20, 50, 130]
 
         # Blinds positions
-        self.blind_x = [820, 60, 290, 570, 856, 1087]
+        self.blind_x = [815, 5, 270, 540, 810, 1082]
         self.blind_y = [675, 135, 55, 25, 55, 135]
 
         # Dealer position
-        self.d_x = [905, 145, 375, 655, 941, 1171]
-        self.d_y = [732, 195, 115, 85, 115, 195]
+        self.d_x = [905, 95, 460, 730, 1000, 1167]
+        self.d_y = [732, 195, 55, 25, 55, 195]
 
         # Import blind and dealer tokens
         self.bb_token_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/bb_token.png"))
@@ -682,13 +682,13 @@ class Game(tk.Frame):
 
         # Import pot
         self.pot_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/poker_chips.png"))
-        self.pot_label = tk.Label(self, image=self.pot_image, bg="#008040").place(x=700,y=120)
+        self.pot_label = tk.Label(self, image=self.pot_image, bg="#008040").place(x=855,y=120)
 
         # Button that starts the game on the client side.
         self.button = tk.Button(self, text="Start Game", bg="blue", width=25, command=self.start_up)
         self.button.place(x=1026, y=640)
 
-        self.pl_label_width = 110
+        self.pl_label_width = 122
         self.bal_label_width = 50
 
         # raise amount slider
@@ -959,9 +959,9 @@ class Game(tk.Frame):
         pot_string = "Total Pot amount: " + str(game_info_get('pot'))
 
         self.pot_label = tk.Label(self, text=pot_string,
-                                        bg="#c9efd3", font=("Helvetica", "11"))
+                                        bg="#008040", font=("Helvetica", "9"))
         # self.pot_label.place(x=740, y=260, width=180, height=20)
-        self.pot_label.place(x=700, y=250)
+        self.pot_label.place(x=857, y=250)
 
         self.min_bet_text.set('Current Table bet: ' + str(player_dict_get('minimumBet')))
         self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text, bg="#c9efd3", font=("Helvetica", "13"))
