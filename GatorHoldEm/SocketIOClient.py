@@ -54,7 +54,8 @@ game_info = {
     'won_message': '',
     'reset_round': False,
     'update_tokens': False,
-    'message': False,
+    'display_message': '',
+    'message_received': False,
     'game_ended': False
 }
 
@@ -118,6 +119,7 @@ def on_event(message, room):
 @sio.on('you_timed_out')
 def on_event():
     player_dict_set('your_turn', False)
+    game_info_set('up', True)
     print('you timed out pal')
 
 
@@ -211,8 +213,11 @@ def on_event(board_info):
 @sio.on('message')
 def on_event(message):
     print(message)
+    game_info_set('message_received', True)
     if message == "game starting":
         player_dict_set('running', True)
+    game_info_set('display_message', message)
+
 
     if 'has won the pot' in message:
         game_info_set('won_message', message)
@@ -594,6 +599,7 @@ class Game(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.con = controller
         self.config(bg="#008040")
+        self.message_label_color = "#ebd300"
 
         self.back_to_home = tk.Button(self, text="Back to Lobby",
                                       command=self.exit)
@@ -750,8 +756,13 @@ class Game(tk.Frame):
         self.your_hand_label = tk.Label(self, text="Your hand", bg="#c9efd3", height=2, width=15).place(x=510, y=740)
 
         # TODO Add message bar
-
-        # Initialize all the labels
+        self.game_actions_label = tk.Label(self, text="Game Actions", fg="black", bg="#008040",
+                                           font=("Helvetica", "18")).place(x=555,y=105)
+        self.message_text = tk.StringVar()
+        self.message_label = tk.Label(self, textvar=self.message_text, fg="black", bg=self.message_label_color, width=27, height=2,
+                                      font=("Helvetica", "18"))
+        self.message_label.place(x=440, y=155)
+        #Initialize all the labels
         for i in range(6):
             self.pl_label[i].place(x=self.pl_x[i], y=self.pl_y[i],
                                    width=self.pl_label_width, height=20)
@@ -837,6 +848,12 @@ class Game(tk.Frame):
             pass
             # TODO Display button to go back to main menu
 
+        if game_info_get('message_received'):
+            game_info_set('message_received', False)
+            self.message_text.set(game_info_get('display_message'))
+
+
+
     def set_raise_val(self, val):
         player_dict_set('raise_amount', val)
         game_info_set('up', True)
@@ -867,7 +884,8 @@ class Game(tk.Frame):
     """
 
     def _set_player_name_balance(self, absolute_position, relative_position):
-        if self.pl_list[absolute_position]['_balance'] == 0 or self.pl_list[absolute_position]['_isFolded']:
+        if (self.pl_list[absolute_position]['_balance'] == 0 and
+            self.pl_list[absolute_position]['_investment'] == 0) or self.pl_list[absolute_position]['_isFolded']:
             self.pl_label[relative_position].config(bg="gray")
             self.bal_label[relative_position].config(bg="gray")
             self.inv_label[relative_position].config(bg="gray")

@@ -30,6 +30,8 @@ def on_event(sid, room_id):
     for pl in room.get_player_list():
         temp_pl = copy.deepcopy(pl)
         temp_pl.hand = []
+        if temp_pl.AI:
+            temp_pl.deck = []
         pl_list.append(temp_pl.__dict__)
     return pl_list
 
@@ -174,7 +176,7 @@ def start_game(sid, room_id):
         else:
             table.new_round()
             sio.emit('new_hand')
-            sio.emit('message', "Round: " + str(Table.theRound), room=room.room_id)
+            # sio.emit('message', "Round: " + str(Table.theRound), room=room.room_id)
             table.distribute_cards()
             """
                 SHOW TEST
@@ -203,7 +205,7 @@ def start_game(sid, room_id):
             if not game_loop(room):
                 continue
 
-            sio.emit('message', "---------THE FLOP----------\n", room=room.room_id)
+            sio.emit('message', "         THE FLOP         \n", room=room.room_id)
             """
             SHOW TEST
             table.add_to_visible_cards(Card())
@@ -211,10 +213,10 @@ def start_game(sid, room_id):
 
             Comment out below code
             """
-            table._deck.pick_card()  # the burn card
-            table.add_to_visible_cards(table._deck.pick_card())
-            table.add_to_visible_cards(table._deck.pick_card())  # The FLOP - three cards
-            table.add_to_visible_cards(table._deck.pick_card())
+            table.deck.pick_card()  # the burn card
+            table.add_to_visible_cards(table.deck.pick_card())
+            table.add_to_visible_cards(table.deck.pick_card())  # The FLOP - three cards
+            table.add_to_visible_cards(table.deck.pick_card())
             visibleCards = str(table._visible_cards[0]) + " " + str(table._visible_cards[1]) + " " + str(
                 table._visible_cards[2])
             sio.emit('flop', visibleCards, room=room.room_id)
@@ -242,9 +244,9 @@ def start_game(sid, room_id):
                 if not game_loop(room):
                     continue
 
-            sio.emit('message', "---------THE TURN----------\n", room=room.room_id)
-            table._deck.pick_card()  # the burn card
-            table.add_to_visible_cards(table._deck.pick_card())  # The TURN - one card
+            sio.emit('message', "         THE TURN         ", room=room.room_id)
+            table.deck.pick_card()  # the burn card
+            table.add_to_visible_cards(table.deck.pick_card())  # The TURN - one card
             visibleCards += " " + str(table._visible_cards[3])
             sio.emit('turn', visibleCards, room=room.room_id)
 
@@ -252,9 +254,9 @@ def start_game(sid, room_id):
                 if not game_loop(room):
                     continue
 
-            sio.emit('message', "---------THE RIVER----------\n", room=room.room_id)
-            table._deck.pick_card()  # the burn card
-            table.add_to_visible_cards(table._deck.pick_card())  # The RIVER - one card
+            sio.emit('message', "         THE RIVER         ", room=room.room_id)
+            table.deck.pick_card()  # the burn card
+            table.add_to_visible_cards(table.deck.pick_card())  # The RIVER - one card
             visibleCards += " " + str(table._visible_cards[4])
             sio.emit('river', visibleCards, room=room.room_id)
 
@@ -273,13 +275,12 @@ def start_game(sid, room_id):
     for player in room.get_player_list():
         if player.balance != 0:
             winner = player
-    sio.emit('message', str(winner) + " HAS WON THE GAME AND HAS EARNED $" + str(winner.balance) + "!",
+    sio.emit('message', str(winner) + " has won the game with $" + str(winner.balance) + "!",
              room=room.room_id)
 
-    # TODO BELOW CODE CAN BE UNCOMMENTED WHEN GUI HANDLES THE END OF THE GAME
     # Create an event for the end of the game
-    # room.game_in_progress = False
-    # sio.emit('game_ended', "The game has ended.", room=room.room_id)
+    room.game_in_progress = False
+    sio.emit('game_ended', "The game has ended.", room=room.room_id)
 
     # TODO If everyone disconnects empty the room of players and delete room for roomList
     """
