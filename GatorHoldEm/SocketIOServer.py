@@ -105,7 +105,10 @@ def disconnect(sid):
                     roomList.remove(room)
                     return
                 else:
-                    pass
+                    for p in room.get_player_list():
+                        if not p.AI:
+                            p.is_vip = True
+                            return
             # Player diconnecting is not vip
             else:
                 room.remove_player(player)
