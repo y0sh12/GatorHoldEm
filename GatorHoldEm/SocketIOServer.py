@@ -303,7 +303,7 @@ def game_loop(room, num_raises=0):
         info = str(player.balance), str(player.investment), str(table.minimum_bet), str(checkOrCall)
         sio.emit('which_players_turn', [player.get_name(), str(table.minimum_bet)], room=room.room_id)
         if player.AI:
-            # option = whatever_method_you_need_to_call()
+            option = player.makeChoice(check - 1, player.hand, table.visible_cards, table.pot, table.minimum_bet - player.investment, player.investment)  
             pass
         else:
             try:
@@ -394,7 +394,11 @@ def game_loop(room, num_raises=0):
             error = 0
             while error < 3:
                 ask = "By how much do you want to raise"
-                _raise = sio.call(event='raise', data=ask, sid=player.get_client_number())
+                if player.AI:
+                    _raise = player.make_raise(table.minimum_bet, player.balance)
+                    pass  
+                else:
+                    _raise = sio.call(event='raise', data=ask, sid=player.get_client_number())
                 if int(_raise) > player.balance:
                     sio.emit('message', "You ain't a millionaire, try a smaller raise", room=player.get_client_number())
                     error += 1

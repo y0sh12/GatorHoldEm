@@ -27,6 +27,17 @@ class Deck:
     def pick_card(self):
         return self._cards.pop()
 
+    
+    def pick_specific_card(self, card):
+        found = False
+        for c in self._cards:
+            if c.suit == card.suit and c.rank == card.rank:
+                print(c.suit, c.rank, "found")
+                found = True
+                self._cards.remove(c)   
+        if not found:
+            print("card not found")
+    
     def reset(self):
         self._cards.clear()
         for r in range(2, 15):
