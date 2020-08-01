@@ -63,12 +63,12 @@ def disconnect(sid):
         if player is not None:
             player_vip = player.is_vip
             room.remove_player(player)
-            player_list = room.get_player_list()
+            player_list.remove(player)
             sio.emit('user_disconnect', (player.get_name() + " has left the room!"), room=room.room_id, skip_sid=sid)
         if player_vip and len(player_list) > 0:
             player_list[0].is_vip = True
             sio.emit('vip', room=player_list[0].get_client_number())
-            # print(player.__dict__)
+            print(player.__dict__)
         room.set_player_list(player_list)
         if len(player_list) == 0:
             roomList.remove(room)
@@ -304,8 +304,10 @@ def game_loop(room, num_raises=0):
             except:
                 print("timed out")
                 if is_check:
+                    sio.emit('message', str(player.name) " has been forced to check", room = room.room_id)
                     option = 1
                 else:
+                    sio.emit('message', str(player.name) " has been forced to fold", room = room.room_id)
                     option = 2
                 sio.emit('you_timed_out')
         sio.emit('player_action', (player.get_name(), option), room=room.room_id)
@@ -313,10 +315,15 @@ def game_loop(room, num_raises=0):
             # Going all in because cannot match table bet
             if table.minimum_bet >= player.balance + player.investment:
                 sio.emit('message', 'You are going all in!\n', room=player.get_client_number())
+                sio.emit('message', str(player.name) " is going all in!", room = room.room_id)
                 table.add_to_pot(player.balance)
                 player.add_investment(player.balance)
                 player.change_balance(-player.balance)
             else:
+                if is_check:
+                    sio.emit('message', str(player.name) " checked", room = room.room_id)
+                else:
+                    sio.emit('message', str(player.name) " called", room = room.room_id)
                 player.change_balance(-(table.minimum_bet - player.investment))
                 table.add_to_pot(table.minimum_bet - player.investment)
                 player.add_investment(table.minimum_bet - player.investment)
@@ -351,6 +358,7 @@ def game_loop(room, num_raises=0):
                     last_action_was_fold = True
 
             player.fold()
+            sio.emit('message', str(player.name) " has folded", room = room.room_id)
             folded += 1
             check -= 1
         if int(option) == 3:
@@ -384,6 +392,7 @@ def game_loop(room, num_raises=0):
                     sio.emit('message', "You ain't a millionaire, try a smaller raise", room=player.get_client_number())
                     error += 1
                 else:
+                    sio.emit('message', str(player.name) " has raised by $" + str(_raise), room = room.room_id)
                     table.change_minimum_bet(int(_raise))
                     player.change_balance(-(table.minimum_bet - player.investment))
                     table.add_to_pot(table.minimum_bet - player.investment)
@@ -392,6 +401,7 @@ def game_loop(room, num_raises=0):
                     break
             if error == 4:
                 player.fold()
+                sio.emit('message', str(player.name) " has folded", room = room.room_id)
                 folded += 1
                 check -= 1
 
@@ -406,7 +416,7 @@ def game_loop(room, num_raises=0):
             for p in room.get_player_list():
                 if not p.isFolded:
                     p.change_balance(table.pot)
-                    sio.emit('message', str(p) + " has won the pot: " + str(table.pot), room=room.room_id)
+                    sio.emit('message', str(p) + " has won the pot: $" + str(table.pot), room=room.room_id)
             return False
 
         sane_players = 0
@@ -445,8 +455,7 @@ def show(room):
             player.set_best_sum(play[1])
             if play[2] != None:
                 player.set_best_hand_sum(play[2])
-            sio.emit('message', "Your best hand: " + str(player.best_hand), room=player.get_client_number())
-            sio.emit('message', "Your best sum: " + str(player.best_sum), room=player.get_client_number())
+            sio.emit('message', "Your best hand: " + str(table.hand_dict[player.best_hand]), room=player.get_client_number())
     max_combination = max(p.best_hand for p in room.get_player_list())
     if max_combination == 2 or max_combination == 3 or max_combination == 4 or max_combination == 8:
         max_hand_sum = max(p.best_hand_sum for p in room.get_player_list() if p.best_hand == max_combination)
@@ -460,12 +469,12 @@ def show(room):
 
     if len(ties_with_max) == 1:  # if one player wins whole pot, no ties
         ties_with_max[0].change_balance(table.pot)
-        sio.emit('message', str(ties_with_max[0]) + " has won the pot: " + str(table.pot), room=room.room_id)
+        sio.emit('message', str(ties_with_max[0]) + " has won the pot: $" + str(table.pot), room=room.room_id)
     else:
         split = table.pot / len(ties_with_max)
         for p in ties_with_max:
             p.change_balance(split)
-            sio.emit('message', str(p) + "has won a split of the pot: " + str(split) + "\n", room=room.room_id)
+            sio.emit('message', str(p) + "has won a split of the pot: $" + str(split) + "\n", room=room.room_id)
 
 
 if __name__ == '__main__':
