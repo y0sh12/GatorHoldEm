@@ -319,34 +319,34 @@ class Table:
                     best_sum = sum([card.rank for card in list(i)])
         return [best_hand, best_sum, hand_sum]
 
-    def show(self):
-        for player in self._players:
-            if player.isFolded:
-                continue
-            else:
-                print(player.name, "'s cards: ",end = "")
-                for card in player.hand:
-                    print(card, end = ",")
-                print()
-                play = self.play(player.hand + self._visible_cards)
-                player.set_best_hand(play[0])
-                player.set_best_sum(play[1])
-                print("Best hand:", player.best_hand)
-                print("Best sum:", player.best_sum)
-        max_combination = max(p.best_hand for p in self._players)
-        max_sum = max(p.best_sum for p in self._players if p.best_hand == max_combination)
-        print("Max sum: ", max_sum, "Max combination: ", max_combination)
-        ties_with_max = [p for p in self._players if p.best_hand == max_combination and p.best_sum == max_sum]
+    # def show(self):
+    #     for player in self._players:
+    #         if player.isFolded:
+    #             continue
+    #         else:
+    #             print(player.name, "'s cards: ",end = "")
+    #             for card in player.hand:
+    #                 print(card, end = ",")
+    #             print()
+    #             play = self.play(player.hand + self._visible_cards)
+    #             player.set_best_hand(play[0])
+    #             player.set_best_sum(play[1])
+    #             print("Best hand:", player.best_hand)
+    #             print("Best sum:", player.best_sum)
+    #     max_combination = max(p.best_hand for p in self._players)
+    #     max_sum = max(p.best_sum for p in self._players if p.best_hand == max_combination)
+    #     print("Max sum: ", max_sum, "Max combination: ", max_combination)
+    #     ties_with_max = [p for p in self._players if p.best_hand == max_combination and p.best_sum == max_sum]
 
-        print(len(ties_with_max))
-        if len(ties_with_max) == 1: # if one player wins whole pot, no ties
-            ties_with_max[0].change_balance(self.pot)
-            print(ties_with_max[0].name, "has won the pot:", self.pot)
-        else:
-            split = self.pot / len(ties_with_max)
-            for p in ties_with_max:
-                p.change_balance(split)
-                print(p, "has won a split of the pot:", split)
+    #     print(len(ties_with_max))
+    #     if len(ties_with_max) == 1: # if one player wins whole pot, no ties
+    #         ties_with_max[0].change_balance(self.pot)
+    #         print(ties_with_max[0].name, "has won the pot:", self.pot)
+    #     else:
+    #         split = self.pot / len(ties_with_max)
+    #         for p in ties_with_max:
+    #             p.change_balance(split)
+    #             print(p, "has won a split of the pot:", split)
 
 # Old big blind will become small blind, i.e., game goes clockwise
 # 
