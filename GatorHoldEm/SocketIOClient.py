@@ -118,6 +118,7 @@ def on_event(message, room):
 @sio.on('you_timed_out')
 def on_event():
     player_dict_set('your_turn', False)
+    game_info_set('up', True)
     print('you timed out pal')
 
 
@@ -850,6 +851,7 @@ class Game(tk.Frame):
             self.message_text.set(game_info_get('display_message'))
 
 
+
     def set_raise_val(self, val):
         player_dict_set('raise_amount', val)
         game_info_set('up', True)
@@ -876,7 +878,8 @@ class Game(tk.Frame):
     Function that sets the name and balance for different players.
     """
     def _set_player_name_balance(self, absolute_position, relative_position):
-        if self.pl_list[absolute_position]['_balance'] == 0 or self.pl_list[absolute_position]['_isFolded']:
+        if (self.pl_list[absolute_position]['_balance'] == 0 and
+            self.pl_list[absolute_position]['_investment'] == 0) or self.pl_list[absolute_position]['_isFolded']:
             self.pl_label[relative_position].config(bg="gray")
             self.bal_label[relative_position].config(bg="gray")
             self.inv_label[relative_position].config(bg="gray")
