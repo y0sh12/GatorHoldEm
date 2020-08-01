@@ -54,7 +54,8 @@ game_info = {
     'won_message': '',
     'reset_round' : False,
     'update_tokens': False,
-    'message': False,
+    'display_message': '',
+    'message_received': False,
     'game_ended': False
 }
 
@@ -211,8 +212,11 @@ def on_event(board_info):
 @sio.on('message')
 def on_event(message):
     print(message)
+    game_info_set('message_received', True)
     if message == "game starting":
         player_dict_set('running', True)
+    game_info_set('display_message', message)
+
 
     if 'has won the pot' in message:
         game_info_set('won_message', message)
@@ -735,7 +739,10 @@ class Game(tk.Frame):
         self.your_hand_label = tk.Label(self, text="Your hand", bg="#c9efd3", height=2, width=15).place(x=510,y=740)
 
         # TODO Add message bar
-
+        self.message_text = tk.StringVar()
+        self.message_label = tk.Label(self, textvar=self.message_text, fg="black", bg="#00f0f0", width=27, height=4,
+                                      font=("Helvetica", "18"))
+        self.message_label.place(x=440, y=155)
         #Initialize all the labels
         for i in range(6):
             self.pl_label[i].place(x=self.pl_x[i], y=self.pl_y[i],
@@ -825,6 +832,11 @@ class Game(tk.Frame):
         if game_info_get('game_ended'):
             pass
             #TODO Display button to go back to main menu
+
+        if game_info_get('message_received'):
+            game_info_set('message_received', False)
+            self.message_text.set(game_info_get('display_message'))
+
 
     def set_raise_val(self, val):
         player_dict_set('raise_amount', val)
