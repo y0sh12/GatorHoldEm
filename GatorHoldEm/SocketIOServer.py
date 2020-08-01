@@ -30,6 +30,8 @@ def on_event(sid, room_id):
     for pl in room.get_player_list():
         temp_pl = copy.deepcopy(pl)
         temp_pl.hand = []
+        if temp_pl.AI:
+            temp_pl.deck = []
         pl_list.append(temp_pl.__dict__)
     return pl_list
 
@@ -263,10 +265,10 @@ def start_game(sid, room_id):
 
             Comment out below code
             """
-            table._deck.pick_card()  # the burn card
-            table.add_to_visible_cards(table._deck.pick_card())
-            table.add_to_visible_cards(table._deck.pick_card())  # The FLOP - three cards
-            table.add_to_visible_cards(table._deck.pick_card())
+            table.deck.pick_card()  # the burn card
+            table.add_to_visible_cards(table.deck.pick_card())
+            table.add_to_visible_cards(table.deck.pick_card())  # The FLOP - three cards
+            table.add_to_visible_cards(table.deck.pick_card())
             visibleCards = str(table._visible_cards[0]) + " " + str(table._visible_cards[1]) + " " + str(
                 table._visible_cards[2])
             sio.emit('flop', visibleCards, room=room.room_id)
@@ -295,8 +297,8 @@ def start_game(sid, room_id):
                     continue
 
             sio.emit('message', "         THE TURN         ", room=room.room_id)
-            table._deck.pick_card()  # the burn card
-            table.add_to_visible_cards(table._deck.pick_card())  # The TURN - one card
+            table.deck.pick_card()  # the burn card
+            table.add_to_visible_cards(table.deck.pick_card())  # The TURN - one card
             visibleCards += " " + str(table._visible_cards[3])
             sio.emit('turn', visibleCards, room=room.room_id)
 
@@ -305,8 +307,8 @@ def start_game(sid, room_id):
                     continue
 
             sio.emit('message', "         THE RIVER         ", room=room.room_id)
-            table._deck.pick_card()  # the burn card
-            table.add_to_visible_cards(table._deck.pick_card())  # The RIVER - one card
+            table.deck.pick_card()  # the burn card
+            table.add_to_visible_cards(table.deck.pick_card())  # The RIVER - one card
             visibleCards += " " + str(table._visible_cards[4])
             sio.emit('river', visibleCards, room=room.room_id)
 

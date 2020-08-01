@@ -2,6 +2,7 @@ from room import Room
 from table import Table
 from deck import Deck
 from player import Player
+from ai import AI
 from card import Card
 
 # TO DO
@@ -87,6 +88,33 @@ def game_loop(room1, num_raises=0):
         
 
 def main():
+    ai_player = AI(0, False, "Gator", True)
+
+
+    ai_player._lib = ai_player.load_ai_lib()
+
+
+
+
+    ai_player.deal(ai_player.deck.pick_card())
+    ai_player.deal(ai_player.deck.pick_card())
+    test_cards = [ai_player.hand[0], ai_player.hand[1]]
+
+
+
+    test_board = []
+
+    test_board.append(ai_player.deck.pick_card())
+    test_board.append(ai_player.deck.pick_card())
+    test_board.append(ai_player.deck.pick_card())
+    test_board.append(ai_player.deck.pick_card())
+    test_board.append(ai_player.deck.pick_card())
+
+
+
+    x = ai_player.make_choice(5, test_cards, test_board, 200, 20, 80)
+    print(x)
+
     # room = Room()
     # test = Table(len(playerList))
     
@@ -106,72 +134,72 @@ def main():
 
     # print(test._deck.num_cards)
 
-    room1 = Room(123)
-    room1.add_player(Player(12, "Adriel"))
-    room1.add_player(Player(13, "Bharat"))
-    room1.add_player(Player(14, "Yosh"))
-    room1.add_player(Player(15, "Azhar"))
+    # room1 = Room(123)
+    # room1.add_player(Player(12, "Adriel"))
+    # room1.add_player(Player(13, "Bharat"))
+    # room1.add_player(Player(14, "Yosh"))
+    # room1.add_player(Player(15, "Azhar"))
 
-    print(room1._table._deck.num_cards)
-    print(room1._table._players)
+    # print(room1._table._deck.num_cards)
+    # print(room1._table._players)
 
-    # Round 1
-    while(True):
-        room1._table.new_round()  # New Round Starts
-        print("Round:", Table.round_number)
-        room1._table.distribute_cards()
-        print("Current Dealer: ", room1._table._dealer)
-        print("Current sb", room1._table._small_blind)
-        print("Current big Blind", room1._table._big_blind)
+    # # Round 1
+    # while(True):
+    #     room1._table.new_round()  # New Round Starts
+    #     print("Round:", Table.theRound)
+    #     room1._table.distribute_cards()
+    #     print("Current Dealer: ", room1._table._dealer)
+    #     print("Current sb", room1._table._small_blind)
+    #     print("Current big Blind", room1._table._big_blind)
 
-        game_loop(room1) #pre-flop
-        #plyers = 1, break
+    #     game_loop(room1) #pre-flop
+    #     #plyers = 1, break
 
-        # looping through players, when we get to last_call (player that gets to call last), we check if investment is equal to min bet AFTER the player's action.
+    #     # looping through players, when we get to last_call (player that gets to call last), we check if investment is equal to min bet AFTER the player's action.
 
-        # player.next()
+    #     # player.next()
 
-        print("Number of cards before flopping is ", room1._table._deck.num_cards)
-        print("************************THE FLOP*********************")
-        room1._table._deck.pick_card() #the burn card
-        room1._table.add_to_visible_cards(room1._table._deck.pick_card()) 
-        room1._table.add_to_visible_cards(room1._table._deck.pick_card())   #The FLOP - three cards
-        room1._table.add_to_visible_cards(room1._table._deck.pick_card())
-        
-        print("Cards on the table: ", end=" ")
-        for a in room1._table._visible_cards:
-            print(a, end=" ")
-        print() 
-        
-        # print(room1._table._deck.num_cards)
-        room1._table.change_last_action()
-        game_loop(room1) #pre-turn
-        
-        print("************************THE TURN*********************")
-        room1._table._deck.pick_card() #the burn card
-        room1._table.add_to_visible_cards(room1._table._deck.pick_card()) # The Turn - one card   
-        print("Cards on the table: ", end=" ")
-        for a in room1._table._visible_cards:
-            print(a, end=" ")
-        print() 
+    #     print("Number of cards before flopping is ", room1._table._deck.num_cards)
+    #     print("************************THE FLOP*********************")
+    #     room1._table._deck.pick_card() #the burn card
+    #     room1._table.add_to_visible_cards(room1._table._deck.pick_card())
+    #     room1._table.add_to_visible_cards(room1._table._deck.pick_card())   #The FLOP - three cards
+    #     room1._table.add_to_visible_cards(room1._table._deck.pick_card())
 
-        game_loop(room1) #pre-river
+    #     print("Cards on the table: ", end=" ")
+    #     for a in room1._table._visible_cards:
+    #         print(a, end=" ")
+    #     print()
 
-        print("************************THE RIVER*********************")
-        room1._table._deck.pick_card() #the burn card
-        room1._table.add_to_visible_cards(room1._table._deck.pick_card()) # The River - one card
-        print("Cards on the table: ", end=" ")
-        for a in room1._table._visible_cards:
-            print(a, end=" ")
-        print() 
-        
-        game_loop(room1) #after River
-        for a in room1._table._visible_cards:
-            print(a, end=" ")
-            print()
-        room1._table.show()  # Show
+    #     # print(room1._table._deck.num_cards)
+    #     room1._table.change_last_action()
+    #     game_loop(room1) #pre-turn
 
-    
+    #     print("************************THE TURN*********************")
+    #     room1._table._deck.pick_card() #the burn card
+    #     room1._table.add_to_visible_cards(room1._table._deck.pick_card()) # The Turn - one card
+    #     print("Cards on the table: ", end=" ")
+    #     for a in room1._table._visible_cards:
+    #         print(a, end=" ")
+    #     print()
+
+    #     game_loop(room1) #pre-river
+
+    #     print("************************THE RIVER*********************")
+    #     room1._table._deck.pick_card() #the burn card
+    #     room1._table.add_to_visible_cards(room1._table._deck.pick_card()) # The River - one card
+    #     print("Cards on the table: ", end=" ")
+    #     for a in room1._table._visible_cards:
+    #         print(a, end=" ")
+    #     print()
+
+    #     game_loop(room1) #after River
+    #     for a in room1._table._visible_cards:
+    #         print(a, end=" ")
+    #         print()
+    #     room1._table.show()  # Show
+
+
 
 
 
@@ -205,4 +233,5 @@ def main():
 #     print(deck)
 #     """
 
-main()
+if __name__ == '__main__':
+    main()
