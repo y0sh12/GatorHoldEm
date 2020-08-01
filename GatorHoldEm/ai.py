@@ -3,7 +3,6 @@ from deck import Deck
 from table import Table
 from player import Player
 from card import Card
-import numpy as np
 import timeit
 import random
 
@@ -80,7 +79,7 @@ class AI(Player):
             return balance
         elif self._ehs > 0.6 and self._ehs < 0.85:
             return min_bet / 2
-        else
+        else:
             return min_bet / 2
     
     @property

@@ -6,6 +6,7 @@ import socketio
 from player import Player
 from room import Room
 from table import Table
+from ai import AI
 import time
 
 roomList = []
@@ -51,7 +52,7 @@ def in_room(sid, data):
 @sio.on('add_bot')
 def add_bot(sid, room_id):
     room = next((room for room in roomList if room.room_id == room_id), None)
-    room.add_player(Player(None, False, "Gator AI", True))
+    room.add_player(AI(None, False, "AI BOT", True))
     sio.emit('ai_joined', room=room.room_id)
 
 
@@ -67,14 +68,26 @@ def disconnect(sid):
             room.remove_player(player)
             player_list.remove(player)
             sio.emit('user_disconnect', (player.get_name() + " has left the room!"), room=room.room_id, skip_sid=sid)
-        if player_vip and len(player_list) > 0:
-            player_list[0].is_vip = True
-            sio.emit('vip', room=player_list[0].get_client_number())
+        present, first_dude = non_ai_fellow_present(player_list)
+        if player_vip and present:
+            first_dude.is_vip = True
+            sio.emit('vip', room=first_dude.get_client_number())
             print(player.__dict__)
-        room.set_player_list(player_list)
-        if len(player_list) == 0:
+            room.set_player_list(player_list)
+        else:
             roomList.remove(room)
         print('disconnect', sid)
+
+def non_ai_fellow_present(player_list):
+    present = True;
+    first_dude = None
+    for player in player_list:
+        if player.AI is False:
+            present = True
+            if first_dude is None:
+                first_dude = player
+    return present, first_dude
+
 
 
 @sio.on('remove_player')
