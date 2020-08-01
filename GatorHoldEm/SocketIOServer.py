@@ -51,7 +51,7 @@ def in_room(sid, data):
 @sio.on('add_bot')
 def add_bot(sid, room_id):
     room = next((room for room in roomList if room.room_id == room_id), None)
-    room.add_player(Player(None, False, "Gator AI", True))
+    room.add_player(AI(None, False, "AI BOT", True))
     sio.emit('ai_joined', room=room.room_id)
 
 
