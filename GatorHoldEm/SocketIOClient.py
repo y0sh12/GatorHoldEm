@@ -410,6 +410,9 @@ class Lobby(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
 
+        #Class variables
+        self.in_lobby = False
+
         # Lobby title
         self.config(bg="#c9efd3")
         self.lobby_title_text = tk.StringVar()
@@ -493,6 +496,7 @@ class Lobby(tk.Frame):
         sio.call(event='add_bot', data=player_dict_get('room_name'))
 
     def remove_player(self, index):
+        print(index)
         sio.call(event='remove_player', data=[player_dict_get('room_name'), index])
 
     def handle_submit(self):
@@ -508,8 +512,9 @@ class Lobby(tk.Frame):
 
     def init_update(self):
         print("Hi you're in lobby right now!")
-        # Update room name title
+        # Update room name title and lobby status
         self.lobby_title_text.set('Room: ' + player_dict_get('room_name'))
+        self.in_lobby = True
 
         # If player is not vip hide start game button
         if not player_dict_get('vip'):
@@ -522,37 +527,40 @@ class Lobby(tk.Frame):
                                "Press the Start Game button \nonce all the players have joined.")
 
     def update(self):
-        if sio.connected:
-            # Change title of lobby once
-            if player_dict_get('running'):
-                self.handle_submit()
+        if self.in_lobby:
+            if sio.connected:
+                # Change title of lobby once
+                if player_dict_get('running'):
+                    self.handle_submit()
 
-            elif not self.changed_title:
-                self.lobby_title_text.set('Room: ' + player_dict_get('room_name'))
-                self.changed_title = True
+                elif not self.changed_title:
+                    self.lobby_title_text.set('Room: ' + player_dict_get('room_name'))
+                    self.changed_title = True
 
-            # Update list of room members and room list widgets
-            update_room_list()
+                # Update list of room members and room list widgets
+                update_room_list()
 
-            # Hide room list buttons and labels based on amount of players in lobby
-            for index in range(6):
-                if index > player_dict_get('room_list_len') - 1:
-                    self.remove_player_list[index].grid_remove()
-                else:
-                    self.remove_player_list[index].grid()
+                # Hide room list buttons and labels based on amount of players in lobby
+                for index in range(6):
+                    if index > player_dict_get('room_list_len') - 1:
+                        self.remove_player_list[index].grid_remove()
+                    else:
+                        self.remove_player_list[index].grid()
 
 
-            # Start game wait animation loop
-            if self.wait_tracker % 4 == 0:
-                self.wait_tracker = 0
-                self.wait_text.set("Waiting on the first player to start the game")
-            elif self.wait_tracker % 4 == 1:
-                self.wait_text.set("Waiting on the first player to start the game.")
-            elif self.wait_tracker % 4 == 2:
-                self.wait_text.set("Waiting on the first player to start the game..")
-            elif self.wait_tracker % 4 == 3:
-                self.wait_text.set("Waiting on the first player to start the game...")
-            self.wait_tracker += 1
+                # Start game wait animation loop
+                if self.wait_tracker % 4 == 0:
+                    self.wait_tracker = 0
+                    self.wait_text.set("Waiting on the first player to start the game")
+                elif self.wait_tracker % 4 == 1:
+                    self.wait_text.set("Waiting on the first player to start the game.")
+                elif self.wait_tracker % 4 == 2:
+                    self.wait_text.set("Waiting on the first player to start the game..")
+                elif self.wait_tracker % 4 == 3:
+                    self.wait_text.set("Waiting on the first player to start the game...")
+                self.wait_tracker += 1
+            else:
+                self.leaving_lobby()
 
         # Call this function again in three seconds
         self.after(2000, self.update)
@@ -562,6 +570,7 @@ class Lobby(tk.Frame):
         player_dict_set('vip', False)
         player_dict_set("room_name", '')
         player_dict_set("name", '')
+        self.in_lobby = False
 
         # Grid everything that could've been forgotten
         self.start_the_game.grid()
