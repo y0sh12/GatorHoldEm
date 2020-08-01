@@ -15,14 +15,26 @@ Avoid using the same room name twice for now.
 
 Members of the group:
 
--Yaswanth Potluri
+- Yaswanth Potluri
 
--Azharullah Baig
+- Azharullah Baig
 
--Sean O'Reilly
+- Sean O'Reilly
 
--Bharat Samineni
+- Bharat Samineni
 
--Adriel Muhammed
+- Adriel Muhammed
+
+CONTRIBUTIONS:
+(!! Clarification of Potential Misunderstanding !!)
+- Sean and Bharat have worked together on the Visual Studio Code's LiveShare, which is a tool platform that lets multiple individuals work together on the same code simulataneously. 
+    Therefore, most of the commits of Bharat's git is a reflection of both Bharat AND Sean's work. Please consider this when evaluating the contributions. 
+
+CITED SOURCES:
+>https://github.com/chenosaurus/poker-evaluator/blob/master/lib/PokerEvaluator.js (For the AI)
+
+>https://github.com/christophschmalhofer/poker/blob/master/XPokerEval/XPokerEval.TwoPlusTwo/HandRanks.dat (For the AI)
+
+>https://en.wikipedia.org/wiki/Poker_Effective_Hand_Strength_(EHS)_algorithm (For the AI)
 
 
