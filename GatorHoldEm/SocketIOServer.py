@@ -304,10 +304,10 @@ def game_loop(room, num_raises=0):
             except:
                 print("timed out")
                 if is_check:
-                    sio.emit('message', str(player.name) " has been forced to check", room = room.room_id)
+                    sio.emit('message', str(player.name) + " has been forced to check", room = room.room_id)
                     option = 1
                 else:
-                    sio.emit('message', str(player.name) " has been forced to fold", room = room.room_id)
+                    sio.emit('message', str(player.name) + " has been forced to fold", room = room.room_id)
                     option = 2
                 sio.emit('you_timed_out')
         sio.emit('player_action', (player.get_name(), option), room=room.room_id)
@@ -315,15 +315,15 @@ def game_loop(room, num_raises=0):
             # Going all in because cannot match table bet
             if table.minimum_bet >= player.balance + player.investment:
                 sio.emit('message', 'You are going all in!\n', room=player.get_client_number())
-                sio.emit('message', str(player.name) " is going all in!", room = room.room_id)
+                sio.emit('message', str(player.name) + " is going all in!", room = room.room_id)
                 table.add_to_pot(player.balance)
                 player.add_investment(player.balance)
                 player.change_balance(-player.balance)
             else:
                 if is_check:
-                    sio.emit('message', str(player.name) " checked", room = room.room_id)
+                    sio.emit('message', str(player.name) + " checked", room = room.room_id)
                 else:
-                    sio.emit('message', str(player.name) " called", room = room.room_id)
+                    sio.emit('message', str(player.name) + " called", room = room.room_id)
                 player.change_balance(-(table.minimum_bet - player.investment))
                 table.add_to_pot(table.minimum_bet - player.investment)
                 player.add_investment(table.minimum_bet - player.investment)
@@ -358,7 +358,7 @@ def game_loop(room, num_raises=0):
                     last_action_was_fold = True
 
             player.fold()
-            sio.emit('message', str(player.name) " has folded", room = room.room_id)
+            sio.emit('message', str(player.name) + " has folded", room = room.room_id)
             folded += 1
             check -= 1
         if int(option) == 3:
@@ -392,7 +392,7 @@ def game_loop(room, num_raises=0):
                     sio.emit('message', "You ain't a millionaire, try a smaller raise", room=player.get_client_number())
                     error += 1
                 else:
-                    sio.emit('message', str(player.name) " has raised by $" + str(_raise), room = room.room_id)
+                    sio.emit('message', str(player.name) + " has raised by $" + str(_raise), room = room.room_id)
                     table.change_minimum_bet(int(_raise))
                     player.change_balance(-(table.minimum_bet - player.investment))
                     table.add_to_pot(table.minimum_bet - player.investment)
@@ -401,7 +401,7 @@ def game_loop(room, num_raises=0):
                     break
             if error == 4:
                 player.fold()
-                sio.emit('message', str(player.name) " has folded", room = room.room_id)
+                sio.emit('message', str(player.name) + " has folded", room = room.room_id)
                 folded += 1
                 check -= 1
 
