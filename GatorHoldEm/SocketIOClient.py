@@ -53,7 +53,9 @@ game_info = {
     'up': True,
     'won_message': '',
     'reset_round' : False,
-    'update_tokens': False
+    'update_tokens': False,
+    'message': False,
+    'game_ended': False
 }
 
 
@@ -125,6 +127,7 @@ def on_event():
 
 @sio.on('game_ended')
 def on_event():
+    game_info_set("game_ended", True)
     print("Game ended")
 
 
@@ -819,6 +822,9 @@ class Game(tk.Frame):
         if game_info_get('update_tokens'):
             self._place_tokens()
             game_info_set('update_tokens', False)
+        if game_info_get('game_ended'):
+            pass
+            #TODO Display button to go back to main menu
 
     def set_raise_val(self, val):
         player_dict_set('raise_amount', val)
