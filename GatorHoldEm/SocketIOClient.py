@@ -432,7 +432,7 @@ class Lobby(tk.Frame):
         self.changed_title = False
 
         # Back to home button
-        self.back_to_home = tk.Button(self, text="Back to Home", bg="#f0541e", activebackground = "#d94d1c",
+        self.back_to_home = tk.Button(self, text="Back to Home", bg = "#e2221d", activebackground = "#c81e1a",
                                       command=self.leaving_lobby)
         # self.back_to_home.place(x=0, y=0)
         self.back_to_home.grid(column=0, row=0, sticky='NW')
@@ -459,7 +459,7 @@ class Lobby(tk.Frame):
             self.current_lobby_list[index].grid(column=2, row=0)
 
             self.remove_player_list[index] = tk.Button(self.player_list_frame[index], background="#c9efd3",
-                                                       height=1, text="Remove", bg='#f0541e', font=("Verdana", "12"),
+                                                       height=1, text="Remove", bg = "#e2221d", activebackground = "#c81e1a", font=("Verdana", "12"),
                                                        command=lambda i=index: self.remove_player(i))
             self.remove_player_list[index].grid(column=0, row=0)
 
@@ -603,7 +603,7 @@ class Game(tk.Frame):
         self.config(bg="#008040")
         self.message_label_color = "#a56f22"
 
-        self.back_to_home = tk.Button(self, text="Back to Lobby", bg = "#f0541e", activebackground = "#d94d1c",
+        self.back_to_home = tk.Button(self, text="Back to Lobby", bg = "#e2221d", activebackground = "#c81e1a",
                                       command=self.exit)
         self.back_to_home.place(x=0, y=0)
 
@@ -707,7 +707,7 @@ class Game(tk.Frame):
         self.table_bet_name.set('Current Table Bet')
         self.table_bet_name_label = tk.Label(self, textvariable=self.table_bet_name, bg="#008040",
                                              font=("Verdana", "12", "bold"))
-        self.table_bet_name_label.place(x=260, y=305)
+        self.table_bet_name_label.place(x=255, y=305)
 
         # Import pot
         self.pot_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/poker_chips.png"))
@@ -1064,7 +1064,7 @@ class Game(tk.Frame):
         self.pot_label = tk.Label(self, text=pot_string,
                                   bg="#008040", font=("Verdana", "12", "bold"))
         # self.pot_label.place(x=740, y=260, width=180, height=20)
-        self.pot_label.place(x=902, y=305)
+        self.pot_label.place(x=890, y=300)
 
         self.min_bet_text.set(str(player_dict_get('minimumBet')))
         self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text, bg="#FFFFFF", font=("Verdana", "35"))
@@ -1073,7 +1073,7 @@ class Game(tk.Frame):
         self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
         self.round_num_label = tk.Label(self, textvariable=self.round_num_text, bg="#a56f22",
                                         font=("Verdana", "20", "bold"))
-        self.round_num_label.place(x=1130, y=10, width=100, height=20)
+        self.round_num_label.place(x=1130, y=10, width=130, height=35)
 
         # # WIN THE GAME LABEL
         # self.won_the_pot_text.set(game_info_get('won_message'))
