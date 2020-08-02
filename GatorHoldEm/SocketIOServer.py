@@ -282,7 +282,7 @@ def start_game(sid, room_id):
             round_num = str(Table.theRound)
 
             for player in room.get_player_list():
-                print("We have emitted the hand of ", player)
+                # print("We have emitted the hand of ", player)
                 card_string = str(player.hand[0]), str(player.hand[1])
                 sio.emit('emit_hand', card_string, room=player.get_client_number())
             # print("Emitted the AI")
@@ -402,18 +402,18 @@ def game_loop(room, num_raises=0):
         player = table.current_player
         is_check = True if player.investment == table.minimum_bet else False
         checkOrCall = "Check" if is_check else "Call"
-        print("About to get player info")
+        # print("About to get player info")
         info = str(player.balance), str(player.investment), str(table.minimum_bet), str(checkOrCall)
         sio.emit('which_players_turn', [player.get_name(), str(table.minimum_bet)], room=room.room_id)
-        print("Checking if player is AI")
+        # print("Checking if player is AI")
         if player.AI:
-            print("The player is Artificially Intelligent")
-            print("AI CARD 1: ", player.hand[0].rank, player.hand[0].suit)
-            print("AI CARD 2: ", player.hand[1].rank, player.hand[1].suit)
-            print("AI Check - 1", check - 1)
+            # print("The player is Artificially Intelligent")
+            # print("AI CARD 1: ", player.hand[0].rank, player.hand[0].suit)
+            # print("AI CARD 2: ", player.hand[1].rank, player.hand[1].suit)
+            # print("AI Check - 1", check - 1)
             option = player.make_choice(num_of_opponents, player.hand, table.visible_cards, table.pot, table.minimum_bet - player.investment, player.investment)
             time.sleep(1)
-            print("The player was able to make a choice ")
+            # print("The player was able to make a choice ")
             pass
         else:
             try:
