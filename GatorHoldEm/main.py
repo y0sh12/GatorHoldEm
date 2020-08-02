@@ -104,12 +104,12 @@ def main():
 
     test_board = []
 
-    test_board.append(ai_player.deck.pick_card())
-    test_board.append(ai_player.deck.pick_card())
-    test_board.append(ai_player.deck.pick_card())
-    test_board.append(ai_player.deck.pick_card())
+    # test_board.append(ai_player.deck.pick_card())
+    # test_board.append(ai_player.deck.pick_card())
     test_board.append(ai_player.deck.pick_card())
 
+    test_board.append(ai_player.deck.pick_card())
+    test_board.append(ai_player.deck.pick_card())
 
 
     x = ai_player.make_choice(5, test_cards, test_board, 200, 20, 80)

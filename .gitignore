@@ -4,4 +4,8 @@ GatorHoldEm/__pycache__/
 /.idea/
 /dist/
 /GatorHoldEm/__pycache__/
-/GatorHoldEm/HandRanks.dat
+/GatorHoldEm/res/HandRanks.dat
+/GatorHoldEm/CMakeFiles/
+GatorHoldem/CMakeCache.txt
+GatorHoldem/Makefile
+GatorHoldem/cmake_install.cmake

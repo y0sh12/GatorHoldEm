@@ -913,14 +913,18 @@ class Game(tk.Frame):
 
     def _load_card_image(self, temp):
         temp = temp.split()
-        if temp[1] == "11":
-            temp[1] = "jack"
-        if temp[1] == "12":
-            temp[1] = "queen"
-        if temp[1] == "13":
-            temp[1] = "king"
-        if temp[1] == "14":
-            temp[1] = "ace"
+        try:
+            if temp[1] == "11":
+                temp[1] = "jack"
+            if temp[1] == "12":
+                temp[1] = "queen"
+            if temp[1] == "13":
+                temp[1] = "king"
+            if temp[1] == "14":
+                temp[1] = "ace"
+        except IndexError:
+            print("@@@@@@@@@@@@@@@@@@@@@@@Index Error@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+            print(temp)
         path = game_info_get('cwd') + "/res/" + temp[1] + "_of_" + temp[0].lower() + "s.png"
         return ImageTk.PhotoImage(Image.open(path))
 
@@ -961,7 +965,7 @@ class Game(tk.Frame):
             self.raise_slider.config(to=int(0))
         else:
             # If we constraint from to min_bet in cases w
-            self.raise_slider.config(from_=int(0))
+            self.raise_slider.config(from_=int(1))
             self.raise_slider.config(to=int(bal - (min_bet - inv)))
 
         # Enable the buttons only if it is our turn

@@ -4,13 +4,13 @@ from table import Table
 from player import Player
 from card import Card
 import timeit
-import random
+from random import randint
 
 class AI(Player):
     def __init__(self, client_number=0, is_vip=False, name="AI BOT", ai_bot_bool=True):
         super().__init__(client_number, is_vip, name, ai_bot_bool)
         self._ehs = None
-        # self._deck = Deck()
+        self._deck = Deck()
         self._choice = None
         self._lib = self.load_ai_lib()
 
@@ -32,7 +32,7 @@ class AI(Player):
 
     def make_choice(self, num_opponents, hole_cards, community_cards, pot, min_bet, investment):
         self._lib.InitTheEvaluator()
-        # self._deck.reset()
+        self._deck.reset()
 
         t_hole_cards = []
         t_community_cards = []
@@ -57,7 +57,7 @@ class AI(Player):
             if ev >= 0:
                 choice = 1  #Call
             else:
-                random = random.randint(1, 4)
+                random = randint(1, 4)
                 if random == 2:
                     choice  = 1 #Bluff Call
                 else:
@@ -71,7 +71,7 @@ class AI(Player):
 
 
  
-        print(hand_strength)
+
         return choice
 
     def make_raise(self, min_bet, balance):
@@ -82,9 +82,9 @@ class AI(Player):
         else:
             return min_bet / 2
     
-    # @property
-    # def deck(self):
-    #     return self._deck
+    @property
+    def deck(self):
+        return self._deck
     @property
     def ehs(self):
         return self._ehs
