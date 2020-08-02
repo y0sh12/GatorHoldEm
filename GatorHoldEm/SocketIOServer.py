@@ -29,7 +29,7 @@ def on_event(sid, room_id):
     if room is None:
         print("room does not exist")
         return None
-    print(room.get_player_list())
+    # print(room.get_player_list())
     pl_list = []
     for pl in room.get_player_list():
         if pl.AI:
