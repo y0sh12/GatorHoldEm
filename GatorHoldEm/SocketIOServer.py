@@ -125,6 +125,7 @@ def disconnect(sid):
             # If number of active players in the room is less than or equal to 1, delete room
             if len(room.get_player_list()) - inactive_players <=1:
                 roomList.remove(room)
+                return
         else:
             # We are in lobby
 
@@ -145,7 +146,7 @@ def disconnect(sid):
 
         ai_players = sum([1 for p in room.get_player_list() if p.AI == True])
         # Last player in the room has diconnected
-        if len(room.get_player_list()) == 0 or ai_players == len(room.get_player_list):
+        if len(room.get_player_list()) == 0 or ai_players == len(room.get_player_list()):
             roomList.remove(room)
 
 
@@ -404,7 +405,7 @@ def game_loop(room, num_raises=0):
         checkOrCall = "Check" if is_check else "Call"
         # print("About to get player info")
         info = str(player.balance), str(player.investment), str(table.minimum_bet), str(checkOrCall)
-        sio.emit('which_players_turn', [player.get_name(), str(table.minimum_bet)], room=room.room_id)
+        sio.emit('which_players_turn', [player.get_client_number(), str(table.minimum_bet)], room=room.room_id)
         # print("Checking if player is AI")
         if player.AI:
             # print("The player is Artificially Intelligent")

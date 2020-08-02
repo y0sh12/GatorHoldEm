@@ -432,7 +432,7 @@ class Lobby(tk.Frame):
         self.changed_title = False
 
         # Back to home button
-        self.back_to_home = tk.Button(self, activebackground="#d84b1b", text="Back to Home", bg="#f0541e",
+        self.back_to_home = tk.Button(self, text="Back to Home", bg = "#e2221d", activebackground = "#c81e1a",
                                       command=self.leaving_lobby)
         # self.back_to_home.place(x=0, y=0)
         self.back_to_home.grid(column=0, row=0, sticky='NW')
@@ -459,7 +459,7 @@ class Lobby(tk.Frame):
             self.current_lobby_list[index].grid(column=2, row=0)
 
             self.remove_player_list[index] = tk.Button(self.player_list_frame[index], background="#c9efd3",
-                                                       height=1, text="Remove", bg='#32cd32', font=("Verdana", "12"),
+                                                       height=1, text="Remove", bg = "#e2221d", activebackground = "#c81e1a", font=("Verdana", "12"),
                                                        command=lambda i=index: self.remove_player(i))
             self.remove_player_list[index].grid(column=0, row=0)
 
@@ -602,7 +602,7 @@ class Game(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.con = controller
         self.config(bg="#008040")
-        self.message_label_color = "#ebd300"
+        self.message_label_color = "#a56f22"
 
         self.back_to_home = tk.Button(self, text="Back to Main Menu",
                                       command=self.back_button_submit)
@@ -642,7 +642,7 @@ class Game(tk.Frame):
         # Card Back
         self.card_back_image = Image.open(game_info_get('cwd') + "/res/back.png")
         self.card_back_image = ImageTk.PhotoImage(self.card_back_image)
-        self.card_back_label = tk.Label(self, image=self.card_back_image)
+        self.card_back_label = tk.Label(self, image=self.card_back_image, bg="#008040")
 
         # List of cards to be displayed on the board
         self.board_card_image = [self.card_back_image, self.card_back_image, self.card_back_image, self.card_back_image,
@@ -708,7 +708,7 @@ class Game(tk.Frame):
         self.table_bet_name.set('Current Table Bet')
         self.table_bet_name_label = tk.Label(self, textvariable=self.table_bet_name, bg="#008040",
                                              font=("Verdana", "12", "bold"))
-        self.table_bet_name_label.place(x=260, y=305)
+        self.table_bet_name_label.place(x=255, y=305)
 
         # Import pot
         self.pot_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/poker_chips.png"))
@@ -734,11 +734,11 @@ class Game(tk.Frame):
                                         command=self.exit)
 
         # Rules tab open button
-        self.show_rules_button = tk.Button(self, text="Show Hand Rankings", bg="#72f122", activebackground="#55c90d",
+        self.show_rules_button = tk.Button(self, text="Show Hand Rankings", bg="#ffcf2b", activebackground="#dab22a",
                                             highlightbackground="black", width=25,
                                             command=self.show_rules)
 
-        self.close_rules_button = tk.Button(self, text="Close Hand Rankings", bg="#72f122", activebackground="#55c90d",
+        self.close_rules_button = tk.Button(self, text="Close Hand Rankings", bg="#ffcf2b", activebackground="#dab22a",
                                              highlightbackground="black", width=25,
                                              command=self.close_rules)
 
@@ -747,30 +747,30 @@ class Game(tk.Frame):
         self.bal_label_width = 50
 
         # raise amount slider
-        self.raise_slider = tk.Scale(self, from_=0, to=200, orient='horizontal', state='disabled',
+        self.raise_slider = tk.Scale(self, from_=0, to=200, orient='horizontal', state='disabled', bg="#ffcf2b", activebackground="#dab22a",
                                      command=self.set_raise_val)
         self.raise_slider.place(x=1026, y=680, width=230, height=40)
         # self.raise_slider.pack()
 
-        # TODO Color for current turn
-        self.curr_player_text = tk.StringVar()
-        self.curr_player_label = tk.Label(self, textvar=self.curr_player_text, bg = "#008040").place(x=0, y=500, height=25)
+        # # TODO Color for current turn
+        # self.curr_player_text = tk.StringVar()
+        # self.curr_player_label = tk.Label(self, textvar=self.curr_player_text, bg = "#008040").place(x=0, y=500, height=25)
 
         # Key
         self.key_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/Key.png"))
         self.key_label = tk.Label(self, bg = "#008040", image = self.key_image).place(x = 10, y = 530)
 
         # Buttons for call/check, fold, and raise
-        self.fold_button = tk.Button(self, text='Fold', state='disabled',
+        self.fold_button = tk.Button(self, text='Fold', state='disabled', bg = "#ffcf2b", activebackground = "#dab22a",
                                      command=lambda: [player_dict_set('choice', '2'), game_info_set('up', True)])
 
         # Make buttons initially disabled
         self.call_check_text = tk.StringVar()
         self.call_check_text.set(player_dict_get('checkOrCall'))
-        self.call_check_button = tk.Button(self, textvar=self.call_check_text, state='disabled',
+        self.call_check_button = tk.Button(self, textvar=self.call_check_text, state='disabled', bg = "#ffcf2b", activebackground = "#dab22a",
                                            command=lambda: [player_dict_set('choice', '1'), game_info_set('up', True)])
 
-        self.raise_button = tk.Button(self, text='Raise', state='disabled',
+        self.raise_button = tk.Button(self, text='Raise', state='disabled', bg = "#ffcf2b", activebackground = "#dab22a",
                                       command=lambda: [player_dict_set('choice', '3'), game_info_set('up', True)])
 
         self.fold_button.place(x=1026, y=730, height=40, width=70)
@@ -778,7 +778,7 @@ class Game(tk.Frame):
         self.raise_button.place(x=1186, y=730, height=40, width=70)
 
         # Label under the cards that signify your hand
-        self.your_hand_label = tk.Label(self, text="Your hand", bg="#c9efd3", height=2, width=15).place(x=510, y=740)
+        self.your_hand_label = tk.Label(self, text="Your hand", bg="#a56f22", height=2, width=15).place(x=510, y=740)
 
         # TODO Add message bar
         self.game_actions_label = tk.Label(self, text="Game Actions", fg="black", bg="#008040",
@@ -787,6 +787,7 @@ class Game(tk.Frame):
         self.message_label = tk.Label(self, textvar=self.message_text, fg="black", bg=self.message_label_color, width=27, height=2,
                                       font=("Verdana", "18"))
         self.message_label.place(x=440, y=155)
+
         #Initialize all the labels
         for i in range(6):
             self.pl_label[i].place(x=self.pl_x[i], y=self.pl_y[i],
@@ -796,6 +797,7 @@ class Game(tk.Frame):
                                     width=self.pl_label_width, height=20)
             self.inv_label[i].place(x=self.pl_x[i], y=self.pl_y[i] + 40,
                                     width=self.pl_label_width, height=20)
+            # TODO Initial label colors
             self.pl_label[i].config(bg="gray")
             self.bal_label[i].config(bg="gray")
             self.inv_label[i].config(bg="gray")
@@ -931,15 +933,24 @@ class Game(tk.Frame):
     """
 
     def _set_player_name_balance(self, absolute_position, relative_position):
-        if (self.pl_list[absolute_position]['_balance'] == 0 and
+
+        # Current Player
+        if self.pl_list[absolute_position]['_client_number'] == game_info_get('curr_turn'):
+            # TODO Add current player color bg = background, fg = font
+            self.pl_label[relative_position].config(bg="#89EBC4", fg="black")
+            self.bal_label[relative_position].config(bg="#89EBC4", fg="black")
+            self.inv_label[relative_position].config(bg="#89EBC4", fg="black")
+        # Inactive players
+        elif (self.pl_list[absolute_position]['_balance'] == 0 and
             self.pl_list[absolute_position]['_investment'] == 0) or self.pl_list[absolute_position]['_isFolded']:
-            self.pl_label[relative_position].config(bg="gray")
-            self.bal_label[relative_position].config(bg="gray")
-            self.inv_label[relative_position].config(bg="gray")
+            self.pl_label[relative_position].config(bg="gray", fg="black")
+            self.bal_label[relative_position].config(bg="gray", fg="black")
+            self.inv_label[relative_position].config(bg="gray", fg="black")
+        # Active players
         else:
-            self.pl_label[relative_position].config(bg="white")
-            self.bal_label[relative_position].config(bg="white")
-            self.inv_label[relative_position].config(bg="white")
+            self.pl_label[relative_position].config(bg="white", fg="black")
+            self.bal_label[relative_position].config(bg="white", fg="black")
+            self.inv_label[relative_position].config(bg="white", fg="black")
 
         self.pl_text[relative_position].set(self.pl_list[absolute_position]['_name'])
         self.bal_text[relative_position].set("Balance: " + str(self.pl_list[absolute_position]['_balance']))
@@ -1070,16 +1081,16 @@ class Game(tk.Frame):
         self.pot_label = tk.Label(self, text=pot_string,
                                   bg="#008040", font=("Verdana", "12", "bold"))
         # self.pot_label.place(x=740, y=260, width=180, height=20)
-        self.pot_label.place(x=902, y=305)
+        self.pot_label.place(x=890, y=300)
 
         self.min_bet_text.set(str(player_dict_get('minimumBet')))
         self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text, bg="#FFFFFF", font=("Verdana", "35"))
         self.min_bet_label.place(x=280, y=190)
 
         self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
-        self.round_num_label = tk.Label(self, textvariable=self.round_num_text, bg="#c9efd3",
-                                        font=("Verdana", "15"))
-        self.round_num_label.place(x=1167, y=0, width=100, height=20)
+        self.round_num_label = tk.Label(self, textvariable=self.round_num_text, bg="#a56f22",
+                                        font=("Verdana", "20", "bold"))
+        self.round_num_label.place(x=1130, y=10, width=130, height=35)
 
         # # WIN THE GAME LABEL
         # self.won_the_pot_text.set(game_info_get('won_message'))
@@ -1087,7 +1098,7 @@ class Game(tk.Frame):
         # self.won_the_pot_label.place(x=0, y=560, height=20)
 
         # Update player turn
-        self.curr_player_text.set("Waiting on: " + game_info_get('curr_turn'))
+        # self.curr_player_text.set("Waiting on: " + game_info_get('curr_turn'))
 
         # Update call/check text
         self.call_check_text.set(player_dict_get('checkOrCall'))
