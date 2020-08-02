@@ -603,7 +603,7 @@ class Game(tk.Frame):
         self.config(bg="#008040")
         self.message_label_color = "#ebd300"
 
-        self.back_to_home = tk.Button(self, text="Back to Lobby",
+        self.back_to_home = tk.Button(self, text="Back to Lobby", bg = "#f0541e",
                                       command=self.exit)
         self.back_to_home.place(x=0, y=0)
 
@@ -733,11 +733,11 @@ class Game(tk.Frame):
                                         command=self.exit)
 
         # Rules tab open button
-        self.show_rules_button = tk.Button(self, text="Show Hand Rankings", bg="#72f122", activebackground="#55c90d",
+        self.show_rules_button = tk.Button(self, text="Show Hand Rankings", bg="#ffcf2b", activebackground="#dab22a",
                                             highlightbackground="black", width=25,
                                             command=self.show_rules)
 
-        self.close_rules_button = tk.Button(self, text="Close Hand Rankings", bg="#72f122", activebackground="#55c90d",
+        self.close_rules_button = tk.Button(self, text="Close Hand Rankings", bg="#ffcf2b", activebackground="#dab22a",
                                              highlightbackground="black", width=25,
                                              command=self.close_rules)
 
@@ -746,7 +746,7 @@ class Game(tk.Frame):
         self.bal_label_width = 50
 
         # raise amount slider
-        self.raise_slider = tk.Scale(self, from_=0, to=200, orient='horizontal', state='disabled',
+        self.raise_slider = tk.Scale(self, from_=0, to=200, orient='horizontal', state='disabled', bg="#ffcf2b", activebackground="#dab22a",
                                      command=self.set_raise_val)
         self.raise_slider.place(x=1026, y=680, width=230, height=40)
         # self.raise_slider.pack()
@@ -760,16 +760,16 @@ class Game(tk.Frame):
         self.key_label = tk.Label(self, bg = "#008040", image = self.key_image).place(x = 10, y = 530)
 
         # Buttons for call/check, fold, and raise
-        self.fold_button = tk.Button(self, text='Fold', state='disabled',
+        self.fold_button = tk.Button(self, text='Fold', state='disabled', bg = "#ffcf2b", activebackground = "#dab22a",
                                      command=lambda: [player_dict_set('choice', '2'), game_info_set('up', True)])
 
         # Make buttons initially disabled
         self.call_check_text = tk.StringVar()
         self.call_check_text.set(player_dict_get('checkOrCall'))
-        self.call_check_button = tk.Button(self, textvar=self.call_check_text, state='disabled',
+        self.call_check_button = tk.Button(self, textvar=self.call_check_text, state='disabled', bg = "#ffcf2b", activebackground = "#dab22a",
                                            command=lambda: [player_dict_set('choice', '1'), game_info_set('up', True)])
 
-        self.raise_button = tk.Button(self, text='Raise', state='disabled',
+        self.raise_button = tk.Button(self, text='Raise', state='disabled', bg = "#ffcf2b", activebackground = "#dab22a",
                                       command=lambda: [player_dict_set('choice', '3'), game_info_set('up', True)])
 
         self.fold_button.place(x=1026, y=730, height=40, width=70)
@@ -1071,7 +1071,7 @@ class Game(tk.Frame):
         self.min_bet_label.place(x=280, y=190)
 
         self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
-        self.round_num_label = tk.Label(self, textvariable=self.round_num_text, bg="#c9efd3",
+        self.round_num_label = tk.Label(self, textvariable=self.round_num_text, bg="#a56f22",
                                         font=("Verdana", "15"))
         self.round_num_label.place(x=1167, y=0, width=100, height=20)
 
