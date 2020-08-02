@@ -513,14 +513,15 @@ class Lobby(tk.Frame):
         sio.call(event='remove_player', data=[player_dict_get('room_name'), index])
 
     def handle_submit(self):
+        print("Handle submit was run")
         if player_dict_get('room_list_len') < 2:
             print("Too few players")
             messagebox.showerror("Error: Not enough players",
                                  "Please have two players in the lobby, then try again!")
             return
 
+        self.in_lobby = False
         sio.emit('start_game', player_dict_get('room_name'))
-        player_dict_set('running', True)
         self.controller.show_frame(Game)
 
     def init_update(self):
@@ -540,40 +541,40 @@ class Lobby(tk.Frame):
                                "Press the Start Game button \nonce all the players have joined.")
 
     def update(self):
+        if player_dict_get('running'):
+            if self.in_lobby:
+                self.handle_submit()
+            return
         if self.in_lobby:
             if sio.connected:
-                # Change title of lobby once
-                if player_dict_get('running'):
-                    self.handle_submit()
+                    # Change title of lobby once
+                    if not self.changed_title:
+                        self.lobby_title_text.set('Room: ' + player_dict_get('room_name'))
+                        self.changed_title = True
 
-                elif not self.changed_title:
-                    self.lobby_title_text.set('Room: ' + player_dict_get('room_name'))
-                    self.changed_title = True
+                    # Update list of room members and room list widgets
+                    update_room_list()
 
-                # Update list of room members and room list widgets
-                update_room_list()
+                    # Hide room list buttons and labels based on amount of players in lobby
+                    for index in range(6):
+                        if player_dict_get('vip') is False or index > player_dict_get('room_list_len') - 1:
+                            self.remove_player_list[index].grid_remove()
+                        else:
+                            self.remove_player_list[index].grid()
 
-                # Hide room list buttons and labels based on amount of players in lobby
-                for index in range(6):
-                    if player_dict_get('vip') is False or index > player_dict_get('room_list_len') - 1:
-                        self.remove_player_list[index].grid_remove()
-                    else:
-                        self.remove_player_list[index].grid()
-
-
-
-                # Start game wait animation loop
-                if self.wait_tracker % 4 == 0:
-                    self.wait_tracker = 0
-                    self.wait_text.set("Waiting on the first player to start the game")
-                elif self.wait_tracker % 4 == 1:
-                    self.wait_text.set("Waiting on the first player to start the game.")
-                elif self.wait_tracker % 4 == 2:
-                    self.wait_text.set("Waiting on the first player to start the game..")
-                elif self.wait_tracker % 4 == 3:
-                    self.wait_text.set("Waiting on the first player to start the game...")
-                self.wait_tracker += 1
+                    # Start game wait animation loop
+                    if self.wait_tracker % 4 == 0:
+                        self.wait_tracker = 0
+                        self.wait_text.set("Waiting on the first player to start the game")
+                    elif self.wait_tracker % 4 == 1:
+                        self.wait_text.set("Waiting on the first player to start the game.")
+                    elif self.wait_tracker % 4 == 2:
+                        self.wait_text.set("Waiting on the first player to start the game..")
+                    elif self.wait_tracker % 4 == 3:
+                        self.wait_text.set("Waiting on the first player to start the game...")
+                    self.wait_tracker += 1
             else:
+                print("You're in the lobby but you're disconnected")
                 self.leaving_lobby()
 
         # Call this function again in three seconds
@@ -603,8 +604,8 @@ class Game(tk.Frame):
         self.config(bg="#008040")
         self.message_label_color = "#ebd300"
 
-        self.back_to_home = tk.Button(self, text="Back to Lobby",
-                                      command=self.exit)
+        self.back_to_home = tk.Button(self, text="Back to Main Menu",
+                                      command=self.back_button_submit)
         self.back_to_home.place(x=0, y=0)
 
         # Player and Balance declarations
@@ -897,10 +898,15 @@ class Game(tk.Frame):
                 self.update()
             # print(player_dict_get("card1"))
 
+    def back_button_submit(self):
+        if messagebox.askyesno("Back to Main Menu", "You will be unable to reconnect to this game. Are you sure?"):
+            self.exit()
+
     def exit(self):
         player_dict_set('running', False)
         self.running = False
         self.winning_button.place_forget()
+        sio.disconnect()
         self.con.show_frame(MainMenu)
 
     #Function that shows and closes the HandRankings Rules:
@@ -990,7 +996,7 @@ class Game(tk.Frame):
         self.button.config(state='disabled')
 
         # Check to display winning button
-        if game_info_get('game_ended') is True:
+        if game_info_get('game_ended'):
             self.winning_button.place(x=550, y=250)
 
         # Check to see if HandRankings is open
@@ -1102,6 +1108,8 @@ class Game(tk.Frame):
             game_info_set('river', False)
             self._place_card(4)
 
+
+        self.con.show_frame(Game)
 
 def update():
     print("hi")
