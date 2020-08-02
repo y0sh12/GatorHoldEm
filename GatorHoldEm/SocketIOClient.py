@@ -641,7 +641,7 @@ class Game(tk.Frame):
         # Card Back
         self.card_back_image = Image.open(game_info_get('cwd') + "/res/back.png")
         self.card_back_image = ImageTk.PhotoImage(self.card_back_image)
-        self.card_back_label = tk.Label(self, image=self.card_back_image)
+        self.card_back_label = tk.Label(self, image=self.card_back_image, bg="#008040")
 
         # List of cards to be displayed on the board
         self.board_card_image = [self.card_back_image, self.card_back_image, self.card_back_image, self.card_back_image,
