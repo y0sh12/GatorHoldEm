@@ -109,47 +109,44 @@ def disconnect(sid):
         player_list = room.get_player_list()
         player = next((player for player in player_list if player.get_client_number() == sid), None)
 
-        ai_players = sum([1 for p in room.get_player_list() if p.AI == True])
-        inactive_players = sum([1 for p in room.get_player_list() if p.bankrupt])
+        player._balance = 0
+        player._investment = 0
+        player.declare_bankrupt()
+
+        # ai_players = sum([1 for p in room.get_player_list() if p.AI == True])
+        # inactive_players = sum([1 for p in room.get_player_list() if p.bankrupt])
         # Inactive player has balance = 0 and investment = 0
         # If game in progress, just make sure that there are at least two active players
         if room.game_in_progress:
             # Make the player who disconnected inactive
-            player._balance = 0
-            player._investment = 0
-            player.declare_bankrupt()
+
             # Count inactive players
             inactive_players = sum([1 for p in room.get_player_list() if p.bankrupt])
             # If number of active players in the room is less than or equal to 1, delete room
-            if len(room.get_player_list()) - count <=1:
+            if len(room.get_player_list()) - inactive_players <=1:
                 roomList.remove(room)
         else:
             # We are in lobby
 
+            is_vip_ = player.is_vip
+            # Remove diconnecting player
+            room.remove_player(player)
+
+            # count ai players in room
+            ai_players = sum([1 for p in room.get_player_list() if p.AI == True])
+
             # If player disconnecting is vip
-            if player.is_vip:
-                # count ai players in room
-
-                # Remove diconnecting player
-                room.remove_player(player)
-
-                # If the number of human players in lobby is less than 1 delete room
-                if len(room.get_player_list()) - ai_players <= 1:
-                    roomList.remove(room)
-                    return
-                else:
-                    for p in room.get_player_list():
+            if is_vip_:
+                # Set VIP to other person not AI
+                for p in room.get_player_list():
                         if not p.AI:
                             p.is_vip = True
-                            return
-            # Player diconnecting is not vip
-            else:
-                room.remove_player(player)
+                            break
 
-            # Last player in the room has diconnected
-            if len(room.get_player_list()) == 0:
-                roomList.remove(room)
-
+        ai_players = sum([1 for p in room.get_player_list() if p.AI == True])
+        # Last player in the room has diconnected
+        if len(room.get_player_list()) == 0 or ai_players == len(room.get_player_list):
+            roomList.remove(room)
 
 
         print('disconnect', sid)
@@ -255,6 +252,7 @@ def start_game(sid, room_id):
     balance_dict = {p.get_client_number(): p.balance for p in room.get_player_list()}
 
     while True:
+        #If everyone is bakrupt get out
         isBroke = 0
         for player in room.get_player_list():
             if player.balance == 0:
@@ -281,10 +279,12 @@ def start_game(sid, room_id):
             min_bet = str(table.minimum_bet)
             round_num = str(Table.theRound)
 
+            #
             for player in room.get_player_list():
                 # print("We have emitted the hand of ", player)
-                card_string = str(player.hand[0]), str(player.hand[1])
-                sio.emit('emit_hand', card_string, room=player.get_client_number())
+                if not player.bankrupt:
+                    card_string = str(player.hand[0]), str(player.hand[1])
+                    sio.emit('emit_hand', card_string, room=player.get_client_number())
             # print("Emitted the AI")
             # sio.emit('message', dealer, room=room.room_id)
             # sio.emit('message', small_blind, room=room.room_id)
@@ -596,7 +596,7 @@ def show(room):
         for p in ties_with_max:
             p.change_balance(split)
             sio.emit('message', str(p) + "has won a split of the pot: $" + str(split) + "\n", room=room.room_id)
-            time.sleep(0.5)
+            # time.sleep(0.5)
 
 
 if __name__ == '__main__':
