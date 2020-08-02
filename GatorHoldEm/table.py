@@ -47,6 +47,9 @@ class Table:
         self._small_blind = next(self._dealer_gen_obj)
         self._big_blind = next(self._dealer_gen_obj)
         self._last_action = self._big_blind
+        print("Dealer is: ", self._dealer)
+        print("Small blind is: ", self._small_blind)
+        print("big blind is: ", self._big_blind)
         while True:
             pointer = next(self._dealer_gen_obj)
             if pointer == self._dealer:

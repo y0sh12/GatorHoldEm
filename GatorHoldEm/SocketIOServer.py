@@ -28,12 +28,36 @@ def on_event(sid, room_id):
     print(room.get_player_list())
     pl_list = []
     for pl in room.get_player_list():
-        temp_pl = copy.deepcopy(pl)
-        temp_pl.hand = []
+        if pl.AI:
+            temp_pl = Player(0, False, pl.get_name(), True)
+            temp_pl._isFolded = pl.isFolded
+            temp_pl._investment = pl.investment
+            temp_pl._bankrupt = pl.bankrupt
+            temp_pl._balance = pl.balance
+        else:
+            temp_pl = copy.deepcopy(pl)
+            temp_pl.hand = []
         # if temp_pl.AI:
-        #     temp_pl.deck = []
+        # temp_pl.deck = []
         pl_list.append(temp_pl.__dict__)
     return pl_list
+
+
+# @sio.on('active_player_list')
+# def on_event(sid, room_id):
+#     room = next((room for room in roomList if room.room_id == room_id), None)
+#     if room is None:
+#         print("room does not exist")
+#         return None
+#     print(room.get_player_list())
+#     pl_list = []
+#     for pl in room.get_player_list():
+#         temp_pl = copy.deepcopy(pl)
+#         temp_pl.hand = []
+#         # if temp_pl.AI:
+#         #     temp_pl.deck = []
+#         pl_list.append(temp_pl.__dict__)
+#     return pl_list
 
 
 @sio.on('in_room')
@@ -251,6 +275,7 @@ def start_game(sid, room_id):
             for player in room.get_player_list():
                 card_string = str(player.hand[0]), str(player.hand[1])
                 sio.emit('emit_hand', card_string, room=player.get_client_number())
+            print("Emitted the AI")
             # sio.emit('message', dealer, room=room.room_id)
             # sio.emit('message', small_blind, room=room.room_id)
             # sio.emit('message', big_blind, room=room.room_id)
@@ -330,7 +355,7 @@ def start_game(sid, room_id):
     for player in room.get_player_list():
         if player.balance != 0:
             winner = player
-    sio.emit('message', str(winner) + " has won the game with!",
+    sio.emit('message', str(winner) + " has won the game!",
              room=room.room_id)
 
     # TODO Is the next line needed
@@ -366,7 +391,7 @@ def game_loop(room, num_raises=0):
         info = str(player.balance), str(player.investment), str(table.minimum_bet), str(checkOrCall)
         sio.emit('which_players_turn', [player.get_name(), str(table.minimum_bet)], room=room.room_id)
         if player.AI:
-            option = player.makeChoice(check - 1, player.hand, table.visible_cards, table.pot, table.minimum_bet - player.investment, player.investment)  
+            option = player.make_choice(check - 1, player.hand, table.visible_cards, table.pot, table.minimum_bet - player.investment, player.investment)
             pass
         else:
             try:

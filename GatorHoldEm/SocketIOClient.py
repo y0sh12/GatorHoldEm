@@ -130,9 +130,10 @@ def on_event():
 
 
 @sio.on('game_ended')
-def on_event():
+def on_event(message):
     game_info_set("game_ended", True)
     print("Game ended")
+    sio.disconnect()
 
 
 @sio.on('your_turn')
@@ -787,7 +788,7 @@ class Game(tk.Frame):
     def _place_tokens(self):
         self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
         indices = {'my_index': None, 'd_rel_index': None, 'bb_rel_index': None, 'sb_rel_index': None}
-
+        print("Player list: ", self.pl_list)
         for i, p in enumerate(self.pl_list):
             if p['_client_number'] == sio.sid:
                 indices['my_index'] = i
@@ -1025,10 +1026,10 @@ class Game(tk.Frame):
                                         font=("Helvetica", "15"))
         self.round_num_label.place(x=1167, y=0, width=100, height=20)
 
-        # TODO WIN THE GAME LABEL
-        self.won_the_pot_text.set(game_info_get('won_message'))
-        self.won_the_pot_label = tk.Label(self, textvariable=self.won_the_pot_text, )
-        self.won_the_pot_label.place(x=0, y=560, height=20)
+        # # WIN THE GAME LABEL
+        # self.won_the_pot_text.set(game_info_get('won_message'))
+        # self.won_the_pot_label = tk.Label(self, textvariable=self.won_the_pot_text, )
+        # self.won_the_pot_label.place(x=0, y=560, height=20)
 
         # Update player turn
         self.curr_player_text.set("Waiting on: " + game_info_get('curr_turn'))

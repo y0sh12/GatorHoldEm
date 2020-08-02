@@ -12,7 +12,7 @@ class AI(Player):
         self._ehs = None
         # self._deck = Deck()
         self._choice = None
-        self._lib = None
+        self._lib = self.load_ai_lib()
 
     def test_lib(self):
         self._lib.InitTheEvaluator()
