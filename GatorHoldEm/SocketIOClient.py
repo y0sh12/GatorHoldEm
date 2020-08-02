@@ -811,7 +811,7 @@ class Game(tk.Frame):
     def _place_tokens(self):
         self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
         indices = {'my_index': None, 'd_rel_index': None, 'bb_rel_index': None, 'sb_rel_index': None}
-        print("Player list: ", self.pl_list)
+        # print("Player list: ", self.pl_list)
         for i, p in enumerate(self.pl_list):
             if p['_client_number'] == sio.sid:
                 indices['my_index'] = i
