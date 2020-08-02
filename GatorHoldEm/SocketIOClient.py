@@ -216,7 +216,7 @@ def on_event(board_info):
 def on_event(message):
     print(message)
     game_info_set('message_received', True)
-    if message == "game starting":
+    if message == "Game Starting...":
         player_dict_set('running', True)
     game_info_set('display_message', message)
 
@@ -357,16 +357,16 @@ class MainMenu(tk.Frame):
         self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
         # Room input
-        self.room_entry = tk.Entry(self, fg="black", bg="white", width=15, font=("Helvetica", "18"))
+        self.room_entry = tk.Entry(self, fg="black", bg="white", width=15, font=("Verdana", "18"))
         self.room_entry.place(x=710, y=400)
 
         # Name input
-        self.name_entry = tk.Entry(self, fg="black", bg="white", width=15, font=("Helvetica", "18"))
+        self.name_entry = tk.Entry(self, fg="black", bg="white", width=15, font=("Verdana", "18"))
         self.name_entry.place(x=710, y=575)
 
         # Submit button
         self.submit = tk.Button(self, activebackground='#003fa3', text="Submit", bg="#004ecc", width=10, height=2,
-                                font=("Helvetica", "18"), command=self.handle_click)
+                                font=("Verdana", "18"), command=self.handle_click)
         self.submit.place(x=735, y=660)
 
     def init_update(self):
@@ -438,7 +438,7 @@ class Lobby(tk.Frame):
         self.back_to_home.grid(column=0, row=0, sticky='NW')
 
         self.lobby_title = tk.Label(self, textvariable=self.lobby_title_text, bg="#c9efd3", fg="#029D8A",
-                                    font=("Helvetica", "60", "bold"))
+                                    font=("Verdana", "60", "bold"))
         # self.lobby_title.pack(padx=10, pady=10)
         self.lobby_title.grid(column=2, row=0)
         # self.grid_columnconfigure(2, weight=1)
@@ -455,11 +455,11 @@ class Lobby(tk.Frame):
             self.player_list_frame[index].config(bg="#c9efd3")
 
             self.current_lobby_list[index] = tk.Label(self.player_list_frame[index], background="#c9efd3",
-                                                      textvariable=player_list[index], font=("Helvetica", "20"))
+                                                      textvariable=player_list[index], font=("Verdana", "20"))
             self.current_lobby_list[index].grid(column=2, row=0)
 
             self.remove_player_list[index] = tk.Button(self.player_list_frame[index], background="#c9efd3",
-                                                       height=1, text="Remove", bg='#32cd32', font=("Helvetica", "12"),
+                                                       height=1, text="Remove", bg='#32cd32', font=("Verdana", "12"),
                                                        command=lambda i=index: self.remove_player(i))
             self.remove_player_list[index].grid(column=0, row=0)
 
@@ -468,13 +468,13 @@ class Lobby(tk.Frame):
             self.player_list_frame[index].grid_columnconfigure(1, minsize=100)
             self.player_list_frame[index].grid_columnconfigure(0, minsize=100)
             # self.label_list[index] = tk.Label(self, textvariable=player_list[index],
-            #                                   font=("Helvetica", "20")).pack(pady=15)
+            #                                   font=("Verdana", "20")).pack(pady=15)
             # self.label_list[index] = tk.Label(self, textvariable=player_list[index], bg="#c9efd3",
-            #                                  font=("Helvetica", "20")).pack(pady=15)
+            #                                  font=("Verdana", "20")).pack(pady=15)
 
         # Start the game button
         self.start_the_game = tk.Button(self, activebackground="#00893d", text="Start the Game!", bg="#009944",
-                                        width=15, height=3, font=("Helvetica", "18"), borderwidth=4,
+                                        width=15, height=3, font=("Verdana", "18"), borderwidth=4,
                                         command=self.handle_submit)
         # self.start_the_game.pack(pady=10)
         self.start_the_game.grid(column=2, row=11, pady=25)
@@ -482,7 +482,7 @@ class Lobby(tk.Frame):
         # Waiting animation
         self.wait_text = tk.StringVar()
         self.wait_tracker = 0
-        self.wait = tk.Label(self, textvariable=self.wait_text, bg="#c9efd3", font=("Helvetica", "16"),
+        self.wait = tk.Label(self, textvariable=self.wait_text, bg="#c9efd3", font=("Verdana", "16"),
                              fg="#029D8A")
         # self.wait.place(x=420, y=530)
         self.wait.grid(column=2, row=9)
@@ -491,7 +491,7 @@ class Lobby(tk.Frame):
         self.help_text = tk.StringVar()
 
         # Render help info
-        self.help = tk.Label(self, textvariable=self.help_text, bg="#c9efd3", font=("Helvetica", "16"),
+        self.help = tk.Label(self, textvariable=self.help_text, bg="#c9efd3", font=("Verdana", "16"),
                              fg="#029D8A")
         # self.help.place(x=150, y=720)
         self.help.grid(column=2, row=10)
@@ -622,21 +622,21 @@ class Game(tk.Frame):
         self.pl_name = ["", "", "", "", "", ""]  # UNUSED ?????
         self.pl_label = [0, 0, 0, 0, 0, 0]
         self.bal_label = [0, 0, 0, 0, 0, 0]
-        self.inv_label = [tk.Label(self, textvariable=self.inv_text[i], font=("Helvetica", "11")) for i in range(6)]
+        self.inv_label = [tk.Label(self, textvariable=self.inv_text[i], font=("Verdana", "11")) for i in range(6)]
 
-        self.pl_label[0] = tk.Label(self, textvariable=self.pl_text[0], font=("Helvetica", "11"))
-        self.pl_label[1] = tk.Label(self, textvariable=self.pl_text[1], font=("Helvetica", "11"))
-        self.pl_label[2] = tk.Label(self, textvariable=self.pl_text[2], font=("Helvetica", "11"))
-        self.pl_label[3] = tk.Label(self, textvariable=self.pl_text[3], font=("Helvetica", "11"))
-        self.pl_label[4] = tk.Label(self, textvariable=self.pl_text[4], font=("Helvetica", "11"))
-        self.pl_label[5] = tk.Label(self, textvariable=self.pl_text[5], font=("Helvetica", "11"))
+        self.pl_label[0] = tk.Label(self, textvariable=self.pl_text[0], font=("Verdana", "11"))
+        self.pl_label[1] = tk.Label(self, textvariable=self.pl_text[1], font=("Verdana", "11"))
+        self.pl_label[2] = tk.Label(self, textvariable=self.pl_text[2], font=("Verdana", "11"))
+        self.pl_label[3] = tk.Label(self, textvariable=self.pl_text[3], font=("Verdana", "11"))
+        self.pl_label[4] = tk.Label(self, textvariable=self.pl_text[4], font=("Verdana", "11"))
+        self.pl_label[5] = tk.Label(self, textvariable=self.pl_text[5], font=("Verdana", "11"))
 
-        self.bal_label[0] = tk.Label(self, textvariable=self.bal_text[0], font=("Helvetica", "11"))
-        self.bal_label[1] = tk.Label(self, textvariable=self.bal_text[1], font=("Helvetica", "11"))
-        self.bal_label[2] = tk.Label(self, textvariable=self.bal_text[2], font=("Helvetica", "11"))
-        self.bal_label[3] = tk.Label(self, textvariable=self.bal_text[3], font=("Helvetica", "11"))
-        self.bal_label[4] = tk.Label(self, textvariable=self.bal_text[4], font=("Helvetica", "11"))
-        self.bal_label[5] = tk.Label(self, textvariable=self.bal_text[5], font=("Helvetica", "11"))
+        self.bal_label[0] = tk.Label(self, textvariable=self.bal_text[0], font=("Verdana", "11"))
+        self.bal_label[1] = tk.Label(self, textvariable=self.bal_text[1], font=("Verdana", "11"))
+        self.bal_label[2] = tk.Label(self, textvariable=self.bal_text[2], font=("Verdana", "11"))
+        self.bal_label[3] = tk.Label(self, textvariable=self.bal_text[3], font=("Verdana", "11"))
+        self.bal_label[4] = tk.Label(self, textvariable=self.bal_text[4], font=("Verdana", "11"))
+        self.bal_label[5] = tk.Label(self, textvariable=self.bal_text[5], font=("Verdana", "11"))
 
         # Card Back
         self.card_back_image = Image.open(game_info_get('cwd') + "/res/back.png")
@@ -706,7 +706,7 @@ class Game(tk.Frame):
         self.table_bet_name = tk.StringVar()
         self.table_bet_name.set('Current Table Bet')
         self.table_bet_name_label = tk.Label(self, textvariable=self.table_bet_name, bg="#008040",
-                                             font=("Helvetica", "10"))
+                                             font=("Verdana", "12", "bold"))
         self.table_bet_name_label.place(x=260, y=305)
 
         # Import pot
@@ -781,10 +781,10 @@ class Game(tk.Frame):
 
         # TODO Add message bar
         self.game_actions_label = tk.Label(self, text="Game Actions", fg="black", bg="#008040",
-                                           font=("Helvetica", "18")).place(x=555,y=105)
+                                           font=("Verdana", "18")).place(x=555,y=105)
         self.message_text = tk.StringVar()
         self.message_label = tk.Label(self, textvar=self.message_text, fg="black", bg=self.message_label_color, width=27, height=2,
-                                      font=("Helvetica", "18"))
+                                      font=("Verdana", "18"))
         self.message_label.place(x=440, y=155)
 
         #Initialize all the labels
@@ -1073,17 +1073,17 @@ class Game(tk.Frame):
         pot_string = "Total Pot amount: " + str(game_info_get('pot'))
 
         self.pot_label = tk.Label(self, text=pot_string,
-                                  bg="#008040", font=("Helvetica", "10"))
+                                  bg="#008040", font=("Verdana", "12", "bold"))
         # self.pot_label.place(x=740, y=260, width=180, height=20)
         self.pot_label.place(x=902, y=305)
 
         self.min_bet_text.set(str(player_dict_get('minimumBet')))
-        self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text, bg="#FFFFFF", font=("Helvetica", "35"))
+        self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text, bg="#FFFFFF", font=("Verdana", "35"))
         self.min_bet_label.place(x=280, y=190)
 
         self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
         self.round_num_label = tk.Label(self, textvariable=self.round_num_text, bg="#c9efd3",
-                                        font=("Helvetica", "15"))
+                                        font=("Verdana", "15"))
         self.round_num_label.place(x=1167, y=0, width=100, height=20)
 
         # # WIN THE GAME LABEL
