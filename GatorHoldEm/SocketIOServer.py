@@ -33,14 +33,15 @@ def on_event(sid, room_id):
     pl_list = []
     for pl in room.get_player_list():
         if pl.AI:
-            temp_pl = Player(0, False, pl.get_name(), True)
+            temp_pl = Player(pl._client_number, False, pl.get_name(), True)
             temp_pl._isFolded = pl.isFolded
             temp_pl._investment = pl.investment
             temp_pl._bankrupt = pl.bankrupt
             temp_pl._balance = pl.balance
         else:
             temp_pl = copy.deepcopy(pl)
-            temp_pl.hand = []
+
+        temp_pl.hand = []
         # if temp_pl.AI:
         # temp_pl.deck = []
         pl_list.append(temp_pl.__dict__)
@@ -82,11 +83,11 @@ def in_room(sid, data):
 @sio.on('add_bot')
 def add_bot(sid, room_id):
     room = next((room for room in roomList if room.room_id == room_id), None)
-
     sample = string.ascii_lowercase + string.digits
-    ai_code = ''.join(random.choice(sample) for i in range(10))
+    ai_code = ''.join(random.choice(sample) for i in range(32))
     print("Code generated for ai is", ai_code)
-    room.add_player(AI(ai_code, False, "AI BOT", True))
+    ai_player = AI(ai_code, False, "AI BOT", True)
+    room.add_player(ai_player)
     sio.emit('ai_joined', room=room.room_id)
 
 

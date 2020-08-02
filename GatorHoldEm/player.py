@@ -1,6 +1,7 @@
 class Player:
     def __init__(self, client_number, is_vip, name, ai_bot_bool=False):
         self._balance = 500
+        print("Player created with client number: ",client_number )
         self._client_number = client_number  # None = AI
         self._name = name
         self.AI = ai_bot_bool
