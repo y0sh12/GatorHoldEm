@@ -249,7 +249,7 @@ def start_game(sid, room_id):
         return
 
     room.game_in_progress = True
-    sio.emit('message', "game starting", room=room.room_id)
+    sio.emit('message', "Game Starting...", room=room.room_id)
     table = room.get_Table()
 
     balance_dict = {p.get_client_number(): p.balance for p in room.get_player_list()}
