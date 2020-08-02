@@ -751,9 +751,9 @@ class Game(tk.Frame):
         self.raise_slider.place(x=1026, y=680, width=230, height=40)
         # self.raise_slider.pack()
 
-        # TODO Color for current turn
-        self.curr_player_text = tk.StringVar()
-        self.curr_player_label = tk.Label(self, textvar=self.curr_player_text, bg = "#008040").place(x=0, y=500, height=25)
+        # # TODO Color for current turn
+        # self.curr_player_text = tk.StringVar()
+        # self.curr_player_label = tk.Label(self, textvar=self.curr_player_text, bg = "#008040").place(x=0, y=500, height=25)
 
         # Key
         self.key_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/Key.png"))
@@ -786,6 +786,7 @@ class Game(tk.Frame):
         self.message_label = tk.Label(self, textvar=self.message_text, fg="black", bg=self.message_label_color, width=27, height=2,
                                       font=("Helvetica", "18"))
         self.message_label.place(x=440, y=155)
+
         #Initialize all the labels
         for i in range(6):
             self.pl_label[i].place(x=self.pl_x[i], y=self.pl_y[i],
@@ -795,6 +796,7 @@ class Game(tk.Frame):
                                     width=self.pl_label_width, height=20)
             self.inv_label[i].place(x=self.pl_x[i], y=self.pl_y[i] + 40,
                                     width=self.pl_label_width, height=20)
+            # TODO Initial label colors
             self.pl_label[i].config(bg="gray")
             self.bal_label[i].config(bg="gray")
             self.inv_label[i].config(bg="gray")
@@ -925,15 +927,24 @@ class Game(tk.Frame):
     """
 
     def _set_player_name_balance(self, absolute_position, relative_position):
-        if (self.pl_list[absolute_position]['_balance'] == 0 and
+
+        # Current Player
+        if self.pl_list[absolute_position]['_client_number'] == game_info_get('curr_turn'):
+            # TODO Add current player color bg = background, fg = font
+            self.pl_label[relative_position].config(bg="black", fg="white")
+            self.bal_label[relative_position].config(bg="black", fg="white")
+            self.inv_label[relative_position].config(bg="black", fg="white")
+        # Inactive players
+        elif (self.pl_list[absolute_position]['_balance'] == 0 and
             self.pl_list[absolute_position]['_investment'] == 0) or self.pl_list[absolute_position]['_isFolded']:
-            self.pl_label[relative_position].config(bg="gray")
-            self.bal_label[relative_position].config(bg="gray")
-            self.inv_label[relative_position].config(bg="gray")
+            self.pl_label[relative_position].config(bg="gray", fg="black")
+            self.bal_label[relative_position].config(bg="gray", fg="black")
+            self.inv_label[relative_position].config(bg="gray", fg="black")
+        # Active players
         else:
-            self.pl_label[relative_position].config(bg="white")
-            self.bal_label[relative_position].config(bg="white")
-            self.inv_label[relative_position].config(bg="white")
+            self.pl_label[relative_position].config(bg="white", fg="black")
+            self.bal_label[relative_position].config(bg="white", fg="black")
+            self.inv_label[relative_position].config(bg="white", fg="black")
 
         self.pl_text[relative_position].set(self.pl_list[absolute_position]['_name'])
         self.bal_text[relative_position].set("Balance: " + str(self.pl_list[absolute_position]['_balance']))
@@ -1081,7 +1092,7 @@ class Game(tk.Frame):
         # self.won_the_pot_label.place(x=0, y=560, height=20)
 
         # Update player turn
-        self.curr_player_text.set("Waiting on: " + game_info_get('curr_turn'))
+        # self.curr_player_text.set("Waiting on: " + game_info_get('curr_turn'))
 
         # Update call/check text
         self.call_check_text.set(player_dict_get('checkOrCall'))
