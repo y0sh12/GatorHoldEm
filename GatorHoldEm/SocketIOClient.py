@@ -1073,7 +1073,7 @@ class Game(tk.Frame):
         self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
         self.round_num_label = tk.Label(self, textvariable=self.round_num_text, bg="#a56f22",
                                         font=("Verdana", "15"))
-        self.round_num_label.place(x=1167, y=0, width=100, height=20)
+        self.round_num_label.place(x=1130, y=10, width=100, height=20)
 
         # # WIN THE GAME LABEL
         # self.won_the_pot_text.set(game_info_get('won_message'))
