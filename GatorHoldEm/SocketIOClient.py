@@ -931,9 +931,9 @@ class Game(tk.Frame):
         # Current Player
         if self.pl_list[absolute_position]['_client_number'] == game_info_get('curr_turn'):
             # TODO Add current player color bg = background, fg = font
-            self.pl_label[relative_position].config(bg="black", fg="white")
-            self.bal_label[relative_position].config(bg="black", fg="white")
-            self.inv_label[relative_position].config(bg="black", fg="white")
+            self.pl_label[relative_position].config(bg="#89EBC4", fg="black")
+            self.bal_label[relative_position].config(bg="#89EBC4", fg="black")
+            self.inv_label[relative_position].config(bg="#89EBC4", fg="black")
         # Inactive players
         elif (self.pl_list[absolute_position]['_balance'] == 0 and
             self.pl_list[absolute_position]['_investment'] == 0) or self.pl_list[absolute_position]['_isFolded']:
