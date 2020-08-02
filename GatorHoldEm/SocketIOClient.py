@@ -777,7 +777,7 @@ class Game(tk.Frame):
         self.raise_button.place(x=1186, y=730, height=40, width=70)
 
         # Label under the cards that signify your hand
-        self.your_hand_label = tk.Label(self, text="Your hand", bg="#c9efd3", height=2, width=15).place(x=510, y=740)
+        self.your_hand_label = tk.Label(self, text="Your hand", bg="#a56f22", height=2, width=15).place(x=510, y=740)
 
         # TODO Add message bar
         self.game_actions_label = tk.Label(self, text="Game Actions", fg="black", bg="#008040",
@@ -1084,7 +1084,7 @@ class Game(tk.Frame):
         self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
         self.round_num_label = tk.Label(self, textvariable=self.round_num_text, bg="#a56f22",
                                         font=("Verdana", "15"))
-        self.round_num_label.place(x=1167, y=0, width=100, height=20)
+        self.round_num_label.place(x=1130, y=10, width=100, height=20)
 
         # # WIN THE GAME LABEL
         # self.won_the_pot_text.set(game_info_get('won_message'))
