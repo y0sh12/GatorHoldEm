@@ -962,11 +962,12 @@ class Game(tk.Frame):
                 temp[1] = "king"
             if temp[1] == "14":
                 temp[1] = "ace"
+
+            path = game_info_get('cwd') + "/res/" + temp[1] + "_of_" + temp[0].lower() + "s.png"
+            return ImageTk.PhotoImage(Image.open(path))
+        # Sometimes we try to load in a card to early before we received it which causes an Index Error
         except IndexError:
-            print("@@@@@@@@@@@@@@@@@@@@@@@Index Error@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-            print(temp)
-        path = game_info_get('cwd') + "/res/" + temp[1] + "_of_" + temp[0].lower() + "s.png"
-        return ImageTk.PhotoImage(Image.open(path))
+            pass
 
     """
     Function that places a card on the board

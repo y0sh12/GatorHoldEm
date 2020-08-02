@@ -7,8 +7,8 @@ import timeit
 from random import randint
 
 class AI(Player):
-    def __init__(self, client_number=0, is_vip=False, name="AI BOT", ai_bot_bool=True):
-        super().__init__(client_number, is_vip, name, ai_bot_bool)
+    def __init__(self, client_number, is_vip=False, name="AI BOT", ai_bot_bool=True):
+        super(AI, self).__init__(client_number, is_vip, name, ai_bot_bool)
         self._ehs = None
         self._deck = Deck()
         self._choice = None
