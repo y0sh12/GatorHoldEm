@@ -734,7 +734,11 @@ class Game(tk.Frame):
 
         # TODO Color for current turn
         self.curr_player_text = tk.StringVar()
-        self.curr_player_label = tk.Label(self, textvar=self.curr_player_text).place(x=0, y=575, height=25)
+        self.curr_player_label = tk.Label(self, textvar=self.curr_player_text, bg = "#008040").place(x=0, y=555, height=25)
+
+        # Key
+        self.key_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/Key.png"))
+        self.key_label = tk.Label(self, bg = "#008040", image = self.key_image).place(x = 10, y = 590)
 
         # Buttons for call/check, fold, and raise
         self.fold_button = tk.Button(self, text='Fold', state='disabled',
