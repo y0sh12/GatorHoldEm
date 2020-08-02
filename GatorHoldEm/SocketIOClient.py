@@ -777,7 +777,7 @@ class Game(tk.Frame):
         self.raise_button.place(x=1186, y=730, height=40, width=70)
 
         # Label under the cards that signify your hand
-        self.your_hand_label = tk.Label(self, text="Your hand", bg="#c9efd3", height=2, width=15).place(x=510, y=740)
+        self.your_hand_label = tk.Label(self, text="Your hand", bg="#a56f22", height=2, width=15).place(x=510, y=740)
 
         # TODO Add message bar
         self.game_actions_label = tk.Label(self, text="Game Actions", fg="black", bg="#008040",
