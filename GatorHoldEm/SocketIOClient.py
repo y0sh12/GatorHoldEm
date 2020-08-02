@@ -56,7 +56,8 @@ game_info = {
     'update_tokens': False,
     'display_message': '',
     'message_received': False,
-    'game_ended': False
+    'game_ended': False,
+    'showing_rules': False
 }
 
 
@@ -713,6 +714,14 @@ class Game(tk.Frame):
         self.pot_label = tk.Label(self, image=self.pot_image, bg="#008040").place(x=900, y=160)
         # self.pot_label = tk.Label(self, image=self.pot_image, bg="#008040").place(x=855,y=120)
 
+        # Hand Rankings Image
+        image = Image.open(game_info_get('cwd') + "/res/Rankings.png")
+        image = image.resize((700, 900), Image.ANTIALIAS)  ## The (250, 250) is (height, width)
+
+        self.hand_rankings_image = ImageTk.PhotoImage(image)
+
+        self.hand_rankings_label = tk.Label(self, image=self.hand_rankings_image, bg="#008040")
+
         # Button that starts the game on the client side.
         self.button = tk.Button(self, text="Start Game", bg="#72f122", activebackground="#55c90d",
                                 highlightbackground="black", width=25, command=self.start_up)
@@ -722,6 +731,16 @@ class Game(tk.Frame):
         self.winning_button = tk.Button(self, text="Exit to Main Menu", bg="#72f122", activebackground="#55c90d",
                                         highlightbackground="black", width=25,
                                         command=self.exit)
+
+        # Rules tab open button
+        self.show_rules_button = tk.Button(self, text="Show Hand Rankings", bg="#72f122", activebackground="#55c90d",
+                                            highlightbackground="black", width=25,
+                                            command=self.show_rules)
+
+        self.close_rules_button = tk.Button(self, text="Close Hand Rankings", bg="#72f122", activebackground="#55c90d",
+                                             highlightbackground="black", width=25,
+                                             command=self.close_rules)
+
 
         self.pl_label_width = 122
         self.bal_label_width = 50
@@ -734,11 +753,11 @@ class Game(tk.Frame):
 
         # TODO Color for current turn
         self.curr_player_text = tk.StringVar()
-        self.curr_player_label = tk.Label(self, textvar=self.curr_player_text, bg = "#008040").place(x=0, y=555, height=25)
+        self.curr_player_label = tk.Label(self, textvar=self.curr_player_text, bg = "#008040").place(x=0, y=500, height=25)
 
         # Key
         self.key_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/Key.png"))
-        self.key_label = tk.Label(self, bg = "#008040", image = self.key_image).place(x = 10, y = 590)
+        self.key_label = tk.Label(self, bg = "#008040", image = self.key_image).place(x = 10, y = 530)
 
         # Buttons for call/check, fold, and raise
         self.fold_button = tk.Button(self, text='Fold', state='disabled',
@@ -884,6 +903,23 @@ class Game(tk.Frame):
         self.winning_button.place_forget()
         self.con.show_frame(MainMenu)
 
+    #Function that shows and closes the HandRankings Rules:
+    def show_rules(self):
+        win = tk.Toplevel()
+        win.geometry("700x900")
+        win.wm_title("Hand Rankings")
+
+        l = tk.Label(win, image=self.hand_rankings_image, bg="#008040")
+        l.place(x=0, y=0)
+
+
+        game_info_set('showing_rules', True)
+
+    def close_rules(self):
+
+        game_info_set('showing_rules', False)
+
+
     """
     Function that sets the name and balance for different players.
     """
@@ -955,6 +991,10 @@ class Game(tk.Frame):
         # Check to display winning button
         if game_info_get('game_ended') is True:
             self.winning_button.place(x=550, y=250)
+
+        # Check to see if HandRankings is open
+        if game_info_get('showing_rules') is False:
+            self.show_rules_button.place(x=5, y=746)
 
         # self.pl_list = sio.emit('active_player_list', '1')
         self.pl_list = sio.call(event='active_player_list', data=player_dict_get('room_name'))
