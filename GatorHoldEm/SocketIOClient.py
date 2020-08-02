@@ -432,7 +432,7 @@ class Lobby(tk.Frame):
         self.changed_title = False
 
         # Back to home button
-        self.back_to_home = tk.Button(self, activebackground="#d84b1b", text="Back to Home", bg="#f0541e",
+        self.back_to_home = tk.Button(self, text="Back to Home", bg="#f0541e", activebackground = "#d94d1c",
                                       command=self.leaving_lobby)
         # self.back_to_home.place(x=0, y=0)
         self.back_to_home.grid(column=0, row=0, sticky='NW')
@@ -459,7 +459,7 @@ class Lobby(tk.Frame):
             self.current_lobby_list[index].grid(column=2, row=0)
 
             self.remove_player_list[index] = tk.Button(self.player_list_frame[index], background="#c9efd3",
-                                                       height=1, text="Remove", bg='#32cd32', font=("Verdana", "12"),
+                                                       height=1, text="Remove", bg='#f0541e', font=("Verdana", "12"),
                                                        command=lambda i=index: self.remove_player(i))
             self.remove_player_list[index].grid(column=0, row=0)
 
@@ -601,9 +601,9 @@ class Game(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.con = controller
         self.config(bg="#008040")
-        self.message_label_color = "#ebd300"
+        self.message_label_color = "#a56f22"
 
-        self.back_to_home = tk.Button(self, text="Back to Lobby", bg = "#f0541e",
+        self.back_to_home = tk.Button(self, text="Back to Lobby", bg = "#f0541e", activebackground = "#d94d1c",
                                       command=self.exit)
         self.back_to_home.place(x=0, y=0)
 
@@ -1083,7 +1083,7 @@ class Game(tk.Frame):
 
         self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
         self.round_num_label = tk.Label(self, textvariable=self.round_num_text, bg="#a56f22",
-                                        font=("Verdana", "15"))
+                                        font=("Verdana", "20", "bold"))
         self.round_num_label.place(x=1130, y=10, width=100, height=20)
 
         # # WIN THE GAME LABEL
