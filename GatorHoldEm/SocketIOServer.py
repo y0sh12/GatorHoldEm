@@ -500,6 +500,7 @@ def game_loop(room, num_raises=0):
                 ask = "By how much do you want to raise"
                 if player.AI:
                     _raise = math.floor(player.make_raise(table.minimum_bet, player.balance))
+                    _raise = _raise - (_raise % 5)
                     pass  
                 else:
                     _raise = sio.call(event='raise', data=ask, sid=player.get_client_number())

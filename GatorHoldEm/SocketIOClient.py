@@ -6,6 +6,7 @@ from threading import Thread
 
 import socketio
 from PIL import Image, ImageTk
+import sys
 
 # Dictionary that holds general player info. Variables are type of info to store & value
 player_dict = {
@@ -928,7 +929,10 @@ class Game(tk.Frame):
                 self.update_players()
                 game_info_set('up', False)
             else:
-                self.update()
+                try:
+                    self.update()
+                except  tk.TclError:
+                    sys.exit()
             # print(player_dict_get("card1"))
 
     def back_button_submit(self):
@@ -1135,7 +1139,13 @@ class Game(tk.Frame):
         # Update call/check text
         self.call_check_text.set(player_dict_get('checkOrCall'))
         if self.call_check_text.get() == "Call":
+            call_amount_int = int(player_dict_get("minimumBet")) - int(player_dict_get("investment"))
             call_amount = str(int(player_dict_get("minimumBet")) - int(player_dict_get("investment")))
+
+
+            if call_amount_int >= int(player_dict_get("balance")):
+                call_amount = str(player_dict_get("balance"))
+
             self.call_check_text.set("Call " + call_amount)
 
         if game_info_get('flop'):
@@ -1171,8 +1181,11 @@ def main():
     app.mainloop()
 
 
+
 if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt as e:
         sys.exit(0)
+    except:
+        pass
