@@ -523,7 +523,7 @@ class Lobby(tk.Frame):
         sio.call(event='add_bot', data=player_dict_get('room_name'))
 
     def remove_player(self, index):
-        print(index)
+        # print(index)
         sio.call(event='remove_player', data=[player_dict_get('room_name'), index])
 
     def init_update(self):
@@ -576,7 +576,7 @@ class Lobby(tk.Frame):
                     update_room_list()
 
                     # Hide room list buttons and labels based on amount of players in lobby
-                    print(player_dict_get('room_list_len'))
+                    # print(player_dict_get('room_list_len'))
                     for index in range(6):
                         if player_dict_get('vip') is False or index > player_dict_get('room_list_len') - 1:
                             self.remove_player_list[index].grid_remove()
@@ -598,7 +598,7 @@ class Lobby(tk.Frame):
                 print("You're in the lobby but you're disconnected")
                 self.back_to_menu()
 
-        print("label width", self.lobby_title.winfo_width())
+        # print("label width", self.lobby_title.winfo_width())
 
         # Call this function again in three seconds
         self.after(2000, self.updates)

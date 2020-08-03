@@ -87,6 +87,7 @@ def add_bot(sid, room_id):
     ai_code = ''.join(random.choice(sample) for i in range(32))
     print("Code generated for ai is", ai_code)
     ai_player = AI(ai_code, False, "AI BOT", True)
+    ai_player._connected = False
     room.add_player(ai_player)
     sio.emit('ai_joined', room=room.room_id)
 
@@ -113,6 +114,7 @@ def disconnect(sid):
         player._balance = 0
         player._investment = 0
         player.declare_bankrupt()
+        player._connected = False
 
         # ai_players = sum([1 for p in room.get_player_list() if p.AI == True])
         # inactive_players = sum([1 for p in room.get_player_list() if p.bankrupt])
@@ -120,15 +122,21 @@ def disconnect(sid):
         # If game in progress, just make sure that there are at least two active players
         if room.game_in_progress:
             pass
-            # Make the player who disconnected inactive
-            # # TODO
-            # # Count inactive players
-            # inactive_players = sum([1 for p in room.get_player_list() if p.bankrupt])
-            # human_players = sum([1 for p in room.get_player_list() if p.AI == False and p.bankrupt == False])
-            # # If number of active players in the room is less than or equal to 1, delete room
-            # if len(room.get_player_list()) - inactive_players <=1:
-            #     roomList.remove(room)
-            #     return
+            # room.game_in_progress = False
+            connected_players = sum([1 for p in room.get_player_list() if p._connected])
+            # O human player, deleted the room
+            if connected_players == 0:
+                # TODO
+                room.game_in_progress = False
+                for p in room.get_player_list()[:]:
+                    room.remove_player(p)
+                roomList.remove(room)
+                return
+            ai_num = sum([1 for p in room.get_player_list() if p.AI == True])
+            # If one human player,
+            if connected_players + ai_num <= 1:
+                sio.emit('game_ended', "The game has ended.", room=room.room_id)
+
         else:
             # We are in lobby
             print("We are not in a game")
@@ -146,10 +154,11 @@ def disconnect(sid):
                 for p in room.get_player_list():
                         if not p.AI:
                             p.is_vip = True
+                            print("We have a new vip: ", p)
                             break
 
         ai_players = sum([1 for p in room.get_player_list() if p.AI == True])
-        # Last player in the room has diconnected
+        # No players in room or all players in room are AI
         if len(room.get_player_list()) == 0 or ai_players == len(room.get_player_list()):
             roomList.remove(room)
 
