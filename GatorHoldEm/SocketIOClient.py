@@ -776,8 +776,9 @@ class Game(tk.Frame):
         self.bal_label_width = 50
 
         # raise amount slider
-        self.raise_slider = tk.Scale(self, from_=0, to=200, orient='horizontal', state='disabled', bg="#ffcf2b", activebackground="#dab22a",
-                                     command=self.set_raise_val)
+        self.raise_slider = tk.Scale(self, from_=0, to=200, orient='horizontal', state='disabled', bg="#ffcf2b",
+                                     resolution=5, activebackground="#dab22a", command=self.set_raise_val)
+
         self.raise_slider.place(x=1026, y=680, width=230, height=40)
         # self.raise_slider.pack()
 
@@ -1057,7 +1058,7 @@ class Game(tk.Frame):
             self.raise_slider.config(to=int(0))
         else:
             # If we constraint from to min_bet in cases w
-            self.raise_slider.config(from_=int(1))
+            self.raise_slider.config(from_=int(0))
             self.raise_slider.config(to=int(bal - (min_bet - inv)))
 
         # Enable the buttons only if it is our turn
