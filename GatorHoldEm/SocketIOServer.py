@@ -155,7 +155,7 @@ def disconnect(sid):
                 for p in room.get_player_list():
                         if not p.AI:
                             p.is_vip = True
-                            print("We have a new vip: ", p)
+                            # print("We have a new vip: ", p)
                             sio.emit('vip', room=p.get_client_number())
                             break
 
