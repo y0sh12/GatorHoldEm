@@ -531,7 +531,6 @@ class Lobby(tk.Frame):
     def add_ai_player(self):
         if player_dict_get('room_list_len') < 6:
             sio.call(event='add_bot', data=player_dict_get('room_name'))
-            sio.wait()
         else:
             tk.messagebox.showerror("Maximum Players Reached", "Error: Unable to add more players. The maximum allowed players is six!")
 
