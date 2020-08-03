@@ -763,7 +763,7 @@ class Game(tk.Frame):
         self.raise_slider.place(x=1026, y=680, width=230, height=40)
         # self.raise_slider.pack()
 
-        # # TODO Color for current turn
+        # Color for current turn
         # self.curr_player_text = tk.StringVar()
         # self.curr_player_label = tk.Label(self, textvar=self.curr_player_text, bg = "#008040").place(x=0, y=500, height=25)
 
@@ -791,7 +791,7 @@ class Game(tk.Frame):
         # Label under the cards that signify your hand
         self.your_hand_label = tk.Label(self, text="Your hand", bg="#a56f22", height=2, width=15).place(x=510, y=740)
 
-        # TODO Add message bar
+        # message bar
         self.game_actions_label = tk.Label(self, text="Game Actions", fg="black", bg="#008040",
                                            font=("Verdana", "18")).place(x=555,y=105)
         self.message_text = tk.StringVar()
@@ -808,7 +808,7 @@ class Game(tk.Frame):
                                     width=self.pl_label_width, height=20)
             self.inv_label[i].place(x=self.pl_x[i], y=self.pl_y[i] + 40,
                                     width=self.pl_label_width, height=20)
-            # TODO Initial label colors
+            # Initial label colors
             self.pl_label[i].config(bg="gray")
             self.bal_label[i].config(bg="gray")
             self.inv_label[i].config(bg="gray")
@@ -947,7 +947,7 @@ class Game(tk.Frame):
 
         # Current Player
         if self.pl_list[absolute_position]['_client_number'] == game_info_get('curr_turn'):
-            # TODO Add current player color bg = background, fg = font
+            # Add current player color bg = background, fg = font
             self.pl_label[relative_position].config(bg="#89EBC4", fg="black")
             self.bal_label[relative_position].config(bg="#89EBC4", fg="black")
             self.inv_label[relative_position].config(bg="#89EBC4", fg="black")

@@ -119,15 +119,16 @@ def disconnect(sid):
         # Inactive player has balance = 0 and investment = 0
         # If game in progress, just make sure that there are at least two active players
         if room.game_in_progress:
+            pass
             # Make the player who disconnected inactive
-
-            # TODO
-            # Count inactive players
-            inactive_players = sum([1 for p in room.get_player_list() if p.bankrupt])
-            # If number of active players in the room is less than or equal to 1, delete room
-            if len(room.get_player_list()) - inactive_players <=1:
-                roomList.remove(room)
-                return
+            # # TODO
+            # # Count inactive players
+            # inactive_players = sum([1 for p in room.get_player_list() if p.bankrupt])
+            # human_players = sum([1 for p in room.get_player_list() if p.AI == False and p.bankrupt == False])
+            # # If number of active players in the room is less than or equal to 1, delete room
+            # if len(room.get_player_list()) - inactive_players <=1:
+            #     roomList.remove(room)
+            #     return
         else:
             # We are in lobby
             print("We are not in a game")
@@ -372,7 +373,6 @@ def start_game(sid, room_id):
     sio.emit('message', str(winner) + " has won the game!",
              room=room.room_id)
 
-    # TODO Is the next line needed
     room.game_in_progress = False
     sio.emit('game_ended', "The game has ended.", room=room.room_id)
 
