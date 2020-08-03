@@ -634,7 +634,7 @@ class Game(tk.Frame):
         self.config(bg="#008040")
         self.message_label_color = "#a56f22"
 
-        self.back_to_home = tk.Button(self, text="Back to Main Menu",
+        self.back_to_home = tk.Button(self, text="Back to Main Menu", bg = "#e2221d", activebackground = "#c81e1a",
                                       command=self.back_button_submit)
         self.back_to_home.place(x=0, y=0)
 
@@ -753,12 +753,12 @@ class Game(tk.Frame):
         self.hand_rankings_label = tk.Label(self, image=self.hand_rankings_image, bg="#008040")
 
         # Button that starts the game on the client side.
-        self.button = tk.Button(self, text="Start Game", bg="#72f122", activebackground="#55c90d",
+        self.button = tk.Button(self, text="START GAME", bg="#ffcf2b", activebackground="#dab22a",
                                 highlightbackground="black", width=25, command=self.start_up)
         self.button.place(x=1026, y=640)
 
         # Button that displays on winning screen to take back to menu
-        self.winning_button = tk.Button(self, text="Exit to Main Menu", bg="#72f122", activebackground="#55c90d",
+        self.winning_button = tk.Button(self, text="EXIT TO MAIN MENU", bg = "#e2221d", activebackground = "#c81e1a",
                                         highlightbackground="black", width=25,
                                         command=self.exit)
 
@@ -787,7 +787,7 @@ class Game(tk.Frame):
 
         # Key
         self.key_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/Key.png"))
-        self.key_label = tk.Label(self, bg = "#008040", image = self.key_image).place(x = 10, y = 530)
+        self.key_label = tk.Label(self, bg = "#008040", image = self.key_image).place(x = 7, y = 535)
 
         # Buttons for call/check, fold, and raise
         self.fold_button = tk.Button(self, text='Fold', state='disabled', bg = "#ffcf2b", activebackground = "#dab22a",
