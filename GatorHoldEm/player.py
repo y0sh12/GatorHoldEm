@@ -12,6 +12,7 @@ class Player:
         self._bankrupt = False
         self._best_hand_sum = None
         self.is_vip = is_vip
+        self._connected = True  #True for human players connected to server, False for AI bots
 
     @property
     def bankrupt(self):
