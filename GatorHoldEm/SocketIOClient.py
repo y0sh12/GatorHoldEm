@@ -93,6 +93,11 @@ def connect_error(data):
 @sio.event
 def disconnect():
     print("You have left the game. Come back soon!")
+    player_dict_set('in_a_room', False)
+    player_dict_set('running', False)
+    player_dict_set('vip', False)
+    player_dict_set("room_name", '')
+    player_dict_set("name", '')
     game_info_set('up', True)
 
 
@@ -112,6 +117,8 @@ def on_event(message):
 
 @sio.on('joined_room')
 def on_event(message, room):
+
+    player_dict_set('in_a_room', True)
     sio.emit('my_name', (player_dict_get('name'), player_dict_get('room_name')))
     print(message)
     game_info_set('up', True)
@@ -133,8 +140,9 @@ def on_event():
 @sio.on('game_ended')
 def on_event(message):
     game_info_set("game_ended", True)
+    game_info_set('up', True)
     print("Game ended")
-    sio.disconnect()
+    # sio.disconnect()
 
 
 @sio.on('your_turn')
@@ -216,9 +224,10 @@ def on_event(board_info):
 def on_event(message):
     print(message)
     game_info_set('message_received', True)
+    game_info_set('display_message', message)
     if message == "Game Starting...":
         player_dict_set('running', True)
-    game_info_set('display_message', message)
+
 
 
     if 'has won the pot' in message:
@@ -403,12 +412,18 @@ class MainMenu(tk.Frame):
                 return
 
         # Server call to create new player and join/create room, error handling
+
+        # sio.emit('goto_room', player_dict_get('room_name'))
+        # print(player_dict_get('in_a_room'))
+
         sio.emit('goto_room', player_dict_get('room_name'))
         room_members = sio.call(event='active_player_list', data=player_dict_get('room_name'))
         in_room = sio.call(event='in_room', data=[player_dict_get('name'), player_dict_get('room_name')])
-        print(in_room)
+
         # If successful, update room members and display lobby page
         # If failed, display error message
+
+        # if player_dict_get('in_a_room'):
         if in_room:
             update_room_list()
             self.controller.show_frame(Lobby)
@@ -433,7 +448,7 @@ class Lobby(tk.Frame):
 
         # Back to home button
         self.back_to_home = tk.Button(self, text="Back to Home", bg = "#e2221d", activebackground = "#c81e1a",
-                                      command=self.leaving_lobby)
+                                      command=self.back_to_menu)
         # self.back_to_home.place(x=0, y=0)
         self.back_to_home.grid(column=0, row=0, sticky='NW')
 
@@ -503,7 +518,6 @@ class Lobby(tk.Frame):
         for index in range(5):
             self.grid_columnconfigure(index, minsize=100)
 
-        self.update()
 
     def add_ai_player(self):
         sio.call(event='add_bot', data=player_dict_get('room_name'))
@@ -511,18 +525,6 @@ class Lobby(tk.Frame):
     def remove_player(self, index):
         print(index)
         sio.call(event='remove_player', data=[player_dict_get('room_name'), index])
-
-    def handle_submit(self):
-        print("Handle submit was run")
-        if player_dict_get('room_list_len') < 2:
-            print("Too few players")
-            messagebox.showerror("Error: Not enough players",
-                                 "Please have two players in the lobby, then try again!")
-            return
-
-        self.in_lobby = False
-        sio.emit('start_game', player_dict_get('room_name'))
-        self.controller.show_frame(Game)
 
     def init_update(self):
         print("Hi you're in lobby right now!")
@@ -540,6 +542,8 @@ class Lobby(tk.Frame):
             self.help_text.set("Since you are the first player to join, you are the VIP player. " \
                                "Press the Start Game button \nonce all the players have joined.")
 
+        self.update()
+
     def update(self):
         if player_dict_get('running'):
             if self.in_lobby:
@@ -556,6 +560,7 @@ class Lobby(tk.Frame):
                     update_room_list()
 
                     # Hide room list buttons and labels based on amount of players in lobby
+                    print(player_dict_get('room_list_len'))
                     for index in range(6):
                         if player_dict_get('vip') is False or index > player_dict_get('room_list_len') - 1:
                             self.remove_player_list[index].grid_remove()
@@ -575,16 +580,23 @@ class Lobby(tk.Frame):
                     self.wait_tracker += 1
             else:
                 print("You're in the lobby but you're disconnected")
-                self.leaving_lobby()
+                self.back_to_menu()
 
         # Call this function again in three seconds
         self.after(2000, self.update)
 
-    def leaving_lobby(self):
-        player_dict_set('running', False)
-        player_dict_set('vip', False)
-        player_dict_set("room_name", '')
-        player_dict_set("name", '')
+    def handle_submit(self):
+        if player_dict_get('room_list_len') < 2:
+            print("Too few players")
+            messagebox.showerror("Error: Not enough players",
+                                 "Please have two players in the lobby, then try again!")
+            return
+
+        self.in_lobby = False
+        sio.emit('start_game', player_dict_get('room_name'))
+        self.controller.show_frame(Game)
+
+    def back_to_menu(self):
         self.in_lobby = False
 
         # Grid everything that could've been forgotten
@@ -648,7 +660,6 @@ class Game(tk.Frame):
         self.board_card_image = [self.card_back_image, self.card_back_image, self.card_back_image, self.card_back_image,
                                  self.card_back_image]
         self.board_card_label = [0, 0, 0, 0, 0]
-
         self.card1_image = 0
         self.card1_label = 0
         self.card1_displayed = False
@@ -1119,20 +1130,19 @@ class Game(tk.Frame):
             game_info_set('river', False)
             self._place_card(4)
 
-
         self.con.show_frame(Game)
 
-def update():
-    print("hi")
+# def update():
+#     print("hi")
 
 
 def main():
     def on_closing():
-        if messagebox.askokcancel("Close GatorHoldEm", "Do you want to quit GatorHoldEm?"):
-            if sio.connected:
-                sio.disconnect()
-            app.destroy()
-            quit()
+            if messagebox.askokcancel("Close GatorHoldEm", "Do you want to quit GatorHoldEm?"):
+                if sio.connected:
+                    sio.disconnect()
+                app.destroy()
+                sys.exit()
 
     # Start main loop
     app = GatorHoldEm()

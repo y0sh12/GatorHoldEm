@@ -9,3 +9,4 @@ GatorHoldEm/__pycache__/
 GatorHoldem/CMakeCache.txt
 GatorHoldem/Makefile
 GatorHoldem/cmake_install.cmake
+GatorHoldem/libai.so
