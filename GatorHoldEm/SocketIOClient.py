@@ -1027,7 +1027,8 @@ class Game(tk.Frame):
         c.place(x=self.board_card_x[position], y=self.board_card_y[position])
 
     """
-        Function that renders a players screen
+        Function that makes modifications to  a player's screen
+        before updating
     """
 
     # reset cards at the end of the round
@@ -1113,8 +1114,8 @@ class Game(tk.Frame):
         self.pot_label.place(x=890, y=300)
 
         self.min_bet_text.set(str(player_dict_get('minimumBet')))
-        self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text, bg="#FFFFFF", font=("Verdana", "35"))
-        self.min_bet_label.place(x=280, y=190)
+        self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text, bg="#FFFFFF", font=("Verdana", "30"))
+        self.min_bet_label.place(x=285, y=190)
 
         self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
         self.round_num_label = tk.Label(self, textvariable=self.round_num_text, bg="#008040",
