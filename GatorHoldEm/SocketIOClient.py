@@ -1088,7 +1088,7 @@ class Game(tk.Frame):
         self.min_bet_label.place(x=280, y=190)
 
         self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
-        self.round_num_label = tk.Label(self, textvariable=self.round_num_text, bg="#a56f22",
+        self.round_num_label = tk.Label(self, textvariable=self.round_num_text, bg="#008040",
                                         font=("Verdana", "20", "bold"))
         self.round_num_label.place(x=1130, y=10, width=130, height=35)
 
