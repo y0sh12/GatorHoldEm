@@ -420,6 +420,8 @@ def game_loop(room, num_raises=0):
             pass
         else:
             try:
+                # TODO
+                # option = sio.call(event='your_turn', data=info, sid=player.get_client_number(), timeout = 300) Sets timeout to 5 minutes
                 option = sio.call(event='your_turn', data=info, sid=player.get_client_number())
             except:
                 print("Client failed to respond")
