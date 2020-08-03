@@ -56,13 +56,25 @@ class Table:
                 break
         
         # Taking the blind amounts
-        self._small_blind.change_balance(-self._minimumBet // 2)
-        self._small_blind.add_investment(self._minimumBet // 2)
+        small_blind_amount = self._minimumBet // 2
+        big_blind_amount = self._minimumBet
 
-        self._big_blind.change_balance(-self._minimumBet)
-        self._big_blind.add_investment(self._minimumBet)
+        # If player cant pay blind take balance instead
+        if small_blind_amount > self._small_blind.balance:
+            small_blind_amount = self._small_blind.balance
 
-        self.add_to_pot(self._minimumBet + self._minimumBet // 2)
+        if big_blind_amount > self._big_blind.balance:
+            big_blind_amount = self._big_blind.balance
+
+        # Update balance and investment accordingly
+        self._small_blind.change_balance(-small_blind_amount)
+        self._small_blind.add_investment(small_blind_amount)
+
+        self._big_blind.change_balance(-big_blind_amount)
+        self._big_blind.add_investment(big_blind_amount)
+
+        # Add amount to the pot
+        self.add_to_pot(small_blind_amount + big_blind_amount)
 
         # Current player pointer
         self._current_player_gen_obj = self._current_player_gen()

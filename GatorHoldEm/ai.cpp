@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <algorithm>
+#include <unistd.h>
 
 using namespace std;
 
@@ -28,6 +29,7 @@ int InitTheEvaluator() {
     // Load the HANDRANKS.DAT file data into the HR array
     size_t bytesread = fread(HR, sizeof(HR), 1, fin);
     fclose(fin);
+    return 0;
 }
 
 void DoSomeWork()
@@ -117,7 +119,7 @@ double HandStrength(int* ourcards, int holesize, int* boardcards, int boardsize,
     int ourRankWithinCategory = ourHandInfo & 0x00000FFF;
 
 
-    for(int c = 0; c < 100000; c++) {
+    for(int c = 0; c < 1000000; c++) {
 
 
         for(int i = 0; i < usedSize; i++) {

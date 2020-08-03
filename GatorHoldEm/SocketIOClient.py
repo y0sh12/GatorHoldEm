@@ -6,6 +6,7 @@ from threading import Thread
 
 import socketio
 from PIL import Image, ImageTk
+import sys
 
 # Dictionary that holds general player info. Variables are type of info to store & value
 player_dict = {
@@ -776,9 +777,10 @@ class Game(tk.Frame):
         self.bal_label_width = 50
 
         # raise amount slider
-        self.raise_slider = tk.Scale(self, from_=0, to=200, orient='horizontal', state='disabled', bg="#ffcf2b", activebackground="#dab22a",
-                                        troughcolor = "b9951b",
-                                     command=self.set_raise_val)
+        self.raise_slider = tk.Scale(self, from_=0, to=200, orient='horizontal', state='disabled', bg="#ffcf2b",
+                                     troughcolor = "#b9951b", resolution=5, activebackground="#dab22a", command=self.set_raise_val)
+
+
         self.raise_slider.place(x=1026, y=680, width=230, height=40)
         # self.raise_slider.pack()
 
@@ -927,7 +929,10 @@ class Game(tk.Frame):
                 self.update_players()
                 game_info_set('up', False)
             else:
-                self.update()
+                try:
+                    self.update()
+                except  tk.TclError:
+                    sys.exit()
             # print(player_dict_get("card1"))
 
     def back_button_submit(self):
@@ -1028,7 +1033,8 @@ class Game(tk.Frame):
         c.place(x=self.board_card_x[position], y=self.board_card_y[position])
 
     """
-        Function that renders a players screen
+        Function that makes modifications to  a player's screen
+        before updating
     """
 
     # reset cards at the end of the round
@@ -1057,7 +1063,7 @@ class Game(tk.Frame):
             self.raise_slider.config(to=int(0))
         else:
             # If we constraint from to min_bet in cases w
-            self.raise_slider.config(from_=int(1))
+            self.raise_slider.config(from_=int(0))
             self.raise_slider.config(to=int(bal - (min_bet - inv)))
 
         # Enable the buttons only if it is our turn
@@ -1114,8 +1120,8 @@ class Game(tk.Frame):
         self.pot_label.place(x=890, y=300)
 
         self.min_bet_text.set(str(player_dict_get('minimumBet')))
-        self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text, bg="#FFFFFF", font=("Verdana", "35"))
-        self.min_bet_label.place(x=280, y=190)
+        self.min_bet_label = tk.Label(self, textvariable=self.min_bet_text, bg="#FFFFFF", font=("Verdana", "30"))
+        self.min_bet_label.place(x=285, y=190)
 
         self.round_num_text.set('Round: ' + str(game_info_get('round_num')))
         self.round_num_label = tk.Label(self, textvariable=self.round_num_text, bg="#008040",
@@ -1133,7 +1139,13 @@ class Game(tk.Frame):
         # Update call/check text
         self.call_check_text.set(player_dict_get('checkOrCall'))
         if self.call_check_text.get() == "Call":
+            call_amount_int = int(player_dict_get("minimumBet")) - int(player_dict_get("investment"))
             call_amount = str(int(player_dict_get("minimumBet")) - int(player_dict_get("investment")))
+
+
+            if call_amount_int >= int(player_dict_get("balance")):
+                call_amount = str(player_dict_get("balance"))
+
             self.call_check_text.set("Call " + call_amount)
 
         if game_info_get('flop'):
@@ -1169,8 +1181,11 @@ def main():
     app.mainloop()
 
 
+
 if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt as e:
         sys.exit(0)
+    except:
+        pass
