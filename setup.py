@@ -28,6 +28,7 @@ setup(
         'console_scripts': [
             'gatorholdem=GatorHoldEm.SocketIOClient:main',
             'gatorholdemserver=GatorHoldEm.SocketIOServer:main',
+            'gatorholdemsetup=GatorHoldEm.GetAiToWork:main'
         ],
     },
     classifiers=[
