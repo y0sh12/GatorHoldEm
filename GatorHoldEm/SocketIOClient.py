@@ -777,7 +777,8 @@ class Game(tk.Frame):
 
         # raise amount slider
         self.raise_slider = tk.Scale(self, from_=0, to=200, orient='horizontal', state='disabled', bg="#ffcf2b",
-                                     resolution=5, activebackground="#dab22a", command=self.set_raise_val)
+                                     troughcolor = "#b9951b", resolution=5, activebackground="#dab22a", command=self.set_raise_val)
+
 
         self.raise_slider.place(x=1026, y=680, width=230, height=40)
         # self.raise_slider.pack()
