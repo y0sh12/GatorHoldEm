@@ -133,8 +133,9 @@ def on_event():
 @sio.on('game_ended')
 def on_event(message):
     game_info_set("game_ended", True)
+    game_info_set('up', True)
     print("Game ended")
-    sio.disconnect()
+    # sio.disconnect()
 
 
 @sio.on('your_turn')
@@ -216,9 +217,10 @@ def on_event(board_info):
 def on_event(message):
     print(message)
     game_info_set('message_received', True)
+    game_info_set('display_message', message)
     if message == "Game Starting...":
         player_dict_set('running', True)
-    game_info_set('display_message', message)
+
 
 
     if 'has won the pot' in message:

@@ -233,7 +233,7 @@ class Table:
         for v in values:
             value_counts[v] += 1
         if sorted(value_counts.values()) == [1, 4]:
-            return [True, 4 * sorted(value_counts.keys()[1])]
+            return [True, 4 * sorted(value_counts.keys())[1]]
         return [False, None]
 
     def check_full_house(self, hand):

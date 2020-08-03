@@ -104,6 +104,7 @@ def disconnect(sid):
 
         Go through the player list and count how many players are self._bankrupt
     """
+    print("Disconnect() called")
     room = find_room(sid)
     if room is not None:
         player_list = room.get_player_list()
@@ -120,6 +121,7 @@ def disconnect(sid):
         if room.game_in_progress:
             # Make the player who disconnected inactive
 
+            # TODO
             # Count inactive players
             inactive_players = sum([1 for p in room.get_player_list() if p.bankrupt])
             # If number of active players in the room is less than or equal to 1, delete room
@@ -128,13 +130,14 @@ def disconnect(sid):
                 return
         else:
             # We are in lobby
-
+            print("We are not in a game")
             is_vip_ = player.is_vip
             # Remove diconnecting player
             room.remove_player(player)
 
             # count ai players in room
             ai_players = sum([1 for p in room.get_player_list() if p.AI == True])
+
 
             # If player disconnecting is vip
             if is_vip_:
@@ -243,7 +246,7 @@ def leave_room(sid):
 @sio.on('start_game')
 def start_game(sid, room_id):
     room = next((room for room in roomList if room.room_id == room_id), None)
-    if room.game_in_progress:
+    if room is not None and room.game_in_progress:
         return
 
     room.game_in_progress = True
@@ -374,9 +377,9 @@ def start_game(sid, room_id):
     sio.emit('game_ended', "The game has ended.", room=room.room_id)
 
     #Disconnect all clients
-    for player in room.get_player_list():
-        if not player.AI:
-            sio.disconnect(player.get_client_number)
+    # for player in room.get_player_list():
+    #     if not player.AI:
+    #         sio.disconnect(player.get_client_number)
 
 
 
@@ -413,14 +416,13 @@ def game_loop(room, num_raises=0):
             # print("AI CARD 2: ", player.hand[1].rank, player.hand[1].suit)
             # print("AI Check - 1", check - 1)
             option = player.make_choice(num_of_opponents, player.hand, table.visible_cards, table.pot, table.minimum_bet - player.investment, player.investment)
-            time.sleep(1)
             # print("The player was able to make a choice ")
             pass
         else:
             try:
                 option = sio.call(event='your_turn', data=info, sid=player.get_client_number())
             except:
-                print("timed out")
+                print("Client failed to respond")
                 if is_check:
                     sio.emit('message', str(player.name) + " has been forced to check", room = room.room_id)
                     option = 1
