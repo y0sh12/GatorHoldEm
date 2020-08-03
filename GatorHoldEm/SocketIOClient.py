@@ -882,9 +882,9 @@ class Game(tk.Frame):
         if game_info_get('update_tokens'):
             self._place_tokens()
             game_info_set('update_tokens', False)
+        # Check to display winning button
         if game_info_get('game_ended'):
-            pass
-            # TODO Display button to go back to main menu
+            self.winning_button.place(x=550, y=250)
 
         if game_info_get('message_received'):
             game_info_set('message_received', False)
@@ -1017,9 +1017,9 @@ class Game(tk.Frame):
         # Disable start
         self.button.config(state='disabled')
 
-        # Check to display winning button
-        if game_info_get('game_ended'):
-            self.winning_button.place(x=550, y=250)
+        # # Check to display winning button
+        # if game_info_get('game_ended'):
+        #     self.winning_button.place(x=550, y=250)
 
         # Check to see if HandRankings is open
         if game_info_get('showing_rules') is False:

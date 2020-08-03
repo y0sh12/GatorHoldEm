@@ -561,6 +561,11 @@ def game_loop(room, num_raises=0):
                 table._last_action = prev
             table.next_player()
             break
+        # delay = 0
+        # for i in range(100):
+        #     for j in range(1000):
+        #         for k in range(1000):
+        #             delay = i
 
         table.next_player()  # ++player
 
