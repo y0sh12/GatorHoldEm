@@ -156,6 +156,7 @@ def disconnect(sid):
                         if not p.AI:
                             p.is_vip = True
                             # print("We have a new vip: ", p)
+                            sio.emit('vip', room=p.get_client_number())
                             break
 
         ai_players = sum([1 for p in room.get_player_list() if p.AI == True])
@@ -203,11 +204,14 @@ def remove_player(sid, data):
         if player is not None:
             if player.AI is False:
                 client_id = player.get_client_number()
-                sio.disconnect(client_id)
+                if client_id == sid:
+                    return True
+                else:
+                    sio.disconnect(client_id)
+                    return False
             else:
                 room.remove_player(player)
-                # player_list.remove(player)
-                # room.set_player_list(player_list)
+                return False
 
 
 @sio.on('my_name')
