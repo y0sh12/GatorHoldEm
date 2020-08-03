@@ -534,6 +534,22 @@ class Lobby(tk.Frame):
 
         # If player is not vip hide start game button
         if not player_dict_get('vip'):
+
+            self.lobby_title.grid_remove()
+            self.help.grid_remove()
+            self.wait.grid_remove()
+
+            self.lobby_title.place(x=633, y=0)
+            self.update()
+            self.lobby_title.place(x=633-self.lobby_title.winfo_width()/2, y=0)
+
+            self.wait.place(x=400, y=600)
+            self.help.place(x=340, y=650)
+
+            for index, label in enumerate(self.current_lobby_list):
+                self.player_list_frame[index].grid_remove()
+                self.player_list_frame[index].place(x=440, y=65*(index+2))
+
             self.start_the_game.grid_remove()
             self.ai_button.grid_remove()
             self.help_text.set("The first player to join has the ability to start the game.")
@@ -542,9 +558,9 @@ class Lobby(tk.Frame):
             self.help_text.set("Since you are the first player to join, you are the VIP player. " \
                                "Press the Start Game button \nonce all the players have joined.")
 
-        self.update()
+        self.updates()
 
-    def update(self):
+    def updates(self):
         if player_dict_get('running'):
             if self.in_lobby:
                 self.handle_submit()
@@ -582,8 +598,10 @@ class Lobby(tk.Frame):
                 print("You're in the lobby but you're disconnected")
                 self.back_to_menu()
 
+        print("label width", self.lobby_title.winfo_width())
+
         # Call this function again in three seconds
-        self.after(2000, self.update)
+        self.after(2000, self.updates)
 
     def handle_submit(self):
         if player_dict_get('room_list_len') < 2:
@@ -728,7 +746,7 @@ class Game(tk.Frame):
 
         # Hand Rankings Image
         image = Image.open(game_info_get('cwd') + "/res/Rankings.png")
-        image = image.resize((700, 900), Image.ANTIALIAS)  ## The (250, 250) is (height, width)
+        image = image.resize((700, 900), Image.ANTIALIAS)
 
         self.hand_rankings_image = ImageTk.PhotoImage(image)
 

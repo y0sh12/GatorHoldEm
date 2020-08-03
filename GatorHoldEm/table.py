@@ -75,12 +75,12 @@ class Table:
         self._current_player = next(self._current_player_gen_obj)
 
     # Alternative create a new table every time we have a new game.
-    # TODO TEST NOT BEING CALLED YET, Called a new game
+    # Calle a new game
     def new_game(self):
-        # TODO Add function that creates a new list of players based on who's still in the room
-        # TODO Reset self._dealer_gen_obj and self._current_player_gen_obj
-        # TODO Set everyone's balance to $500
-        # TODO Set self._bankrupt = False
+        # Add function that creates a new list of players based on who's still in the room
+        # Reset self._dealer_gen_obj and self._current_player_gen_obj
+        # Set everyone's balance to $500
+        # Set self._bankrupt = False
 
         self._visible_cards = []
         self._minimumBet = 50
