@@ -1,12 +1,13 @@
 import copy
 import sys
-
+import os
 import eventlet
 import socketio
-from player import Player
-from room import Room
-from table import Table
-from ai import AI
+import pathlib
+from .player import Player
+from .room import Room
+from .table import Table
+from .ai import AI
 import time
 import random
 import string
@@ -481,9 +482,19 @@ def show(room):
             p.change_balance(split)
             sio.emit('message', str(p) + "has won a split of the pot: $" + str(split) + "\n", room=room.room_id)
 
-
-if __name__ == '__main__':
+def main():
     try:
+        temp = os.getcwd()
+        cwd = str(pathlib.Path(__file__).parent.resolve())
+        if not os.path.exists(cwd + "/res/HandRanks.dat"):
+            os.chdir(cwd)
+            os.system("python3 AiInstallation.py")
+
+        os.chdir(temp)
         eventlet.wsgi.server(eventlet.listen(('', 5000)), app)
     except KeyboardInterrupt as e:
         sys.exit(0)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,10 +1,12 @@
 from ctypes import *
-from deck import Deck 
-from table import Table
-from player import Player
-from card import Card
+from .deck import Deck
+from .table import Table
+from .player import Player
+from .card import Card
 import timeit
 from random import randint
+import os
+import pathlib
 
 class AI(Player):
     def __init__(self, client_number, is_vip=False, name="AI BOT", ai_bot_bool=True):
@@ -31,7 +33,11 @@ class AI(Player):
          return (hand_strength * pot) - ((1-hand_strength) * min_bet)
 
     def make_choice(self, num_opponents, hole_cards, community_cards, pot, min_bet, investment):
+        temp = os.getcwd()
+        cwd = str(pathlib.Path(__file__).parent.resolve())
+        os.chdir(cwd)
         self._lib.InitTheEvaluator()
+        os.chdir(temp)
         self._deck.reset()
 
         t_hole_cards = []
@@ -99,7 +105,11 @@ class AI(Player):
 
 
     def load_ai_lib(self):
+        temp = os.getcwd()
+        cwd = str(pathlib.Path(__file__).parent.resolve())
+        os.chdir(cwd)
         lib = cdll.LoadLibrary("./libai.so")
+
         lib.InitTheEvaluator.restype = c_int
         lib.InitTheEvaluator.argtypes = None
 
@@ -111,4 +121,6 @@ class AI(Player):
 
         lib.HandStrength.restype = c_double
         lib.HandStrength.argtype = [POINTER(c_int), c_int, POINTER(c_int), c_int, c_int]
+
+        os.chdir(temp)
         return lib

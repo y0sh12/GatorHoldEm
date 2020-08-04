@@ -1,0 +1,3 @@
+include GatorHoldEm/res/*
+include GatorHoldEm/ai.cpp
+include GatorHoldEm/CMakeLists.txt

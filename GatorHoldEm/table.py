@@ -1,5 +1,5 @@
-from deck import Deck
-from player import Player
+from .deck import Deck
+from .player import Player
 from collections import defaultdict
 from itertools import combinations
 
