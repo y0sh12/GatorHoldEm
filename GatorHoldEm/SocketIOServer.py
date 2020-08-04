@@ -30,7 +30,6 @@ def on_event(sid, room_id):
     if room is None:
         print("room does not exist")
         return None
-    # print(room.get_player_list())
     pl_list = []
     for pl in room.get_player_list():
         if pl.AI:
@@ -43,27 +42,8 @@ def on_event(sid, room_id):
             temp_pl = copy.deepcopy(pl)
 
         temp_pl.hand = []
-        # if temp_pl.AI:
-        # temp_pl.deck = []
         pl_list.append(temp_pl.__dict__)
     return pl_list
-
-
-# @sio.on('active_player_list')
-# def on_event(sid, room_id):
-#     room = next((room for room in roomList if room.room_id == room_id), None)
-#     if room is None:
-#         print("room does not exist")
-#         return None
-#     print(room.get_player_list())
-#     pl_list = []
-#     for pl in room.get_player_list():
-#         temp_pl = copy.deepcopy(pl)
-#         temp_pl.hand = []
-#         # if temp_pl.AI:
-#         #     temp_pl.deck = []
-#         pl_list.append(temp_pl.__dict__)
-#     return pl_list
 
 
 @sio.on('in_room')
@@ -86,7 +66,6 @@ def add_bot(sid, room_id):
     room = next((room for room in roomList if room.room_id == room_id), None)
     sample = string.ascii_lowercase + string.digits
     ai_code = ''.join(random.choice(sample) for i in range(32))
-    print("Code generated for ai is", ai_code)
     ai_player = AI(ai_code, False, "AI BOT", True)
     ai_player._connected = False
     room.add_player(ai_player)
@@ -96,17 +75,6 @@ def add_bot(sid, room_id):
 @sio.event
 def disconnect(sid):
     # If everyone disconnects empty the room of players and delete room for roomList
-    """
-    On a disconnect
-    Condition room.game_in_progress = False, delete from list of players,
-        check if len(list_of_players) == 0 , then delete room
-    Condition room.game_in_progress = True,
-        Find out which client id disconnected then find the player in the list
-        set player._bankrupt = True, balance = 0 and self._isFolded = True
-
-        Go through the player list and count how many players are self._bankrupt
-    """
-    print("Disconnect() called")
     room = find_room(sid)
     if room is not None:
         player_list = room.get_player_list()
@@ -117,9 +85,6 @@ def disconnect(sid):
         player.declare_bankrupt()
         player._connected = False
 
-        # ai_players = sum([1 for p in room.get_player_list() if p.AI == True])
-        # inactive_players = sum([1 for p in room.get_player_list() if p.bankrupt])
-        # Inactive player has balance = 0 and investment = 0
         # If game in progress, just make sure that there are at least two active players
         if room.game_in_progress:
             pass
@@ -167,31 +132,6 @@ def disconnect(sid):
 
         print('disconnect', sid)
 
-        # player_vip = False
-        # if player is not None:
-        #     player_vip = player.is_vip
-        #     player_list.remove(player)
-        #     sio.emit('user_disconnect', (player.get_name() + " has left the room!"), room=room.room_id, skip_sid=sid)
-        # present, first_dude = non_ai_fellow_present(player_list)
-        # if player_vip and present:
-        #     first_dude.is_vip = True
-        #     sio.emit('vip', room=first_dude.get_client_number())
-        #     print(player.__dict__)
-        #     room.set_player_list(player_list)
-        # else:
-
-
-# def non_ai_fellow_present(player_list):
-#     present = True;
-#     first_dude = None
-#     for player in player_list:
-#         if player.AI is False:
-#             present = True
-#             if first_dude is None:
-#                 first_dude = player
-#     return present, first_dude
-
-
 
 @sio.on('remove_player')
 def remove_player(sid, data):
@@ -223,10 +163,7 @@ def on_event(sid, name, room_id):
         sio.emit('vip', room=sid)
     else:
         room.add_player(Player(sid, False, name))
-    # TODO COMMENT OUT NEXT 3 LINES
-    print("Current Players in room are: ", end='')
-    for p in room.get_player_list():
-        print(p, end=' ')
+
     sio.emit('user_connection', (name + " has joined the room!"), room=room_id, skip_sid=sid)
 
 
@@ -236,9 +173,7 @@ def goto_room(sid, room_id):
     if find_room is None:
         roomList.append(Room(room_id))
         find_room = roomList[-1]
-    # TODO COMMENT OUT NEXT 2 LINES
-    print(find_room.room_id)
-    print(find_room.get_player_list())
+
     if len(find_room.get_player_list()) < 6 and find_room.game_in_progress is False:
         sio.enter_room(sid, room_id)
         print(sid, "joined room", room_id)
@@ -281,17 +216,8 @@ def start_game(sid, room_id):
         else:
             table.new_round()
             sio.emit('new_hand')
-            # sio.emit('message', "Round: " + str(Table.theRound), room=room.room_id)
             table.distribute_cards()
-            """
-                SHOW TEST
-                players[0] = [Card()]
-                players[1]
 
-                Comment out 
-                table.distribute_cards()
-
-            """
             small_blind = str(table.small_blind.get_client_number())
             big_blind = str(table.big_blind.get_client_number())
             dealer = str(table.dealer.get_client_number())
@@ -300,28 +226,14 @@ def start_game(sid, room_id):
 
             #
             for player in room.get_player_list():
-                # print("We have emitted the hand of ", player)
                 if not player.bankrupt:
                     card_string = str(player.hand[0]), str(player.hand[1])
                     sio.emit('emit_hand', card_string, room=player.get_client_number())
-            # print("Emitted the AI")
-            # sio.emit('message', dealer, room=room.room_id)
-            # sio.emit('message', small_blind, room=room.room_id)
-            # sio.emit('message', big_blind, room=room.room_id)
-            # sio.emit('message', minbet, room=room.room_id)
+
             sio.emit('board_init_info', [dealer, small_blind, big_blind, min_bet, round_num], room=room.room_id)
-            # print("sent the ai game info")
             if not game_loop(room):
                 continue
-            # print('Exited first loop')
-            # sio.emit('message', "         THE FLOP         ", room=room.room_id)
-            """
-            SHOW TEST
-            table.add_to_visible_cards(Card())
-            table.skip_to_show = True
 
-            Comment out below code
-            """
             table._deck.pick_card()  # the burn card
             table.add_to_visible_cards(table._deck.pick_card())
             table.add_to_visible_cards(table._deck.pick_card())  # The FLOP - three cards
@@ -353,7 +265,6 @@ def start_game(sid, room_id):
                 if not game_loop(room):
                     continue
 
-            # sio.emit('message', "         THE TURN         ", room=room.room_id)
             table._deck.pick_card()  # the burn card
             table.add_to_visible_cards(table._deck.pick_card())  # The TURN - one card
             visibleCards += " " + str(table._visible_cards[3])
@@ -363,7 +274,6 @@ def start_game(sid, room_id):
                 if not game_loop(room):
                     continue
 
-            # sio.emit('message', "         THE RIVER         ", room=room.room_id)
             table._deck.pick_card()  # the burn card
             table.add_to_visible_cards(table._deck.pick_card())  # The RIVER - one card
             visibleCards += " " + str(table._visible_cards[4])
@@ -390,11 +300,6 @@ def start_game(sid, room_id):
     room.game_in_progress = False
     sio.emit('game_ended', "The game has ended.", room=room.room_id)
 
-    #Disconnect all clients
-    # for player in room.get_player_list():
-    #     if not player.AI:
-    #         sio.disconnect(player.get_client_number)
-
 
 
 def find_room(sid):
@@ -415,27 +320,17 @@ def game_loop(room, num_raises=0):
     # number of opponents
     num_of_opponents = check - 1
 
-    # print("About to enter True LOop")
     while True:
         player = table.current_player
         is_check = True if player.investment == table.minimum_bet else False
         checkOrCall = "Check" if is_check else "Call"
-        # print("About to get player info")
         info = str(player.balance), str(player.investment), str(table.minimum_bet), str(checkOrCall)
         sio.emit('which_players_turn', [player.get_client_number(), str(table.minimum_bet)], room=room.room_id)
-        # print("Checking if player is AI")
         if player.AI:
-            # print("The player is Artificially Intelligent")
-            # print("AI CARD 1: ", player.hand[0].rank, player.hand[0].suit)
-            # print("AI CARD 2: ", player.hand[1].rank, player.hand[1].suit)
-            # print("AI Check - 1", check - 1)
             option = player.make_choice(num_of_opponents, player.hand, table.visible_cards, table.pot, table.minimum_bet - player.investment, player.investment)
-            # print("The player was able to make a choice ")
             pass
         else:
             try:
-                # TODO
-                # option = sio.call(event='your_turn', data=info, sid=player.get_client_number(), timeout = 300) Sets timeout to 5 minutes
                 option = sio.call(event='your_turn', data=info, sid=player.get_client_number(), timeout = 300)
             except:
                 print("Client failed to respond")
@@ -450,7 +345,6 @@ def game_loop(room, num_raises=0):
         if int(option) == 1:
             # Going all in because cannot match table bet
             if table.minimum_bet >= player.balance + player.investment:
-                # sio.emit('message', 'You are going all in!\n', room=player.get_client_number())
                 sio.emit('message', str(player.name) + " is going all in!", room = room.room_id)
                 table.add_to_pot(player.balance)
                 player.add_investment(player.balance)
@@ -467,14 +361,6 @@ def game_loop(room, num_raises=0):
             check -= 1
 
         if int(option) == 2:
-            # if last action player's last action is to fold we should end the round there.
-            # 2 active players??
-
-            # -TO-DO- change_last_action player, point to previous person before dealer if dealer folds
-            # -TO-DO- after flop, if last_action player folds on his last action.
-
-            # If there are only 2 other active players remaining then code should not run
-
             if player == table.last_action:
 
                 # modify last action to player to the right.
@@ -509,7 +395,7 @@ def game_loop(room, num_raises=0):
                 else:
                     _raise = sio.call(event='raise', data=ask, sid=player.get_client_number())
                 if int(_raise) > player.balance:
-                    sio.emit('message', "You ain't a millionaire, try a smaller raise", room=player.get_client_number())
+                    # sio.emit('message', "You ain't a millionaire, try a smaller raise", room=player.get_client_number())
                     error += 1
                 else:
                     sio.emit('message', str(player.name) + " has raised by $" + str(_raise), room = room.room_id)
@@ -555,11 +441,6 @@ def game_loop(room, num_raises=0):
                 table._last_action = prev
             table.next_player()
             break
-        # delay = 0
-        # for i in range(100):
-        #     for j in range(1000):
-        #         for k in range(1000):
-        #             delay = i
 
         table.next_player()  # ++player
 
@@ -568,7 +449,6 @@ def game_loop(room, num_raises=0):
 
 def show(room):
     sio.emit('round_ended')
-    # sio.emit('message', 'THE FINAL SHOWDOWN', room=room.room_id)
 
     table = room.get_Table()
     for player in room.get_player_list():
@@ -600,7 +480,6 @@ def show(room):
         for p in ties_with_max:
             p.change_balance(split)
             sio.emit('message', str(p) + "has won a split of the pot: $" + str(split) + "\n", room=room.room_id)
-            # time.sleep(0.5)
 
 
 if __name__ == '__main__':

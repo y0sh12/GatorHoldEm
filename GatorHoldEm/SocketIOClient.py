@@ -349,13 +349,6 @@ class GatorHoldEm(tk.Tk):
         frame.init_update()
         frame.tkraise()
 
-    # def on_closing(self):
-    #     if messagebox.askokcancel("Quit", "Do you want to quit?"):
-    #         if sio.connected:
-    #             sio.disconnect()
-    #         self.destroy()
-    #         quit()
-
 
 class MainMenu(tk.Frame):
     def __init__(self, parent, controller):
@@ -417,9 +410,6 @@ class MainMenu(tk.Frame):
 
         # Server call to create new player and join/create room, error handling
 
-        # sio.emit('goto_room', player_dict_get('room_name'))
-        # print(player_dict_get('in_a_room'))
-
         sio.emit('goto_room', player_dict_get('room_name'))
         room_members = sio.call(event='active_player_list', data=player_dict_get('room_name'))
         in_room = sio.call(event='in_room', data=[player_dict_get('name'), player_dict_get('room_name')])
@@ -427,7 +417,6 @@ class MainMenu(tk.Frame):
         # If successful, update room members and display lobby page
         # If failed, display error message
 
-        # if player_dict_get('in_a_room'):
         if in_room:
             update_room_list()
             self.controller.show_frame(Lobby)
@@ -483,13 +472,9 @@ class Lobby(tk.Frame):
             self.remove_player_list[index].grid(column=0, row=0)
 
             self.player_list_frame[index].grid(column=1, row=index + 1, pady=15)
-            # self.player_list_frame[index].grid_columnconfigure(0, weight=5)
+
             self.player_list_frame[index].grid_columnconfigure(1, minsize=100)
             self.player_list_frame[index].grid_columnconfigure(0, minsize=100)
-            # self.label_list[index] = tk.Label(self, textvariable=player_list[index],
-            #                                   font=("Verdana", "20")).pack(pady=15)
-            # self.label_list[index] = tk.Label(self, textvariable=player_list[index], bg="#c9efd3",
-            #                                  font=("Verdana", "20")).pack(pady=15)
 
         # Start the game button
         self.start_the_game = tk.Button(self, activebackground="#00893d", text="Start the Game!", bg="#009944",
@@ -519,8 +504,6 @@ class Lobby(tk.Frame):
 
         self.ai_button.grid(column=1, row=8, pady=5)
 
-        # for index in range(3):
-        #     self.grid_columnconfigure(index, minsize=100)
         self.grid_columnconfigure(0, minsize=100, weight=0)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, minsize=100, weight=0)
@@ -651,8 +634,6 @@ class Lobby(tk.Frame):
             else:
                 print("You're in the lobby but you're disconnected")
                 self.back_to_menu()
-
-        # print("label width", self.lobby_title.winfo_width())
 
         # Call this function again in two seconds
         self.after(2000, self.updates)
@@ -835,11 +816,7 @@ class Game(tk.Frame):
 
 
         self.raise_slider.place(x=1026, y=680, width=230, height=40)
-        # self.raise_slider.pack()
 
-        # Color for current turn
-        # self.curr_player_text = tk.StringVar()
-        # self.curr_player_label = tk.Label(self, textvar=self.curr_player_text, bg = "#008040").place(x=0, y=500, height=25)
 
         # Key
         self.key_image = ImageTk.PhotoImage(Image.open(game_info_get('cwd') + "/res/Key.png"))
@@ -924,7 +901,6 @@ class Game(tk.Frame):
         self.card2_displayed = False
 
         for i in range(5):
-            # self.board_card_image[i]
             self.card_back_label = tk.Label(self, image=self.card_back_image,
                                             bg="black", fg="black").place(x=self.board_card_x[i],
                                                                           y=self.board_card_y[i])
@@ -986,7 +962,6 @@ class Game(tk.Frame):
                     self.update()
                 except  tk.TclError:
                     sys.exit()
-            # print(player_dict_get("card1"))
 
     def back_button_submit(self):
         if messagebox.askyesno("Back to Main Menu", "You will be unable to reconnect to this game. Are you sure?"):
@@ -1045,11 +1020,6 @@ class Game(tk.Frame):
         _inv = "Investment: " + str(self.pl_list[absolute_position]['_investment'])
         self.inv_text[relative_position].set(_inv)
 
-        # self.pl_label[relative_position].place(x=self.pl_x[relative_position], y=self.pl_y[relative_position],
-        #                                        width=self.pl_label_width, height=20)
-        #
-        # self.bal_label[relative_position].place(x=self.pl_x[relative_position], y=self.pl_y[relative_position] + 20,
-        #                                         width=self.bal_label_width, height=20)
 
     """
     Function that loads card images and returns image object
@@ -1094,10 +1064,6 @@ class Game(tk.Frame):
     def update_players(self):
         # Disable start
         self.button.config(state='disabled')
-
-        # # Check to display winning button
-        # if game_info_get('game_ended'):
-        #     self.winning_button.place(x=550, y=250)
 
         # Check to see if HandRankings is open
         if game_info_get('showing_rules') is False:
@@ -1181,13 +1147,6 @@ class Game(tk.Frame):
                                         font=("Verdana", "20", "bold"))
         self.round_num_label.place(x=1130, y=10, width=130, height=35)
 
-        # # WIN THE GAME LABEL
-        # self.won_the_pot_text.set(game_info_get('won_message'))
-        # self.won_the_pot_label = tk.Label(self, textvariable=self.won_the_pot_text, )
-        # self.won_the_pot_label.place(x=0, y=560, height=20)
-
-        # Update player turn
-        # self.curr_player_text.set("Waiting on: " + game_info_get('curr_turn'))
 
         # Update call/check text
         self.call_check_text.set(player_dict_get('checkOrCall'))
@@ -1216,8 +1175,6 @@ class Game(tk.Frame):
 
         self.con.show_frame(Game)
 
-# def update():
-#     print("hi")
 
 
 def main():
